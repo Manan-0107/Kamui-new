@@ -45,7 +45,12 @@ function applyTheme(themeId, notify = false) {
   }
 }
 
+let isCyclingTheme = false;
 function cycleTheme(notify = true) {
+  if (isCyclingTheme) return;
+  isCyclingTheme = true;
+  setTimeout(() => { isCyclingTheme = false; }, 200);
+
   const currentId = getCurrentThemeId();
   const currentIdx = REALM_THEMES.findIndex(t => t.id === currentId);
   const nextIdx = (currentIdx + 1) % REALM_THEMES.length;
@@ -676,13 +681,7 @@ function updateNavAuth() {
   }
 
   // Wire up theme toggle in nav
-  const themeToggleBtn = document.getElementById('themeToggleBtn');
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      cycleTheme(true);
-    });
-  }
+  initThemeSwitchers();
 }
 
 // Close profile dropdown when clicking outside
@@ -698,7 +697,8 @@ document.addEventListener('click', (e) => {
 // ---------- Interactive Hero Moon & Theme Listeners ----------
 function initThemeSwitchers() {
   const heroMoon = document.querySelector('.hero-moon');
-  if (heroMoon) {
+  if (heroMoon && !heroMoon._themeBound) {
+    heroMoon._themeBound = true;
     heroMoon.addEventListener('click', () => {
       cycleTheme(true);
     });
@@ -711,10 +711,13 @@ function initThemeSwitchers() {
   }
 
   document.querySelectorAll('.theme-moon-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      cycleTheme(true);
-    });
+    if (!btn._themeBound) {
+      btn._themeBound = true;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cycleTheme(true);
+      });
+    }
   });
 }
 
@@ -1038,7 +1041,7 @@ if (titleVideo) {
 }
 
 // ---------- Initialize App State & Interceptors ----------
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   applyTheme(getCurrentThemeId(), false);
   ensureAuthModal();
   ensureGoogleAuthModal();
@@ -1046,11 +1049,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initThemeSwitchers();
   initStartWatchingInterceptors();
   initAuthPages();
-});
+}
 
-ensureAuthModal();
-ensureGoogleAuthModal();
-updateNavAuth();
-initThemeSwitchers();
-initStartWatchingInterceptors();
-initAuthPages();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
