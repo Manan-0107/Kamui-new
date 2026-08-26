@@ -2,6 +2,60 @@
 // KAMUI STREAMING PLATFORM - CORE JAVASCRIPT
 // ==========================================
 
+// ---------- Anime Realm Color Themes (Moon Triggered) ----------
+const REALM_THEMES = [
+  { id: 'kamui-gold', name: 'Solar Kamui (Gold)', hues: ['232,185,79', '213,110,58'] },
+  { id: 'blood-moon', name: 'Tsukuyomi (Blood Crimson)', hues: ['244,63,94', '190,18,60'] },
+  { id: 'abyssal-blue', name: 'Celestial Azure (Six Eyes)', hues: ['56,189,248', '2,132,199'] },
+  { id: 'jade-dragon', name: 'Jade Dragon (Emerald)', hues: ['16,185,129', '5,150,105'] },
+  { id: 'void-amethyst', name: 'Void Amethyst (Purple)', hues: ['192,132,252', '147,51,234'] },
+  { id: 'silver-eclipse', name: 'Shinigami Silver (Eclipse)', hues: ['248,250,252', '148,163,184'] }
+];
+
+const THEME_STORAGE_KEY = 'kamui_theme';
+
+function getCurrentThemeId() {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY) || 'kamui-gold';
+  } catch (e) {
+    return 'kamui-gold';
+  }
+}
+
+function applyTheme(themeId, notify = false) {
+  const target = REALM_THEMES.find(t => t.id === themeId) || REALM_THEMES[0];
+  document.documentElement.setAttribute('data-theme', target.id);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, target.id);
+  } catch (e) {}
+
+  if (window.__updateParticleHues) {
+    window.__updateParticleHues(target.hues);
+  }
+
+  const moon = document.querySelector('.hero-moon');
+  if (moon) {
+    moon.classList.remove('pulse');
+    void moon.offsetWidth; // trigger reflow
+    moon.classList.add('pulse');
+  }
+
+  if (notify) {
+    showToast(`✦ Realm shifted to ${target.name}!`, 'info');
+  }
+}
+
+function cycleTheme(notify = true) {
+  const currentId = getCurrentThemeId();
+  const currentIdx = REALM_THEMES.findIndex(t => t.id === currentId);
+  const nextIdx = (currentIdx + 1) % REALM_THEMES.length;
+  const nextTheme = REALM_THEMES[nextIdx];
+  applyTheme(nextTheme.id, notify);
+}
+
+// Early boot application
+applyTheme(getCurrentThemeId(), false);
+
 // ---------- Realistic Anime Female Character Chibi Avatar Presets ----------
 const DEFAULT_AVATARS = [
   { id: 'nami', name: 'Nami', anime: 'One Piece', src: 'avatars/nami.svg' },
@@ -448,7 +502,7 @@ function closeAuthModal() {
   if (overlay) overlay.classList.remove('open');
 }
 
-// ---------- Update Navigation Bar with User Profile & Avatar ----------
+// ---------- Update Navigation Bar with User Profile, Avatar & Moon Theme Switcher ----------
 function updateNavAuth() {
   const user = getAuthUser();
   const navActions = document.querySelector('.nav-actions');
@@ -458,6 +512,12 @@ function updateNavAuth() {
   const isWatchPage = pathname.endsWith('watch.html');
   const isSigninPage = pathname.endsWith('signin.html');
   const isSignupPage = pathname.endsWith('signup.html');
+
+  const themeBtnHtml = `
+    <button type="button" class="theme-moon-btn" id="themeToggleBtn" title="Shift Realm Theme (Click to cycle colors)" aria-label="Shift realm theme">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  `;
 
   if (user && user.loggedIn) {
     const currentAvatar = user.avatar || 'avatars/nami.svg';
@@ -472,6 +532,7 @@ function updateNavAuth() {
     `).join('');
 
     navActions.innerHTML = `
+      ${themeBtnHtml}
       <div class="nav-profile-wrap" id="navProfileWrap">
         <button type="button" class="nav-profile-btn" id="navProfileBtn" aria-label="Open profile menu" aria-expanded="false">
           <img class="nav-avatar-img" id="navAvatarImg" src="${currentAvatar}" alt="${user.name || 'Profile'}">
@@ -589,25 +650,38 @@ function updateNavAuth() {
   } else {
     if (isSigninPage) {
       navActions.innerHTML = `
+        ${themeBtnHtml}
         <a href="signup.html" class="link-cta">Sign up</a>
         <a href="index.html" class="btn filled">Home</a>
       `;
     } else if (isSignupPage) {
       navActions.innerHTML = `
+        ${themeBtnHtml}
         <a href="signin.html" class="link-cta">Sign in</a>
         <a href="index.html" class="btn filled">Home</a>
       `;
     } else if (isWatchPage) {
       navActions.innerHTML = `
+        ${themeBtnHtml}
         <a href="signin.html" class="link-cta">Sign in</a>
         <a href="index.html" class="btn filled">Home</a>
       `;
     } else {
       navActions.innerHTML = `
+        ${themeBtnHtml}
         <a href="signin.html" class="link-cta">Sign in</a>
         <a href="watch.html" class="btn filled">Start watching</a>
       `;
     }
+  }
+
+  // Wire up theme toggle in nav
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      cycleTheme(true);
+    });
   }
 }
 
@@ -620,6 +694,29 @@ document.addEventListener('click', (e) => {
     if (profileBtn) profileBtn.setAttribute('aria-expanded', 'false');
   }
 });
+
+// ---------- Interactive Hero Moon & Theme Listeners ----------
+function initThemeSwitchers() {
+  const heroMoon = document.querySelector('.hero-moon');
+  if (heroMoon) {
+    heroMoon.addEventListener('click', () => {
+      cycleTheme(true);
+    });
+    heroMoon.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        cycleTheme(true);
+      }
+    });
+  }
+
+  document.querySelectorAll('.theme-moon-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      cycleTheme(true);
+    });
+  });
+}
 
 // ---------- Attach "Start Watching" Auth Interceptors ----------
 function initStartWatchingInterceptors() {
@@ -710,7 +807,7 @@ if (menuToggle && links) {
     const open = links.style.display === 'flex';
     links.style.cssText = open
       ? ''
-      : 'display:flex; position:fixed; inset:70px 0 auto 0; flex-direction:column; gap:0; background:#0a0f18; padding:10px 30px 30px; border-bottom:1px solid rgba(232,185,79,0.14); z-index:99;';
+      : 'display:flex; position:fixed; inset:70px 0 auto 0; flex-direction:column; gap:0; background:var(--night); padding:10px 30px 30px; border-bottom:1px solid var(--line); z-index:99;';
     if (!open) {
       links.querySelectorAll('a').forEach(a => a.style.padding = '14px 0');
     }
@@ -742,6 +839,18 @@ if (canvas) {
   const ctx = canvas.getContext('2d');
   let w, h, particles;
 
+  let currentThemeObj = REALM_THEMES.find(t => t.id === getCurrentThemeId()) || REALM_THEMES[0];
+  let activeHues = currentThemeObj.hues;
+
+  window.__updateParticleHues = (newHues) => {
+    activeHues = newHues;
+    if (particles) {
+      particles.forEach(p => {
+        p.hue = Math.random() > 0.6 ? activeHues[0] : activeHues[1];
+      });
+    }
+  };
+
   function resize() {
     w = canvas.width = canvas.offsetWidth;
     h = canvas.height = canvas.offsetHeight;
@@ -755,7 +864,7 @@ if (canvas) {
       speed: 0.25 + Math.random() * 0.7,
       drift: (Math.random() - 0.5) * 0.4,
       alpha: 0.15 + Math.random() * 0.5,
-      hue: Math.random() > 0.6 ? '232,185,79' : '213,110,58'
+      hue: Math.random() > 0.6 ? activeHues[0] : activeHues[1]
     };
   }
 
@@ -928,16 +1037,20 @@ if (titleVideo) {
   });
 }
 
-// ---------- Initialize App Auth State & Interceptors ----------
+// ---------- Initialize App State & Interceptors ----------
 document.addEventListener('DOMContentLoaded', () => {
+  applyTheme(getCurrentThemeId(), false);
   ensureAuthModal();
   ensureGoogleAuthModal();
   updateNavAuth();
+  initThemeSwitchers();
   initStartWatchingInterceptors();
   initAuthPages();
 });
+
 ensureAuthModal();
 ensureGoogleAuthModal();
 updateNavAuth();
+initThemeSwitchers();
 initStartWatchingInterceptors();
 initAuthPages();

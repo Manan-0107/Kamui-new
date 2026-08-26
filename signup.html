@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700&family=Shippori+Mincho+B1:wght@400;500;600;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<script>(function(){try{var t=localStorage.getItem('kamui_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 </head>
 <body>
 <header class="nav" id="siteNav">
@@ -21,6 +22,9 @@
     <a href="watch.html">Library</a>
   </nav>
   <div class="nav-actions">
+    <button type="button" class="theme-moon-btn" id="themeToggleBtn" title="Shift Realm Theme (Click to cycle colors)" aria-label="Shift realm theme">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
     <a href="signin.html" class="link-cta">Sign in</a>
     <a href="index.html" class="btn filled">Home</a>
   </div>

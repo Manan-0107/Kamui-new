@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="styles.css">
+<script>(function(){try{var t=localStorage.getItem('kamui_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 </head>
 <body>
 
@@ -40,6 +41,9 @@
     <a href="#library">Library</a>
   </nav>
   <div class="nav-actions">
+    <button type="button" class="theme-moon-btn" id="themeToggleBtn" title="Shift Realm Theme (Click to cycle colors)" aria-label="Shift realm theme">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
     <a href="signin.html" class="link-cta">Sign in</a>
     <a href="watch.html" class="btn filled">Start watching</a>
   </div>
@@ -50,7 +54,9 @@
 
 <section class="hero">
   <canvas id="ember-canvas"></canvas>
-  <div class="hero-moon" aria-hidden="true"></div>
+  <div class="hero-moon" id="heroMoon" role="button" tabindex="0" title="Click to shift realm theme" aria-label="Shift realm theme">
+    <span class="moon-hint">✦ Click to Shift Realm</span>
+  </div>
   <div class="hero-mountains" aria-hidden="true">
     <svg viewBox="0 0 1440 400" preserveAspectRatio="none">
       <polygon points="0,400 0,260 180,180 340,240 520,140 700,220 900,150 1080,230 1260,170 1440,240 1440,400" fill="#0d1622"/>
