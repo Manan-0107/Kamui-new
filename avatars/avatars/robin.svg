@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="robinBg" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#192841"/>
+      <stop offset="100%" stop-color="#090f1a"/>
+    </radialGradient>
+    <linearGradient id="robinHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d3436"/>
+      <stop offset="50%" stop-color="#1e272e"/>
+      <stop offset="100%" stop-color="#0a0f18"/>
+    </linearGradient>
+    <linearGradient id="robinSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff0e6"/>
+      <stop offset="100%" stop-color="#fedac2"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Circle -->
+  <circle cx="80" cy="80" r="76" fill="url(#robinBg)" stroke="#6fa8b5" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(111,168,181,0.2)" stroke-width="1"/>
+  
+  <!-- Back Hair -->
+  <path d="M38 68 Q22 100 30 134 Q50 144 80 144 Q110 144 130 134 Q138 100 122 68 Z" fill="url(#robinHair)"/>
+  
+  <!-- Shoulders & Leather Vest -->
+  <path d="M42 138 Q80 126 118 138 L122 156 L38 156 Z" fill="#1b2a4a"/>
+  <path d="M66 132 Q80 140 94 132 L96 156 L64 156 Z" fill="url(#robinSkin)"/>
+  
+  <!-- Head / Face -->
+  <ellipse cx="80" cy="86" rx="33" ry="31" fill="url(#robinSkin)"/>
+  
+  <!-- Sunglasses on head -->
+  <path d="M54 54 Q80 50 106 54 L104 62 Q80 58 56 62 Z" fill="#ff7675"/>
+  <rect x="58" y="56" width="18" height="9" rx="3" fill="#2d3436" stroke="#fab1a0" stroke-width="1"/>
+  <rect x="84" y="56" width="18" height="9" rx="3" fill="#2d3436" stroke="#fab1a0" stroke-width="1"/>
+  
+  <!-- Cute Blush -->
+  <ellipse cx="58" cy="96" rx="6" ry="3" fill="#ff7675" opacity="0.4"/>
+  <ellipse cx="102" cy="96" rx="6" ry="3" fill="#ff7675" opacity="0.4"/>
+  
+  <!-- Deep Blue Anime Eyes -->
+  <!-- Left Eye -->
+  <ellipse cx="64" cy="86" rx="8" ry="10" fill="#0984e3"/>
+  <ellipse cx="64" cy="88" rx="6" ry="7" fill="#74b9ff"/>
+  <circle cx="62" cy="83" r="3" fill="#ffffff"/>
+  <circle cx="66" cy="89" r="1.5" fill="#ffffff"/>
+  <path d="M55 76 Q64 72 73 76" stroke="#2d3436" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- Right Eye -->
+  <ellipse cx="96" cy="86" rx="8" ry="10" fill="#0984e3"/>
+  <ellipse cx="96" cy="88" rx="6" ry="7" fill="#74b9ff"/>
+  <circle cx="94" cy="83" r="3" fill="#ffffff"/>
+  <circle cx="98" cy="89" r="1.5" fill="#ffffff"/>
+  <path d="M87 76 Q96 72 105 76" stroke="#2d3436" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Serene Smile -->
+  <path d="M75 100 Q80 104 85 100" stroke="#b2bec3" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  
+  <!-- Front sleek black bangs -->
+  <path d="M46 62 Q62 52 80 52 Q98 52 114 62 Q118 84 116 102 Q110 98 108 84 Q98 64 80 66 Q62 64 52 84 Q50 98 44 102 Q42 84 46 62 Z" fill="url(#robinHair)"/>
+  
+  <!-- Floating Petal Accent (Hana Hana no Mi) -->
+  <path d="M124 88 Q132 82 128 94 Q120 92 124 88 Z" fill="#fd79a8" opacity="0.85"/>
+  <path d="M30 92 Q36 86 34 98 Q26 96 30 92 Z" fill="#fd79a8" opacity="0.85"/>
+  
+  <!-- Badge Label -->
+  <rect x="40" y="136" width="80" height="16" rx="8" fill="rgba(10,15,24,0.85)" stroke="#6fa8b5" stroke-width="1"/>
+  <text x="80" y="148" text-anchor="middle" fill="#6fa8b5" font-family="'Outfit', sans-serif" font-size="9" font-weight="700" letter-spacing="0.08em">ROBIN · OP</text>
+</svg>

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="tsunadeBg" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#1b382b"/>
+      <stop offset="100%" stop-color="#08140e"/>
+    </radialGradient>
+    <linearGradient id="tsunadeHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff275"/>
+      <stop offset="50%" stop-color="#fed330"/>
+      <stop offset="100%" stop-color="#f7b731"/>
+    </linearGradient>
+    <linearGradient id="tsunadeSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff8f2"/>
+      <stop offset="100%" stop-color="#fedbc5"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Circle -->
+  <circle cx="80" cy="80" r="76" fill="url(#tsunadeBg)" stroke="#26de81" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(38,222,129,0.2)" stroke-width="1"/>
+  
+  <!-- Twin Blonde Low Ponytails -->
+  <path d="M36 80 Q16 110 24 140 Q40 144 48 126 Q40 100 44 80 Z" fill="url(#tsunadeHair)"/>
+  <path d="M124 80 Q144 110 136 140 Q120 144 112 126 Q120 100 116 80 Z" fill="url(#tsunadeHair)"/>
+  
+  <!-- Green Haori Coat & Grey Top -->
+  <path d="M40 136 Q80 120 120 136 L124 156 L36 156 Z" fill="#20bf6b"/>
+  <path d="M60 126 L80 142 L100 126 L102 156 L58 156 Z" fill="#d1d8e0"/>
+  <path d="M68 128 L80 140 L92 128 L94 156 L66 156 Z" fill="url(#tsunadeSkin)"/>
+  <!-- Hokage Necklace (Blue Gem) -->
+  <polygon points="80,140 76,146 80,152 84,146" fill="#2bcbba" stroke="#fed330" stroke-width="1"/>
+  
+  <!-- Head / Face -->
+  <ellipse cx="80" cy="86" rx="33" ry="31" fill="url(#tsunadeSkin)"/>
+  
+  <!-- Byakugou Violet Seal on Forehead -->
+  <polygon points="80,56 83,61 80,66 77,61" fill="#4b134f"/>
+  
+  <!-- Confident Blush -->
+  <ellipse cx="58" cy="95" rx="6.5" ry="3" fill="#ff7675" opacity="0.4"/>
+  <ellipse cx="102" cy="95" rx="6.5" ry="3" fill="#ff7675" opacity="0.4"/>
+  
+  <!-- Amber/Hazel Eyes -->
+  <!-- Left Eye -->
+  <ellipse cx="64" cy="85" rx="8.5" ry="10" fill="#b7791f"/>
+  <ellipse cx="64" cy="87" rx="6.5" ry="7" fill="#d69e2e"/>
+  <circle cx="61.5" cy="82" r="3.2" fill="#ffffff"/>
+  <circle cx="66" cy="88" r="1.5" fill="#ffffff"/>
+  <path d="M55 75 Q64 70 73 75" stroke="#744210" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- Right Eye -->
+  <ellipse cx="96" cy="85" rx="8.5" ry="10" fill="#b7791f"/>
+  <ellipse cx="96" cy="87" rx="6.5" ry="7" fill="#d69e2e"/>
+  <circle cx="93.5" cy="82" r="3.2" fill="#ffffff"/>
+  <circle cx="98" cy="88" r="1.5" fill="#ffffff"/>
+  <path d="M87 75 Q96 70 105 75" stroke="#744210" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Confident Smile with red lipstick -->
+  <path d="M74 100 Q80 106 86 100" stroke="#c0392b" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Front parted long bangs -->
+  <path d="M46 62 Q60 52 74 54 Q68 76 56 94 Q48 84 46 62 Z" fill="url(#tsunadeHair)"/>
+  <path d="M114 62 Q100 52 86 54 Q92 76 104 94 Q112 84 114 62 Z" fill="url(#tsunadeHair)"/>
+  
+  <!-- Badge Label -->
+  <rect x="36" y="136" width="88" height="16" rx="8" fill="rgba(10,15,24,0.85)" stroke="#26de81" stroke-width="1"/>
+  <text x="80" y="148" text-anchor="middle" fill="#26de81" font-family="'Outfit', sans-serif" font-size="9" font-weight="700" letter-spacing="0.08em">TSUNADE · NARUTO</text>
+</svg>

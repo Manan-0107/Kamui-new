@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="sakuraBg" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#3d1e2e"/>
+      <stop offset="100%" stop-color="#140a10"/>
+    </radialGradient>
+    <linearGradient id="sakuraHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff9ff3"/>
+      <stop offset="50%" stop-color="#f368e0"/>
+      <stop offset="100%" stop-color="#d93b9b"/>
+    </linearGradient>
+    <linearGradient id="sakuraSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff5f5"/>
+      <stop offset="100%" stop-color="#fedbd0"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Circle -->
+  <circle cx="80" cy="80" r="76" fill="url(#sakuraBg)" stroke="#ff7675" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(255,118,117,0.2)" stroke-width="1"/>
+  
+  <!-- Red Headband in hair -->
+  <path d="M46 64 Q80 48 114 64 L118 72 Q80 54 42 72 Z" fill="#d63031"/>
+  
+  <!-- Back Hair (Short bob) -->
+  <path d="M40 70 Q28 92 34 118 Q50 126 80 126 Q110 126 126 118 Q132 92 120 70 Z" fill="url(#sakuraHair)"/>
+  
+  <!-- Crimson Qipao / Top -->
+  <path d="M42 136 Q80 124 118 136 L122 156 L38 156 Z" fill="#c0392b"/>
+  <path d="M66 130 Q80 140 94 130 L96 156 L64 156 Z" fill="url(#sakuraSkin)"/>
+  <circle cx="80" cy="144" r="5" fill="#ffffff" stroke="#c0392b" stroke-width="1"/>
+  
+  <!-- Head / Face -->
+  <ellipse cx="80" cy="86" rx="33" ry="31" fill="url(#sakuraSkin)"/>
+  
+  <!-- Byakugou Diamond Mark on forehead (Centred) -->
+  <polygon points="80,58 83,63 80,68 77,63" fill="#8e44ad"/>
+  
+  <!-- Cute Rosy Blush -->
+  <ellipse cx="58" cy="95" rx="6.5" ry="3" fill="#ff7675" opacity="0.45"/>
+  <ellipse cx="102" cy="95" rx="6.5" ry="3" fill="#ff7675" opacity="0.45"/>
+  
+  <!-- Emerald Green Eyes -->
+  <!-- Left Eye -->
+  <ellipse cx="64" cy="85" rx="8.5" ry="10" fill="#10ac84"/>
+  <ellipse cx="64" cy="87" rx="6.5" ry="7" fill="#1dd1a1"/>
+  <circle cx="61.5" cy="82" r="3.2" fill="#ffffff"/>
+  <circle cx="66" cy="88" r="1.5" fill="#ffffff"/>
+  <path d="M55 75 Q64 71 73 75" stroke="#2d3436" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- Right Eye -->
+  <ellipse cx="96" cy="85" rx="8.5" ry="10" fill="#10ac84"/>
+  <ellipse cx="96" cy="87" rx="6.5" ry="7" fill="#1dd1a1"/>
+  <circle cx="93.5" cy="82" r="3.2" fill="#ffffff"/>
+  <circle cx="98" cy="88" r="1.5" fill="#ffffff"/>
+  <path d="M87 75 Q96 71 105 75" stroke="#2d3436" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Cheerful smile -->
+  <path d="M74 100 Q80 106 86 100" stroke="#d63031" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  
+  <!-- Front parted pink bangs -->
+  <path d="M46 62 Q60 52 74 56 Q70 70 54 84 Q48 76 46 62 Z" fill="url(#sakuraHair)"/>
+  <path d="M114 62 Q100 52 86 56 Q90 70 106 84 Q112 76 114 62 Z" fill="url(#sakuraHair)"/>
+  <path d="M46 62 Q36 84 46 104 Q50 94 56 86 Z" fill="url(#sakuraHair)"/>
+  <path d="M114 62 Q124 84 114 104 Q110 94 104 86 Z" fill="url(#sakuraHair)"/>
+  
+  <!-- Cherry Blossom Petals -->
+  <ellipse cx="32" cy="74" rx="4" ry="7" fill="#ff9ff3" transform="rotate(-30 32 74)" opacity="0.8"/>
+  <ellipse cx="128" cy="76" rx="4" ry="7" fill="#ff9ff3" transform="rotate(30 128 76)" opacity="0.8"/>
+  
+  <!-- Badge Label -->
+  <rect x="36" y="136" width="88" height="16" rx="8" fill="rgba(10,15,24,0.85)" stroke="#ff7675" stroke-width="1"/>
+  <text x="80" y="148" text-anchor="middle" fill="#ff7675" font-family="'Outfit', sans-serif" font-size="9" font-weight="700" letter-spacing="0.08em">SAKURA · NARUTO</text>
+</svg>

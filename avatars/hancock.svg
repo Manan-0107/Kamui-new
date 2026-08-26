@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="hancockBg" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#3d1828"/>
+      <stop offset="100%" stop-color="#14060d"/>
+    </radialGradient>
+    <linearGradient id="hancockHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d3436"/>
+      <stop offset="50%" stop-color="#1e272e"/>
+      <stop offset="100%" stop-color="#0a0f18"/>
+    </linearGradient>
+    <linearGradient id="hancockSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff8f3"/>
+      <stop offset="100%" stop-color="#fedccb"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Circle -->
+  <circle cx="80" cy="80" r="76" fill="url(#hancockBg)" stroke="#fd79a8" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(253,121,168,0.2)" stroke-width="1"/>
+  
+  <!-- Back Long Raven Hair (Hime cut style) -->
+  <path d="M34 68 Q18 100 22 138 Q50 146 80 146 Q110 146 138 138 Q142 100 126 68 Z" fill="url(#hancockHair)"/>
+  
+  <!-- Royal Purple & Gold Robe -->
+  <path d="M42 136 Q80 122 118 136 L122 156 L38 156 Z" fill="#6c1d45"/>
+  <path d="M66 128 Q80 138 94 128 L96 156 L64 156 Z" fill="url(#hancockSkin)"/>
+  
+  <!-- Snake Earrings (Gold) -->
+  <path d="M42 90 Q34 94 38 102 Q44 104 46 110" stroke="#f1c40f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <circle cx="42" cy="88" r="2" fill="#e74c3c"/>
+  <path d="M118 90 Q126 94 122 102 Q116 104 114 110" stroke="#f1c40f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <circle cx="118" cy="88" r="2" fill="#e74c3c"/>
+  
+  <!-- Head / Face -->
+  <ellipse cx="80" cy="86" rx="33" ry="31" fill="url(#hancockSkin)"/>
+  
+  <!-- Love Blush / Hearts -->
+  <ellipse cx="58" cy="95" rx="7" ry="3.5" fill="#ff7675" opacity="0.5"/>
+  <ellipse cx="102" cy="95" rx="7" ry="3.5" fill="#ff7675" opacity="0.5"/>
+  
+  <!-- Deep Blue Empress Eyes -->
+  <!-- Left Eye -->
+  <ellipse cx="64" cy="85" rx="8" ry="10" fill="#0984e3"/>
+  <ellipse cx="64" cy="87" rx="6" ry="7" fill="#74b9ff"/>
+  <circle cx="62" cy="82" r="3.2" fill="#ffffff"/>
+  <circle cx="66" cy="88" r="1.5" fill="#ffffff"/>
+  <path d="M55 74 Q64 70 73 74" stroke="#2d3436" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- Right Eye (Heart sparkle or blue eye) -->
+  <ellipse cx="96" cy="85" rx="8" ry="10" fill="#0984e3"/>
+  <ellipse cx="96" cy="87" rx="6" ry="7" fill="#74b9ff"/>
+  <circle cx="94" cy="82" r="3.2" fill="#ffffff"/>
+  <circle cx="98" cy="88" r="1.5" fill="#ffffff"/>
+  <path d="M87 74 Q96 70 105 74" stroke="#2d3436" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Elegant Smile -->
+  <path d="M75 100 Q80 105 85 100" stroke="#d63031" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Front sleek parted bangs -->
+  <path d="M44 60 Q62 50 80 50 Q98 50 116 60 Q122 84 118 108 Q112 108 110 86 Q100 68 80 72 Q60 68 50 86 Q48 108 42 108 Q38 84 44 60 Z" fill="url(#hancockHair)"/>
+  
+  <!-- Mero Mero Love Arrow Heart -->
+  <path d="M126 54 Q132 46 138 52 Q144 58 138 66 L126 76 L114 66 Q108 58 114 52 Q120 46 126 54 Z" fill="#fd79a8" transform="scale(0.35) translate(220, 80)"/>
+  
+  <!-- Badge Label -->
+  <rect x="36" y="136" width="88" height="16" rx="8" fill="rgba(10,15,24,0.85)" stroke="#fd79a8" stroke-width="1"/>
+  <text x="80" y="148" text-anchor="middle" fill="#fd79a8" font-family="'Outfit', sans-serif" font-size="9" font-weight="700" letter-spacing="0.08em">HANCOCK · OP</text>
+</svg>

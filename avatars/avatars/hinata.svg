@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="hinataBg" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#241e3a"/>
+      <stop offset="100%" stop-color="#0b0817"/>
+    </radialGradient>
+    <linearGradient id="hinataHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2b2d42"/>
+      <stop offset="50%" stop-color="#1d1e33"/>
+      <stop offset="100%" stop-color="#0f1021"/>
+    </linearGradient>
+    <linearGradient id="hinataSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff8f0"/>
+      <stop offset="100%" stop-color="#ffe8dc"/>
+    </linearGradient>
+    <linearGradient id="byakuganGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5f6fa"/>
+      <stop offset="60%" stop-color="#dcdde1"/>
+      <stop offset="100%" stop-color="#c8d6e5"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Circle -->
+  <circle cx="80" cy="80" r="76" fill="url(#hinataBg)" stroke="#c7ecee" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(199,236,238,0.2)" stroke-width="1"/>
+  
+  <!-- Back Long Indigo Hair (Hime cut) -->
+  <path d="M36 68 Q20 100 24 136 Q50 144 80 144 Q110 144 136 136 Q140 100 124 68 Z" fill="url(#hinataHair)"/>
+  
+  <!-- Lavender Jacket Outfit -->
+  <path d="M42 136 Q80 124 118 136 L122 156 L38 156 Z" fill="#dcdde1"/>
+  <path d="M50 134 L80 142 L110 134 L114 156 L46 156 Z" fill="#8c7ae6"/>
+  <path d="M68 130 L80 140 L92 130 L94 156 L66 156 Z" fill="#4834d4"/>
+  
+  <!-- Head / Face -->
+  <ellipse cx="80" cy="86" rx="33" ry="31" fill="url(#hinataSkin)"/>
+  
+  <!-- Adorable Rosy Cheeks Blush -->
+  <ellipse cx="56" cy="94" rx="7.5" ry="4" fill="#ff7675" opacity="0.55"/>
+  <line x1="53" y1="92" x2="55" y2="96" stroke="#d63031" stroke-width="1" opacity="0.6"/>
+  <line x1="57" y1="92" x2="59" y2="96" stroke="#d63031" stroke-width="1" opacity="0.6"/>
+  <ellipse cx="104" cy="94" rx="7.5" ry="4" fill="#ff7675" opacity="0.55"/>
+  <line x1="101" y1="92" x2="103" y2="96" stroke="#d63031" stroke-width="1" opacity="0.6"/>
+  <line x1="105" y1="92" x2="107" y2="96" stroke="#d63031" stroke-width="1" opacity="0.6"/>
+  
+  <!-- Signature Byakugan Lavender Pearl Eyes -->
+  <!-- Left Eye -->
+  <ellipse cx="64" cy="85" rx="8.5" ry="10.5" fill="url(#byakuganGrad)"/>
+  <ellipse cx="64" cy="85" rx="7" ry="9" fill="none" stroke="#a4b0be" stroke-width="1"/>
+  <circle cx="64" cy="85" r="3.5" fill="#dfe4ea"/>
+  <circle cx="61.5" cy="82" r="3" fill="#ffffff"/>
+  <path d="M55 75 Q64 71 73 75" stroke="#2b2d42" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- Right Eye -->
+  <ellipse cx="96" cy="85" rx="8.5" ry="10.5" fill="url(#byakuganGrad)"/>
+  <ellipse cx="96" cy="85" rx="7" ry="9" fill="none" stroke="#a4b0be" stroke-width="1"/>
+  <circle cx="96" cy="85" r="3.5" fill="#dfe4ea"/>
+  <circle cx="93.5" cy="82" r="3" fill="#ffffff"/>
+  <path d="M87 75 Q96 71 105 75" stroke="#2b2d42" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Shy Sweet Smile -->
+  <path d="M76 99 Q80 102 84 99" stroke="#e17055" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  
+  <!-- Classic Hime Cut straight blunt bangs & side locks -->
+  <path d="M44 60 Q62 50 80 50 Q98 50 116 60 Q122 84 120 112 Q114 112 112 88 Q110 74 100 74 Q80 74 60 74 Q50 74 48 88 Q46 112 40 112 Q38 84 44 60 Z" fill="url(#hinataHair)"/>
+  <!-- Straight front bang fringe -->
+  <rect x="52" y="60" width="56" height="15" fill="url(#hinataHair)"/>
+  <line x1="52" y1="75" x2="108" y2="75" stroke="#4b4b66" stroke-width="1.5"/>
+  <path d="M58 52 Q80 48 102 52" stroke="#5758bb" stroke-width="1.5" fill="none"/>
+  
+  <!-- Badge Label -->
+  <rect x="36" y="136" width="88" height="16" rx="8" fill="rgba(10,15,24,0.85)" stroke="#c7ecee" stroke-width="1"/>
+  <text x="80" y="148" text-anchor="middle" fill="#c7ecee" font-family="'Outfit', sans-serif" font-size="9" font-weight="700" letter-spacing="0.08em">HINATA · NARUTO</text>
+</svg>

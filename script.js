@@ -1,3 +1,496 @@
+// ==========================================
+// KAMUI STREAMING PLATFORM - CORE JAVASCRIPT
+// ==========================================
+
+// ---------- Chibi Anime Female Character Avatar Presets ----------
+const DEFAULT_AVATARS = [
+  { id: 'nami', name: 'Nami', anime: 'One Piece', src: 'avatars/nami.svg' },
+  { id: 'robin', name: 'Robin', anime: 'One Piece', src: 'avatars/robin.svg' },
+  { id: 'hancock', name: 'Hancock', anime: 'One Piece', src: 'avatars/hancock.svg' },
+  { id: 'rukia', name: 'Rukia', anime: 'Bleach', src: 'avatars/rukia.svg' },
+  { id: 'yoruichi', name: 'Yoruichi', anime: 'Bleach', src: 'avatars/yoruichi.svg' },
+  { id: 'orihime', name: 'Orihime', anime: 'Bleach', src: 'avatars/orihime.svg' },
+  { id: 'hinata', name: 'Hinata', anime: 'Naruto', src: 'avatars/hinata.svg' },
+  { id: 'sakura', name: 'Sakura', anime: 'Naruto', src: 'avatars/sakura.svg' },
+  { id: 'tsunade', name: 'Tsunade', anime: 'Naruto', src: 'avatars/tsunade.svg' }
+];
+
+function getRandomDefaultAvatar() {
+  const index = Math.floor(Math.random() * DEFAULT_AVATARS.length);
+  return DEFAULT_AVATARS[index].src;
+}
+
+// ---------- Authentication State Management ----------
+const AUTH_STORAGE_KEY = 'kamui_user_session';
+let pendingRedirectUrl = 'watch.html';
+
+function getAuthUser() {
+  try {
+    const data = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!data) return null;
+    const user = JSON.parse(data);
+    if (user && !user.avatar) {
+      user.avatar = 'avatars/nami.svg';
+    }
+    return user;
+  } catch (e) {
+    return null;
+  }
+}
+
+function setAuthUser(user) {
+  if (user && !user.avatar) {
+    user.avatar = getRandomDefaultAvatar();
+  }
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+  updateNavAuth();
+}
+
+function updateUserAvatar(newAvatarSrc, customLabel) {
+  const user = getAuthUser();
+  if (!user) return;
+  user.avatar = newAvatarSrc;
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+  updateNavAuth();
+  showToast(`Profile picture set to ${customLabel || 'custom photo'}!`, 'success');
+}
+
+function logoutUser() {
+  const user = getAuthUser();
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+  updateNavAuth();
+  showToast(user ? `Signed out (${user.name || 'Member'})` : 'Signed out successfully.', 'info');
+}
+
+// ---------- Toast Notification System ----------
+function showToast(message, type = 'info') {
+  let container = document.querySelector('.kamui-toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'kamui-toast-container';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  toast.className = `kamui-toast ${type}`;
+  toast.innerHTML = `<span class="kamui-toast-icon">✦</span><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'toastFadeOut .3s forwards';
+    setTimeout(() => toast.remove(), 300);
+  }, 3200);
+}
+
+// ---------- Auth Prompt Modal (Dynamically Injected) ----------
+function ensureAuthModal() {
+  if (document.getElementById('authPromptOverlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'authPromptOverlay';
+  overlay.className = 'auth-prompt-overlay';
+  overlay.innerHTML = `
+    <div class="auth-prompt-modal" role="dialog" aria-modal="true" aria-labelledby="authPromptTitle">
+      <button class="auth-prompt-close" id="authPromptClose" aria-label="Close modal">&times;</button>
+      <div class="auth-prompt-header">
+        <div class="kanji-mark"><span class="glyph">入</span> Access Kamui</div>
+        <h2 id="authPromptTitle">Sign in to start watching</h2>
+        <p id="authPromptSub">Please sign in or create a free account to stream titles in 4K HDR with zero ads.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab-btn active" data-tab="signin">Sign In</button>
+        <button type="button" class="auth-tab-btn" data-tab="signup">Create Account</button>
+      </div>
+
+      <!-- Sign In Tab Pane -->
+      <div class="auth-tab-pane active" id="tabPaneSignin">
+        <form class="auth-prompt-form" id="modalSigninForm">
+          <div class="field">
+            <label for="modalSigninEmail">Email</label>
+            <input type="email" id="modalSigninEmail" placeholder="you@example.com" required autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="modalSigninPass">Password</label>
+            <input type="password" id="modalSigninPass" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn filled auth-prompt-submit">Sign in &amp; Stream</button>
+        </form>
+        <div class="auth-prompt-divider">or</div>
+        <button type="button" class="btn auth-alt auth-prompt-google" id="modalGoogleSignin">
+          <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+            <path fill="#e8b94f" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62Z"/>
+            <path fill="#ece3d0" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18Z"/>
+            <path fill="#a79d87" d="M3.95 10.7A5.4 5.4 0 0 1 3.66 9c0-.59.1-1.16.29-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33Z"/>
+            <path fill="#6c6555" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.9 11.42 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58Z"/>
+          </svg>
+          Continue with Google
+        </button>
+        <p class="auth-prompt-footer">Prefer standard page? <a href="signin.html">Full Sign In</a></p>
+      </div>
+
+      <!-- Sign Up Tab Pane -->
+      <div class="auth-tab-pane" id="tabPaneSignup">
+        <form class="auth-prompt-form" id="modalSignupForm">
+          <div class="field">
+            <label for="modalSignupName">Name</label>
+            <input type="text" id="modalSignupName" placeholder="Your name" required autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="modalSignupEmail">Email</label>
+            <input type="email" id="modalSignupEmail" placeholder="you@example.com" required autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="modalSignupPass">Password</label>
+            <input type="password" id="modalSignupPass" placeholder="At least 8 characters" required minlength="8" autocomplete="new-password">
+          </div>
+          <button type="submit" class="btn filled auth-prompt-submit">Create Account &amp; Stream</button>
+        </form>
+        <div class="auth-prompt-divider">or</div>
+        <button type="button" class="btn auth-alt auth-prompt-google" id="modalGoogleSignup">
+          <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+            <path fill="#e8b94f" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62Z"/>
+            <path fill="#ece3d0" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18Z"/>
+            <path fill="#a79d87" d="M3.95 10.7A5.4 5.4 0 0 1 3.66 9c0-.59.1-1.16.29-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33Z"/>
+            <path fill="#6c6555" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.9 11.42 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58Z"/>
+          </svg>
+          Continue with Google
+        </button>
+        <p class="auth-prompt-footer">Prefer standard page? <a href="signup.html">Full Sign Up</a></p>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Tab switching
+  const tabBtns = overlay.querySelectorAll('.auth-tab-btn');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.dataset.tab;
+      overlay.querySelector('#tabPaneSignin').classList.toggle('active', target === 'signin');
+      overlay.querySelector('#tabPaneSignup').classList.toggle('active', target === 'signup');
+    });
+  });
+
+  // Close triggers
+  overlay.querySelector('#authPromptClose').addEventListener('click', closeAuthModal);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeAuthModal();
+  });
+
+  // Modal Sign In Form Submit
+  overlay.querySelector('#modalSigninForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = overlay.querySelector('#modalSigninEmail').value.trim();
+    let name = email.split('@')[0];
+    name = name.charAt(0).toUpperCase() + name.slice(1);
+    setAuthUser({ name, email, loggedIn: true, avatar: 'avatars/nami.svg' });
+    showToast(`Welcome back, ${name}! Redirecting...`, 'success');
+    closeAuthModal();
+    if (pendingRedirectUrl) {
+      setTimeout(() => {
+        window.location.href = pendingRedirectUrl;
+      }, 400);
+    }
+  });
+
+  // Modal Sign Up Form Submit
+  overlay.querySelector('#modalSignupForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = overlay.querySelector('#modalSignupName').value.trim();
+    const email = overlay.querySelector('#modalSignupEmail').value.trim();
+    setAuthUser({ name, email, loggedIn: true, avatar: getRandomDefaultAvatar() });
+    showToast(`Account created! Welcome to Kamui, ${name}.`, 'success');
+    closeAuthModal();
+    if (pendingRedirectUrl) {
+      setTimeout(() => {
+        window.location.href = pendingRedirectUrl;
+      }, 400);
+    }
+  });
+
+  // Modal Google Quick Auth
+  const handleGoogleQuick = () => {
+    setAuthUser({ name: 'Anime Member', email: 'member@kamui.stream', loggedIn: true, avatar: 'avatars/hinata.svg' });
+    showToast('Signed in with Google. Welcome!', 'success');
+    closeAuthModal();
+    if (pendingRedirectUrl) {
+      setTimeout(() => {
+        window.location.href = pendingRedirectUrl;
+      }, 400);
+    }
+  };
+
+  overlay.querySelector('#modalGoogleSignin').addEventListener('click', handleGoogleQuick);
+  overlay.querySelector('#modalGoogleSignup').addEventListener('click', handleGoogleQuick);
+}
+
+function openAuthModal(heading, sub, redirectUrl = 'watch.html', defaultTab = 'signin') {
+  ensureAuthModal();
+  pendingRedirectUrl = redirectUrl;
+  const overlay = document.getElementById('authPromptOverlay');
+  if (heading) overlay.querySelector('#authPromptTitle').textContent = heading;
+  if (sub) overlay.querySelector('#authPromptSub').textContent = sub;
+
+  const tabBtns = overlay.querySelectorAll('.auth-tab-btn');
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === defaultTab));
+  overlay.querySelector('#tabPaneSignin').classList.toggle('active', defaultTab === 'signin');
+  overlay.querySelector('#tabPaneSignup').classList.toggle('active', defaultTab === 'signup');
+
+  overlay.classList.add('open');
+}
+
+function closeAuthModal() {
+  const overlay = document.getElementById('authPromptOverlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+// ---------- Update Navigation Bar with User Profile & Avatar ----------
+function updateNavAuth() {
+  const user = getAuthUser();
+  const navActions = document.querySelector('.nav-actions');
+  if (!navActions) return;
+
+  const pathname = window.location.pathname;
+  const isWatchPage = pathname.endsWith('watch.html');
+  const isSigninPage = pathname.endsWith('signin.html');
+  const isSignupPage = pathname.endsWith('signup.html');
+
+  if (user && user.loggedIn) {
+    const currentAvatar = user.avatar || 'avatars/nami.svg';
+    
+    // Build Chibi Avatar Grid HTML
+    const chibiGridHtml = DEFAULT_AVATARS.map(item => `
+      <div class="chibi-card ${currentAvatar === item.src ? 'active' : ''}" data-src="${item.src}" data-name="${item.name}" data-anime="${item.anime}" title="${item.name} (${item.anime})">
+        <img class="chibi-img" src="${item.src}" alt="${item.name}">
+        <span class="chibi-name">${item.name}</span>
+        <span class="chibi-anime">${item.anime}</span>
+      </div>
+    `).join('');
+
+    navActions.innerHTML = `
+      <div class="nav-profile-wrap" id="navProfileWrap">
+        <button type="button" class="nav-profile-btn" id="navProfileBtn" aria-label="Open profile menu" aria-expanded="false">
+          <img class="nav-avatar-img" id="navAvatarImg" src="${currentAvatar}" alt="${user.name || 'Profile'}">
+          <span class="nav-profile-name">${user.name || 'Member'}</span>
+          <svg class="nav-profile-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none">
+            <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <!-- Profile Dropdown Menu -->
+        <div class="nav-profile-dropdown" id="navProfileDropdown">
+          <div class="profile-dropdown-head">
+            <div class="profile-avatar-preview-wrap">
+              <img class="profile-large-avatar" id="dropdownAvatarImg" src="${currentAvatar}" alt="${user.name || 'Profile'}">
+              <label class="avatar-upload-badge" for="deviceAvatarInput" title="Upload from your device">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+              </label>
+            </div>
+            <div class="profile-user-info">
+              <h4 class="profile-dropdown-name">${user.name || 'Member'}</h4>
+              <p class="profile-dropdown-email">${user.email || 'member@kamui.stream'}</p>
+              <span class="profile-tier-badge">✦ KAMUI MEMBER · 4K HDR</span>
+            </div>
+          </div>
+
+          <div class="profile-dropdown-section">
+            <div class="profile-section-title-row">
+              <span class="profile-section-heading">Avatar Image</span>
+              <label class="btn-import-device" for="deviceAvatarInput">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+                Import from Device
+              </label>
+              <input type="file" id="deviceAvatarInput" accept="image/png, image/jpeg, image/webp, image/gif, image/svg+xml" style="display:none;">
+            </div>
+            <p class="chibi-subheading">Or choose a Chibi character (One Piece, Bleach, Naruto):</p>
+            <div class="chibi-avatar-grid" id="chibiAvatarGrid">
+              ${chibiGridHtml}
+            </div>
+          </div>
+
+          <div class="profile-dropdown-footer">
+            <a href="${isWatchPage ? 'index.html' : 'watch.html'}" class="profile-link-btn">
+              ${isWatchPage ? 'Home' : 'Watch Library'}
+            </a>
+            <button type="button" class="profile-logout-btn" id="profileLogoutBtn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+              </svg>
+              Sign out
+            </button>
+          </div>
+        </div>
+      </div>
+      ${!isWatchPage ? '<a href="watch.html" class="btn filled">Watch</a>' : '<a href="index.html" class="btn">Home</a>'}
+    `;
+
+    // Dropdown toggle
+    const profileWrap = document.getElementById('navProfileWrap');
+    const profileBtn = document.getElementById('navProfileBtn');
+    if (profileBtn && profileWrap) {
+      profileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = profileWrap.classList.toggle('open');
+        profileBtn.setAttribute('aria-expanded', isOpen);
+      });
+    }
+
+    // Chibi avatar selection clicks
+    const chibiCards = navActions.querySelectorAll('.chibi-card');
+    chibiCards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const src = card.dataset.src;
+        const name = card.dataset.name;
+        const anime = card.dataset.anime;
+        updateUserAvatar(src, `${name} (${anime})`);
+      });
+    });
+
+    // File input: Import from device
+    const fileInput = document.getElementById('deviceAvatarInput');
+    if (fileInput) {
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+          showToast('Please select a valid image file.', 'info');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const dataUrl = evt.target.result;
+          updateUserAvatar(dataUrl, 'your device photo');
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Sign out button
+    const logoutBtn = document.getElementById('profileLogoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (profileWrap) profileWrap.classList.remove('open');
+        logoutUser();
+      });
+    }
+
+  } else {
+    if (isSigninPage) {
+      navActions.innerHTML = `
+        <a href="signup.html" class="link-cta">Sign up</a>
+        <a href="index.html" class="btn filled">Home</a>
+      `;
+    } else if (isSignupPage) {
+      navActions.innerHTML = `
+        <a href="signin.html" class="link-cta">Sign in</a>
+        <a href="index.html" class="btn filled">Home</a>
+      `;
+    } else if (isWatchPage) {
+      navActions.innerHTML = `
+        <a href="signin.html" class="link-cta">Sign in</a>
+        <a href="index.html" class="btn filled">Home</a>
+      `;
+    } else {
+      navActions.innerHTML = `
+        <a href="signin.html" class="link-cta">Sign in</a>
+        <a href="watch.html" class="btn filled">Start watching</a>
+      `;
+    }
+  }
+}
+
+// Close profile dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const profileWrap = document.getElementById('navProfileWrap');
+  if (profileWrap && !profileWrap.contains(e.target)) {
+    profileWrap.classList.remove('open');
+    const profileBtn = document.getElementById('navProfileBtn');
+    if (profileBtn) profileBtn.setAttribute('aria-expanded', 'false');
+  }
+});
+
+// ---------- Attach "Start Watching" Auth Interceptors ----------
+function initStartWatchingInterceptors() {
+  document.addEventListener('click', (e) => {
+    const targetLink = e.target.closest('a[href*="watch.html"], a[href="signup.html"]');
+    if (!targetLink) return;
+
+    // If it's the home link, skip
+    if (targetLink.getAttribute('href') === 'index.html' || targetLink.getAttribute('href') === '#top') return;
+
+    // Check if user is already logged in
+    const user = getAuthUser();
+    if (user && user.loggedIn) {
+      // User is logged in, proceed naturally to watch page
+      return;
+    }
+
+    // User is NOT logged in: Intercept and ask to Sign In or Sign Up
+    e.preventDefault();
+    const targetHref = targetLink.getAttribute('href') || 'watch.html';
+    const isSignUpBtn = targetLink.textContent.toLowerCase().includes('sign up') || targetHref.includes('signup.html');
+    
+    openAuthModal(
+      'Sign in to start watching',
+      'Please sign in or create an account to stream Kamui simulcasts, dubs & subs in 4K HDR.',
+      targetHref.includes('signup.html') ? 'watch.html' : targetHref,
+      isSignUpBtn ? 'signup' : 'signin'
+    );
+  });
+}
+
+// ---------- Full Sign In & Sign Up Page Form Handlers ----------
+function initAuthPages() {
+  const signinForm = document.getElementById('signinForm');
+  if (signinForm) {
+    signinForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      let name = email.split('@')[0];
+      name = name.charAt(0).toUpperCase() + name.slice(1);
+      setAuthUser({ name, email, loggedIn: true });
+      showToast(`Welcome back, ${name}! Taking you to stream...`, 'success');
+      setTimeout(() => {
+        window.location.href = 'watch.html';
+      }, 600);
+    });
+  }
+
+  const signupForm = document.getElementById('signupForm');
+  if (signupForm) {
+    signupForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      setAuthUser({ name, email, loggedIn: true });
+      showToast(`Account created! Welcome, ${name}.`, 'success');
+      setTimeout(() => {
+        window.location.href = 'watch.html';
+      }, 600);
+    });
+  }
+
+  // Google buttons on standalone auth pages
+  document.querySelectorAll('.auth-alt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setAuthUser({ name: 'Anime Member', email: 'member@kamui.stream', loggedIn: true });
+      showToast('Signed in with Google. Redirecting...', 'success');
+      setTimeout(() => {
+        window.location.href = 'watch.html';
+      }, 600);
+    });
+  });
+}
+
 // ---------- Nav background on scroll ----------
 const nav = document.getElementById('siteNav');
 const onScroll = () => {
@@ -168,13 +661,20 @@ if (modalOverlay) {
   modalOverlay.addEventListener('click', (e) => {
     if (e.target === modalOverlay) closeModal();
   });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeModal();
-  });
 
   if (modalPlay) {
     modalPlay.addEventListener('click', () => {
-      modalPlay.textContent = '▶ Now streaming in 4K HDR...';
+      const user = getAuthUser();
+      if (!user || !user.loggedIn) {
+        // Prompt for auth before playing episode
+        openAuthModal(
+          'Sign in required to play',
+          `Please sign in or create an account to start streaming "${modalTitle.textContent || 'this title'}" in 4K HDR.`,
+          null
+        );
+        return;
+      }
+      modalPlay.textContent = `▶ Now streaming for ${user.name || 'you'} in 4K HDR...`;
       modalPlay.disabled = true;
       setTimeout(() => {
         if (modalPlay) {
@@ -201,6 +701,14 @@ if (modalOverlay) {
   window.addEventListener('hashchange', checkHash);
 }
 
+// ---------- Escape Key Listener for Modals ----------
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeAuthModal();
+    if (modalOverlay) modalOverlay.classList.remove('open');
+  }
+});
+
 // ---------- Title Video Autoplay & Loop Assurance ----------
 const titleVideo = document.querySelector('.title-bg-video');
 if (titleVideo) {
@@ -219,3 +727,16 @@ if (titleVideo) {
     if (!document.hidden) playVideo();
   });
 }
+
+// ---------- Initialize App Auth State & Interceptors ----------
+document.addEventListener('DOMContentLoaded', () => {
+  ensureAuthModal();
+  updateNavAuth();
+  initStartWatchingInterceptors();
+  initAuthPages();
+});
+ensureAuthModal();
+updateNavAuth();
+initStartWatchingInterceptors();
+initAuthPages();
+

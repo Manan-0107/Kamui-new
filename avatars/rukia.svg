@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="rukiaBg" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#1e1832"/>
+      <stop offset="100%" stop-color="#0a0814"/>
+    </radialGradient>
+    <linearGradient id="rukiaHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d3436"/>
+      <stop offset="50%" stop-color="#191924"/>
+      <stop offset="100%" stop-color="#0c0c12"/>
+    </linearGradient>
+    <linearGradient id="rukiaSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff5f0"/>
+      <stop offset="100%" stop-color="#ffe4dc"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Circle -->
+  <circle cx="80" cy="80" r="76" fill="url(#rukiaBg)" stroke="#a29bfe" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(162,155,254,0.2)" stroke-width="1"/>
+  
+  <!-- Back Hair (Short bob with signature spiky side flairs) -->
+  <path d="M42 66 Q24 90 28 116 Q40 120 54 114 Q44 94 48 76 Z" fill="url(#rukiaHair)"/>
+  <path d="M118 66 Q136 90 132 116 Q120 120 106 114 Q116 94 112 76 Z" fill="url(#rukiaHair)"/>
+  
+  <!-- Shihakusho (Soul Reaper Robe) -->
+  <path d="M42 136 L80 124 L118 136 L124 156 L36 156 Z" fill="#121218"/>
+  <path d="M68 132 L80 144 L92 132 L96 156 L64 156 Z" fill="#ffffff"/>
+  <path d="M74 136 L80 142 L86 136 L88 156 L72 156 Z" fill="url(#rukiaSkin)"/>
+  
+  <!-- Head / Face -->
+  <ellipse cx="80" cy="86" rx="33" ry="31" fill="url(#rukiaSkin)"/>
+  
+  <!-- Cute Subtle Blush -->
+  <ellipse cx="58" cy="95" rx="6.5" ry="3" fill="#ff7675" opacity="0.4"/>
+  <ellipse cx="102" cy="95" rx="6.5" ry="3" fill="#ff7675" opacity="0.4"/>
+  
+  <!-- Big Deep Purple Anime Eyes -->
+  <!-- Left Eye -->
+  <ellipse cx="64" cy="85" rx="8.5" ry="10.5" fill="#341f97"/>
+  <ellipse cx="64" cy="87" rx="6.5" ry="7.5" fill="#5f27cd"/>
+  <circle cx="61.5" cy="82" r="3.2" fill="#ffffff"/>
+  <circle cx="66" cy="88" r="1.5" fill="#ffffff"/>
+  <path d="M55 75 Q64 71 73 75" stroke="#191924" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- Right Eye -->
+  <ellipse cx="96" cy="85" rx="8.5" ry="10.5" fill="#341f97"/>
+  <ellipse cx="96" cy="87" rx="6.5" ry="7.5" fill="#5f27cd"/>
+  <circle cx="93.5" cy="82" r="3.2" fill="#ffffff"/>
+  <circle cx="98" cy="88" r="1.5" fill="#ffffff"/>
+  <path d="M87 75 Q96 71 105 75" stroke="#191924" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Determined cute mouth -->
+  <path d="M76 99 Q80 102 84 99" stroke="#b2bec3" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  
+  <!-- Signature front hair bang hanging in the center between eyes -->
+  <path d="M46 60 Q62 48 80 48 Q98 48 114 60 Q118 78 114 96 Q108 92 104 80 Q96 62 84 64 Q82 64 79 88 Q77 88 75 64 Q64 62 56 80 Q52 92 46 96 Q42 78 46 60 Z" fill="url(#rukiaHair)"/>
+  <!-- Strand between eyes -->
+  <path d="M77 62 Q79 78 80 88 Q81 78 83 62 Z" fill="#2d3436"/>
+  
+  <!-- Chappy Rabbit Hairpin / Soul Reaper butterfly symbol -->
+  <ellipse cx="112" cy="62" rx="4" ry="6" fill="#dfe6e9" transform="rotate(20 112 62)"/>
+  <ellipse cx="118" cy="64" rx="4" ry="6" fill="#dfe6e9" transform="rotate(40 118 64)"/>
+  <circle cx="115" cy="68" r="5" fill="#dfe6e9"/>
+  <circle cx="113" cy="67" r="1" fill="#ff7675"/>
+  <circle cx="117" cy="67" r="1" fill="#ff7675"/>
+  
+  <!-- Badge Label -->
+  <rect x="38" y="136" width="84" height="16" rx="8" fill="rgba(10,15,24,0.85)" stroke="#a29bfe" stroke-width="1"/>
+  <text x="80" y="148" text-anchor="middle" fill="#a29bfe" font-family="'Outfit', sans-serif" font-size="9" font-weight="700" letter-spacing="0.08em">RUKIA · BLEACH</text>
+</svg>
