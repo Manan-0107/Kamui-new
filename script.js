@@ -1,7 +1,9 @@
 // ---------- Nav background on scroll ----------
 const nav = document.getElementById('siteNav');
 const onScroll = () => {
-  nav.classList.toggle('scrolled', window.scrollY > 40);
+  if (nav) {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  }
 };
 document.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
@@ -9,31 +11,38 @@ onScroll();
 // ---------- Mobile menu toggle ----------
 const menuToggle = document.getElementById('menuToggle');
 const links = document.querySelector('nav.links');
-menuToggle.addEventListener('click', () => {
-  const open = links.style.display === 'flex';
-  links.style.cssText = open
-    ? ''
-    : 'display:flex; position:fixed; inset:70px 0 auto 0; flex-direction:column; gap:0; background:#0a0f18; padding:10px 30px 30px; border-bottom:1px solid rgba(232,185,79,0.14);';
-  if (!open) {
-    links.querySelectorAll('a').forEach(a => a.style.padding = '14px 0');
-  }
-});
-links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-  links.removeAttribute('style');
-}));
+if (menuToggle && links) {
+  menuToggle.addEventListener('click', () => {
+    const open = links.style.display === 'flex';
+    links.style.cssText = open
+      ? ''
+      : 'display:flex; position:fixed; inset:70px 0 auto 0; flex-direction:column; gap:0; background:#0a0f18; padding:10px 30px 30px; border-bottom:1px solid rgba(232,185,79,0.14); z-index:99;';
+    if (!open) {
+      links.querySelectorAll('a').forEach(a => a.style.padding = '14px 0');
+    }
+  });
+  links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    links.removeAttribute('style');
+  }));
+}
 
 // ---------- Scroll reveal ----------
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (!reduceMotion && 'IntersectionObserver' in window) {
   const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
   }, { threshold: 0.15 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 } else {
   document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
 }
 
-// ---------- Ember particle canvas ----------
+// ---------- Ember particle canvas (Hero) ----------
 const canvas = document.getElementById('ember-canvas');
 if (canvas) {
   const ctx = canvas.getContext('2d');
@@ -85,10 +94,19 @@ if (canvas) {
     requestAnimationFrame(tick);
   }
 
-  window.addEventListener('resize', () => { resize(); initParticles(); if (reduceMotion) drawStatic(); });
+  window.addEventListener('resize', () => {
+    resize();
+    initParticles();
+    if (reduceMotion) drawStatic();
+  });
+
   resize();
   initParticles();
-  reduceMotion ? drawStatic() : tick();
+  if (reduceMotion) {
+    drawStatic();
+  } else {
+    tick();
+  }
 }
 
 // ---------- Watch page: genre filter ----------
@@ -118,8 +136,10 @@ if (modalOverlay) {
   const modalSynopsis = document.getElementById('modalSynopsis');
   const modalEps = document.getElementById('modalEps');
   const modalClose = document.getElementById('modalClose');
+  const modalPlay = document.getElementById('modalPlay');
 
   function openModal(card) {
+    if (!card) return;
     const artSvg = card.querySelector('.art');
     modalArt.innerHTML = artSvg ? artSvg.outerHTML : '';
     modalGenre.textContent = card.dataset.genreLabel || '';
@@ -127,6 +147,10 @@ if (modalOverlay) {
     modalSynopsis.textContent = card.dataset.synopsis || '';
     modalEps.textContent = card.dataset.eps || '';
     modalOverlay.classList.add('open');
+    if (modalPlay) {
+      modalPlay.textContent = 'Play episode 1';
+      modalPlay.disabled = false;
+    }
     modalClose.focus();
   }
 
@@ -138,46 +162,41 @@ if (modalOverlay) {
     card.addEventListener('click', () => openModal(card));
   });
 
-  modalClose.addEventListener('click', closeModal);
-  modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  if (modalClose) {
+    modalClose.addEventListener('click', closeModal);
+  }
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  if (modalPlay) {
+    modalPlay.addEventListener('click', () => {
+      modalPlay.textContent = '▶ Now streaming in 4K HDR...';
+      modalPlay.disabled = true;
+      setTimeout(() => {
+        if (modalPlay) {
+          modalPlay.textContent = 'Play episode 1';
+          modalPlay.disabled = false;
+        }
+      }, 3000);
+    });
+  }
 
   // Open directly to a title if the page was linked with #slug
-  const hashId = window.location.hash.replace('#', '');
-  if (hashId) {
-    const target = document.getElementById(hashId);
-    if (target) {
-      setTimeout(() => openModal(target), 200);
-      target.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
+  const checkHash = () => {
+    const hashId = window.location.hash.replace('#', '');
+    if (hashId) {
+      const target = document.getElementById(hashId);
+      if (target) {
+        setTimeout(() => openModal(target), 200);
+        target.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
+      }
     }
-  }
-}
+  };
 
-// ---------- Signup: reflect the plan chosen on the pricing section ----------
-const planNote = document.getElementById('planNote');
-if (planNote) {
-  const params = new URLSearchParams(window.location.search);
-  const plan = params.get('plan');
-  if (plan === 'premium') {
-    planNote.textContent = 'Creating your account for Premium — $8/month, cancel anytime.';
-    planNote.style.display = 'block';
-  } else if (plan === 'free') {
-    planNote.textContent = 'Creating your free account — upgrade to Premium anytime.';
-    planNote.style.display = 'block';
-  }
+  checkHash();
+  window.addEventListener('hashchange', checkHash);
 }
-
-// ---------- Auth forms: demo sign in / sign up flow ----------
-['signinForm', 'signupForm'].forEach(id => {
-  const form = document.getElementById(id);
-  if (!form) return;
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const btn = form.querySelector('.auth-submit');
-    if (btn) {
-      btn.textContent = id === 'signinForm' ? 'Signing in…' : 'Creating account…';
-      btn.disabled = true;
-    }
-    setTimeout(() => { window.location.href = 'watch.html'; }, 700);
-  });
-});

@@ -11,10 +11,9 @@
   --ink: #ece3d0;
   --ink-dim: #a79d87;
   --ink-faint: #6c6555;
-  --sharingan: #b31820;
-  --sharingan-dark: #170608;
+  --brand-font: 'Cinzel', 'Shippori Mincho B1', serif;
   --serif: 'Shippori Mincho B1', 'Noto Serif JP', serif;
-  --sans: 'Zen Kaku Gothic New', 'Hiragino Sans', sans-serif;
+  --sans: 'Outfit', 'Zen Kaku Gothic New', 'Hiragino Sans', sans-serif;
 }
 
 *{ margin:0; padding:0; box-sizing:border-box; }
@@ -52,11 +51,43 @@ header.nav.scrolled{
   border-bottom:1px solid var(--line);
 }
 .brand{
-  font-family:var(--serif); font-weight:600; font-size:20px;
-  letter-spacing:0.14em; color:var(--ink);
-  display:flex; align-items:center; gap:10px;
+  font-family:var(--brand-font); font-weight:700; font-size:20px;
+  letter-spacing:0.18em; color:var(--ink);
+  display:flex; align-items:center; gap:12px;
+  text-decoration:none;
 }
-.brand .mark{ color:var(--gold); font-size:15px; letter-spacing:0; }
+.brand .mark{
+  font-family:var(--serif);
+  color:var(--gold); font-size:13px; font-weight:600;
+  letter-spacing:0.12em;
+  padding:2px 7px 2px 8px;
+  border:1px solid rgba(232,185,79,0.32);
+  background:linear-gradient(135deg, rgba(232,185,79,0.08) 0%, rgba(193,80,31,0.04) 100%);
+  border-radius:2px;
+  line-height:1.2;
+  transition:border-color .3s ease, background .3s ease, box-shadow .3s ease;
+}
+.brand .brand-word{
+  font-family:var(--brand-font);
+  font-weight:800;
+  font-size:1.02em;
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  background:linear-gradient(135deg, #ffffff 0%, #f7ecd6 50%, #e8b94f 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  display:inline-block;
+  transition:filter .35s ease, letter-spacing .35s ease;
+}
+.brand:hover .brand-word{
+  filter:drop-shadow(0 0 14px rgba(232,185,79,0.65)) drop-shadow(0 0 28px rgba(193,80,31,0.35));
+  letter-spacing:0.28em;
+}
+.brand:hover .mark{
+  border-color:var(--gold);
+  background:rgba(232,185,79,0.16);
+  box-shadow:0 0 14px rgba(232,185,79,0.3);
+}
 
 nav.links{ display:flex; align-items:center; gap:34px; }
 nav.links a{
@@ -121,15 +152,39 @@ nav.links a:hover::after{ width:100%; }
 .eyebrow .rule{ width:44px; height:1px; background:var(--ice); opacity:0.6; }
 
 h1.title{
-  font-family:var(--serif); font-weight:800;
-  font-size:clamp(56px, 10vw, 132px);
-  line-height:0.92; letter-spacing:0.02em;
+  font-family:var(--brand-font); font-weight:900;
+  font-size:clamp(56px, 10.5vw, 138px);
+  line-height:0.92; letter-spacing:0.04em;
   color:var(--ink);
-  text-shadow:0 0 60px rgba(193,80,31,0.35);
 }
 h1.title .jp{
-  display:block; font-size:0.28em; font-weight:500; letter-spacing:0.5em;
-  color:var(--gold); margin-bottom:14px;
+  display:flex; align-items:center; gap:12px;
+  font-family:var(--serif);
+  font-size:0.2em; font-weight:500; letter-spacing:0.6em;
+  color:var(--gold); margin-bottom:16px;
+  text-transform:uppercase;
+  opacity:0.92;
+}
+h1.title .jp::before{
+  content:""; width:32px; height:1px; background:var(--gold); opacity:0.4;
+}
+h1.title .title-word{
+  font-family:var(--brand-font);
+  font-weight:900;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  background:linear-gradient(180deg, #ffffff 15%, #f6edd9 55%, #e8b94f 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  display:inline-block;
+  filter:drop-shadow(0 6px 36px rgba(193,80,31,0.4)) drop-shadow(0 0 60px rgba(232,185,79,0.22));
+  transition:filter .45s ease, letter-spacing .45s ease;
+  cursor:default;
+}
+h1.title:hover .title-word,
+.title-word:hover{
+  filter:drop-shadow(0 8px 48px rgba(232,185,79,0.8)) drop-shadow(0 0 95px rgba(193,80,31,0.55));
+  letter-spacing:0.19em;
 }
 
 .tagline{
@@ -305,37 +360,23 @@ footer{ border-top:1px solid var(--line); padding:44px 0; }
   .watch-hero{ padding-top:120px; }
 }
 
-/* ---------- SHARINGAN BRAND MARK ---------- */
-.brand-word{ display:inline-flex; align-items:center; }
-.sharingan{
-  width:0.72em; height:0.72em; flex:none;
-  margin:0 0.06em; vertical-align:-0.1em;
-  filter:drop-shadow(0 0 5px rgba(179,24,32,0.5));
+/* ---------- BRAND WORDMARK ---------- */
+.brand-word{
+  display:inline-block;
+  vertical-align:middle;
 }
-.sharingan-tomoe{
-  transform-box:fill-box; transform-origin:center;
-  transition:transform .9s cubic-bezier(.22,.8,.2,1);
+.title-word{
+  display:inline-block;
+  vertical-align:middle;
 }
-.brand:hover .sharingan{ filter:drop-shadow(0 0 12px rgba(179,24,32,0.9)); }
-.brand:hover .sharingan-tomoe{ transform:rotate(1turn); }
-
-.hero-sharingan{
-  width:0.74em; height:0.74em; flex:none; display:inline-block;
-  vertical-align:-0.05em; margin:0 0.03em; cursor:pointer;
-  filter:drop-shadow(0 0 16px rgba(216,31,42,0.5));
-  transition:filter .4s ease;
-}
-.hero-sharingan:hover{ filter:drop-shadow(0 0 30px rgba(216,31,42,0.9)); }
-.hero-sharingan .sharingan-tomoe{
-  transform-box:fill-box; transform-origin:center;
-  transition:transform .9s cubic-bezier(.22,.8,.2,1);
-}
-.hero-sharingan:hover .sharingan-tomoe{ transform:rotate(1turn); }
 
 @media (prefers-reduced-motion: reduce){
-  .sharingan-tomoe{ transition:none; }
-  .brand:hover .sharingan-tomoe{ transform:none; }
-  .hero-sharingan:hover .sharingan-tomoe{ transform:none; }
+  .brand .brand-word,
+  .brand .mark,
+  h1.title .title-word{
+    transition:none;
+    letter-spacing:inherit;
+  }
 }
 
 /* ---------- AUTH PAGES ---------- */
@@ -343,13 +384,26 @@ footer{ border-top:1px solid var(--line); padding:44px 0; }
   min-height:100vh; display:flex; align-items:center; justify-content:center;
   padding:150px 24px 80px; position:relative; overflow:hidden;
   background:
-    radial-gradient(ellipse 700px 480px at 50% 0%, rgba(179,24,32,0.12), transparent 60%),
+    radial-gradient(ellipse 700px 480px at 50% 0%, rgba(232,185,79,0.08), transparent 60%),
+    radial-gradient(circle 500px at 80% 80%, rgba(193,80,31,0.06), transparent 50%),
     linear-gradient(180deg, var(--night) 0%, var(--night-2) 100%);
 }
-.auth-eye{ position:absolute; z-index:1; opacity:0.05; pointer-events:none; }
-.auth-eye .sharingan-tomoe{ transition:none; }
-.auth-eye.e1{ width:460px; height:460px; top:-140px; right:-150px; }
-.auth-eye.e2{ width:280px; height:280px; bottom:-110px; left:-100px; }
+.auth-ambient{
+  position:absolute; border-radius:50%; pointer-events:none; filter:blur(90px); opacity:0.4;
+}
+.auth-ambient.aura-1{
+  width:460px; height:460px; top:-120px; right:-120px;
+  background:radial-gradient(circle, rgba(232,185,79,0.28) 0%, rgba(193,80,31,0.12) 60%, transparent 80%);
+}
+.auth-ambient.aura-2{
+  width:380px; height:380px; bottom:-100px; left:-100px;
+  background:radial-gradient(circle, rgba(111,168,181,0.22) 0%, rgba(16,24,36,0) 70%);
+}
+.auth-watermark{
+  position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+  font-family:var(--serif); font-size:min(55vw, 420px); font-weight:800;
+  color:var(--ink); opacity:0.025; line-height:1; pointer-events:none; user-select:none;
+}
 
 .auth-card{
   width:100%; max-width:420px; background:var(--night-2); border:1px solid var(--line);
