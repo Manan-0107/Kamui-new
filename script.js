@@ -2,7 +2,7 @@
 // KAMUI STREAMING PLATFORM - CORE JAVASCRIPT
 // ==========================================
 
-// ---------- Chibi Anime Female Character Avatar Presets ----------
+// ---------- Realistic Anime Female Character Chibi Avatar Presets ----------
 const DEFAULT_AVATARS = [
   { id: 'nami', name: 'Nami', anime: 'One Piece', src: 'avatars/nami.svg' },
   { id: 'robin', name: 'Robin', anime: 'One Piece', src: 'avatars/robin.svg' },
@@ -20,9 +20,73 @@ function getRandomDefaultAvatar() {
   return DEFAULT_AVATARS[index].src;
 }
 
-// ---------- Authentication State Management ----------
+// ---------- Authentication & Account State Management ----------
 const AUTH_STORAGE_KEY = 'kamui_user_session';
+const ACCOUNTS_STORAGE_KEY = 'kamui_registered_accounts';
 let pendingRedirectUrl = 'watch.html';
+
+function getRegisteredAccounts() {
+  try {
+    const raw = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveRegisteredAccount(account) {
+  if (!account || !account.name) return;
+  const accounts = getRegisteredAccounts();
+  const existingIdx = accounts.findIndex(acc => 
+    (account.email && acc.email && acc.email.toLowerCase() === account.email.toLowerCase()) ||
+    (acc.name && acc.name.toLowerCase() === account.name.toLowerCase())
+  );
+  if (existingIdx >= 0) {
+    accounts[existingIdx] = { ...accounts[existingIdx], ...account };
+  } else {
+    accounts.push(account);
+  }
+  localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(accounts));
+}
+
+function findRegisteredAccount(query) {
+  if (!query) return null;
+  const q = query.trim().toLowerCase();
+  const accounts = getRegisteredAccounts();
+  return accounts.find(acc => 
+    (acc.email && acc.email.toLowerCase() === q) ||
+    (acc.name && acc.name.toLowerCase() === q)
+  ) || null;
+}
+
+// Smart Name Parser / Formatter
+function parseUserDisplayName(input) {
+  if (!input) return 'Member';
+  const clean = input.trim();
+  if (!clean) return 'Member';
+  
+  // If previously registered on this device, reuse saved display name
+  const existing = findRegisteredAccount(clean);
+  if (existing && existing.name) {
+    return existing.name;
+  }
+
+  // If email was entered
+  if (clean.includes('@')) {
+    const prefix = clean.split('@')[0];
+    const parts = prefix.split(/[\._\-+]/).filter(Boolean);
+    if (parts.length > 0) {
+      return parts.map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+    }
+    return prefix.charAt(0).toUpperCase() + prefix.slice(1);
+  }
+
+  // If username was entered, capitalize first letter if lowercase, else preserve exact casing
+  if (clean === clean.toLowerCase()) {
+    return clean.charAt(0).toUpperCase() + clean.slice(1);
+  }
+  return clean;
+}
 
 function getAuthUser() {
   try {
@@ -30,7 +94,7 @@ function getAuthUser() {
     if (!data) return null;
     const user = JSON.parse(data);
     if (user && !user.avatar) {
-      user.avatar = 'avatars/nami.svg';
+      user.avatar = getRandomDefaultAvatar();
     }
     return user;
   } catch (e) {
@@ -39,8 +103,11 @@ function getAuthUser() {
 }
 
 function setAuthUser(user) {
-  if (user && !user.avatar) {
-    user.avatar = getRandomDefaultAvatar();
+  if (user) {
+    if (!user.avatar) {
+      user.avatar = getRandomDefaultAvatar();
+    }
+    saveRegisteredAccount(user);
   }
   localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
   updateNavAuth();
@@ -50,8 +117,7 @@ function updateUserAvatar(newAvatarSrc, customLabel) {
   const user = getAuthUser();
   if (!user) return;
   user.avatar = newAvatarSrc;
-  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-  updateNavAuth();
+  setAuthUser(user);
   showToast(`Profile picture set to ${customLabel || 'custom photo'}!`, 'success');
 }
 
@@ -80,7 +146,146 @@ function showToast(message, type = 'info') {
   }, 3200);
 }
 
-// ---------- Auth Prompt Modal (Dynamically Injected) ----------
+// ---------- Google OAuth Account Selector Modal ----------
+function ensureGoogleAuthModal() {
+  if (document.getElementById('googleAuthOverlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'googleAuthOverlay';
+  overlay.className = 'google-auth-overlay';
+  
+  const lastUser = getAuthUser() || (getRegisteredAccounts().length > 0 ? getRegisteredAccounts()[0] : null);
+  const defaultGoogleName = (lastUser && lastUser.name && lastUser.name !== 'Anime Member') ? lastUser.name : 'Manan';
+  const defaultGoogleEmail = (lastUser && lastUser.email && lastUser.email !== 'member@kamui.stream') ? lastUser.email : `${defaultGoogleName.toLowerCase().replace(/\s+/g, '.')}@gmail.com`;
+
+  overlay.innerHTML = `
+    <div class="google-auth-card" role="dialog" aria-modal="true" aria-labelledby="googleModalTitle">
+      <button type="button" class="google-auth-close" id="googleAuthClose" aria-label="Close modal">&times;</button>
+      
+      <div class="google-auth-header">
+        <div class="google-logo-wrap">
+          <svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true">
+            <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62Z"/>
+            <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18Z"/>
+            <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.66 9c0-.59.1-1.16.29-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33Z"/>
+            <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.9 11.42 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58Z"/>
+          </svg>
+        </div>
+        <h3 id="googleModalTitle">Sign in with Google</h3>
+        <p>Choose an account to continue to <span class="brand-highlight">Kamui</span></p>
+      </div>
+
+      <form id="googleAuthForm">
+        <div class="google-accounts-box">
+          <div class="google-account-row" id="googleQuickAccount">
+            <div class="google-avatar-icon" id="googleAvatarPreview">${defaultGoogleName.charAt(0).toUpperCase()}</div>
+            <div class="google-account-details">
+              <div class="google-acc-name" id="googlePreviewName">${defaultGoogleName}</div>
+              <div class="google-acc-email" id="googlePreviewEmail">${defaultGoogleEmail}</div>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4285f4" stroke-width="2.5">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+          </div>
+
+          <div class="google-custom-inputs">
+            <div class="google-field">
+              <label for="googleInputName">Google Account Name</label>
+              <input type="text" id="googleInputName" value="${defaultGoogleName}" required placeholder="Your Google Name">
+            </div>
+            <div class="google-field">
+              <label for="googleInputEmail">Gmail Address</label>
+              <input type="email" id="googleInputEmail" value="${defaultGoogleEmail}" required placeholder="you@gmail.com">
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="google-auth-btn-submit" id="googleBtnSubmit">
+          <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+            <path fill="#fff" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62Z"/>
+            <path fill="#fff" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18Z"/>
+            <path fill="#fff" d="M3.95 10.7A5.4 5.4 0 0 1 3.66 9c0-.59.1-1.16.29-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33Z"/>
+            <path fill="#fff" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.9 11.42 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58Z"/>
+          </svg>
+          Continue as <span id="googleBtnNameLabel" style="margin-left:4px;">${defaultGoogleName}</span>
+        </button>
+
+        <p class="google-auth-disclaimer">To continue, Google will share your name, email address, and language preference with Kamui.</p>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const nameInput = overlay.querySelector('#googleInputName');
+  const emailInput = overlay.querySelector('#googleInputEmail');
+  const previewName = overlay.querySelector('#googlePreviewName');
+  const previewEmail = overlay.querySelector('#googlePreviewEmail');
+  const avatarIcon = overlay.querySelector('#googleAvatarPreview');
+  const btnLabel = overlay.querySelector('#googleBtnNameLabel');
+
+  nameInput.addEventListener('input', () => {
+    const val = nameInput.value.trim() || 'User';
+    previewName.textContent = val;
+    btnLabel.textContent = val;
+    avatarIcon.textContent = val.charAt(0).toUpperCase();
+  });
+
+  emailInput.addEventListener('input', () => {
+    previewEmail.textContent = emailInput.value.trim() || 'user@gmail.com';
+  });
+
+  overlay.querySelector('#googleAuthClose').addEventListener('click', closeGoogleAuthModal);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeGoogleAuthModal();
+  });
+
+  overlay.querySelector('#googleAuthForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const gName = nameInput.value.trim() || 'Google User';
+    const gEmail = emailInput.value.trim() || `${gName.toLowerCase().replace(/\s+/g, '.')}@gmail.com`;
+    
+    const existing = findRegisteredAccount(gEmail) || findRegisteredAccount(gName);
+    const avatar = (existing && existing.avatar) ? existing.avatar : getRandomDefaultAvatar();
+    
+    const userSession = {
+      name: gName,
+      email: gEmail,
+      loggedIn: true,
+      avatar: avatar,
+      authProvider: 'google'
+    };
+
+    saveRegisteredAccount(userSession);
+    setAuthUser(userSession);
+    showToast(`Signed in with Google as ${gName}! Welcome to Kamui.`, 'success');
+    closeGoogleAuthModal();
+    closeAuthModal();
+
+    if (pendingRedirectUrl) {
+      setTimeout(() => {
+        window.location.href = pendingRedirectUrl;
+      }, 400);
+    }
+  });
+}
+
+function openGoogleAuthModal(redirectUrl = 'watch.html') {
+  ensureGoogleAuthModal();
+  pendingRedirectUrl = redirectUrl;
+  const overlay = document.getElementById('googleAuthOverlay');
+  if (overlay) {
+    overlay.classList.add('open');
+  }
+}
+
+function closeGoogleAuthModal() {
+  const overlay = document.getElementById('googleAuthOverlay');
+  if (overlay) {
+    overlay.classList.remove('open');
+  }
+}
+
+// ---------- Standard Auth Prompt Modal ----------
 function ensureAuthModal() {
   if (document.getElementById('authPromptOverlay')) return;
 
@@ -105,8 +310,8 @@ function ensureAuthModal() {
       <div class="auth-tab-pane active" id="tabPaneSignin">
         <form class="auth-prompt-form" id="modalSigninForm">
           <div class="field">
-            <label for="modalSigninEmail">Email</label>
-            <input type="email" id="modalSigninEmail" placeholder="you@example.com" required autocomplete="email">
+            <label for="modalSigninEmail">Username or Email</label>
+            <input type="text" id="modalSigninEmail" placeholder="e.g. Manan or you@example.com" required autocomplete="username">
           </div>
           <div class="field">
             <label for="modalSigninPass">Password</label>
@@ -117,10 +322,10 @@ function ensureAuthModal() {
         <div class="auth-prompt-divider">or</div>
         <button type="button" class="btn auth-alt auth-prompt-google" id="modalGoogleSignin">
           <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
-            <path fill="#e8b94f" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62Z"/>
-            <path fill="#ece3d0" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18Z"/>
-            <path fill="#a79d87" d="M3.95 10.7A5.4 5.4 0 0 1 3.66 9c0-.59.1-1.16.29-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33Z"/>
-            <path fill="#6c6555" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.9 11.42 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58Z"/>
+            <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62Z"/>
+            <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18Z"/>
+            <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.66 9c0-.59.1-1.16.29-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33Z"/>
+            <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.9 11.42 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58Z"/>
           </svg>
           Continue with Google
         </button>
@@ -131,8 +336,8 @@ function ensureAuthModal() {
       <div class="auth-tab-pane" id="tabPaneSignup">
         <form class="auth-prompt-form" id="modalSignupForm">
           <div class="field">
-            <label for="modalSignupName">Name</label>
-            <input type="text" id="modalSignupName" placeholder="Your name" required autocomplete="name">
+            <label for="modalSignupName">Username / Display Name</label>
+            <input type="text" id="modalSignupName" placeholder="Your name or username" required autocomplete="name">
           </div>
           <div class="field">
             <label for="modalSignupEmail">Email</label>
@@ -147,10 +352,10 @@ function ensureAuthModal() {
         <div class="auth-prompt-divider">or</div>
         <button type="button" class="btn auth-alt auth-prompt-google" id="modalGoogleSignup">
           <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
-            <path fill="#e8b94f" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62Z"/>
-            <path fill="#ece3d0" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18Z"/>
-            <path fill="#a79d87" d="M3.95 10.7A5.4 5.4 0 0 1 3.66 9c0-.59.1-1.16.29-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33Z"/>
-            <path fill="#6c6555" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.9 11.42 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58Z"/>
+            <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62Z"/>
+            <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18Z"/>
+            <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.66 9c0-.59.1-1.16.29-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33Z"/>
+            <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.9 11.42 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58Z"/>
           </svg>
           Continue with Google
         </button>
@@ -181,10 +386,13 @@ function ensureAuthModal() {
   // Modal Sign In Form Submit
   overlay.querySelector('#modalSigninForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    const email = overlay.querySelector('#modalSigninEmail').value.trim();
-    let name = email.split('@')[0];
-    name = name.charAt(0).toUpperCase() + name.slice(1);
-    setAuthUser({ name, email, loggedIn: true, avatar: 'avatars/nami.svg' });
+    const loginInput = overlay.querySelector('#modalSigninEmail').value.trim();
+    const existing = findRegisteredAccount(loginInput);
+    const name = parseUserDisplayName(loginInput);
+    const email = loginInput.includes('@') ? loginInput : (existing && existing.email ? existing.email : `${loginInput.toLowerCase()}@kamui.stream`);
+    const avatar = (existing && existing.avatar) ? existing.avatar : getRandomDefaultAvatar();
+    
+    setAuthUser({ name, email, loggedIn: true, avatar });
     showToast(`Welcome back, ${name}! Redirecting...`, 'success');
     closeAuthModal();
     if (pendingRedirectUrl) {
@@ -197,9 +405,11 @@ function ensureAuthModal() {
   // Modal Sign Up Form Submit
   overlay.querySelector('#modalSignupForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    const name = overlay.querySelector('#modalSignupName').value.trim();
+    const name = overlay.querySelector('#modalSignupName').value.trim() || 'Member';
     const email = overlay.querySelector('#modalSignupEmail').value.trim();
-    setAuthUser({ name, email, loggedIn: true, avatar: getRandomDefaultAvatar() });
+    const avatar = getRandomDefaultAvatar();
+    
+    setAuthUser({ name, email, loggedIn: true, avatar });
     showToast(`Account created! Welcome to Kamui, ${name}.`, 'success');
     closeAuthModal();
     if (pendingRedirectUrl) {
@@ -209,20 +419,13 @@ function ensureAuthModal() {
     }
   });
 
-  // Modal Google Quick Auth
-  const handleGoogleQuick = () => {
-    setAuthUser({ name: 'Anime Member', email: 'member@kamui.stream', loggedIn: true, avatar: 'avatars/hinata.svg' });
-    showToast('Signed in with Google. Welcome!', 'success');
-    closeAuthModal();
-    if (pendingRedirectUrl) {
-      setTimeout(() => {
-        window.location.href = pendingRedirectUrl;
-      }, 400);
-    }
-  };
-
-  overlay.querySelector('#modalGoogleSignin').addEventListener('click', handleGoogleQuick);
-  overlay.querySelector('#modalGoogleSignup').addEventListener('click', handleGoogleQuick);
+  // Modal Google Auth triggers
+  overlay.querySelector('#modalGoogleSignin').addEventListener('click', () => {
+    openGoogleAuthModal(pendingRedirectUrl || 'watch.html');
+  });
+  overlay.querySelector('#modalGoogleSignup').addEventListener('click', () => {
+    openGoogleAuthModal(pendingRedirectUrl || 'watch.html');
+  });
 }
 
 function openAuthModal(heading, sub, redirectUrl = 'watch.html', defaultTab = 'signin') {
@@ -259,7 +462,7 @@ function updateNavAuth() {
   if (user && user.loggedIn) {
     const currentAvatar = user.avatar || 'avatars/nami.svg';
     
-    // Build Chibi Avatar Grid HTML
+    // Build Realistic Anime Chibi Avatar Grid HTML
     const chibiGridHtml = DEFAULT_AVATARS.map(item => `
       <div class="chibi-card ${currentAvatar === item.src ? 'active' : ''}" data-src="${item.src}" data-name="${item.name}" data-anime="${item.anime}" title="${item.name} (${item.anime})">
         <img class="chibi-img" src="${item.src}" alt="${item.name}">
@@ -291,7 +494,7 @@ function updateNavAuth() {
             </div>
             <div class="profile-user-info">
               <h4 class="profile-dropdown-name">${user.name || 'Member'}</h4>
-              <p class="profile-dropdown-email">${user.email || 'member@kamui.stream'}</p>
+              <p class="profile-dropdown-email">${user.email || 'user@kamui.stream'}</p>
               <span class="profile-tier-badge">✦ KAMUI MEMBER · 4K HDR</span>
             </div>
           </div>
@@ -307,7 +510,7 @@ function updateNavAuth() {
               </label>
               <input type="file" id="deviceAvatarInput" accept="image/png, image/jpeg, image/webp, image/gif, image/svg+xml" style="display:none;">
             </div>
-            <p class="chibi-subheading">Or choose a Chibi character (One Piece, Bleach, Naruto):</p>
+            <p class="chibi-subheading">Choose an authentic Chibi character (One Piece, Bleach, Naruto):</p>
             <div class="chibi-avatar-grid" id="chibiAvatarGrid">
               ${chibiGridHtml}
             </div>
@@ -424,17 +627,13 @@ function initStartWatchingInterceptors() {
     const targetLink = e.target.closest('a[href*="watch.html"], a[href="signup.html"]');
     if (!targetLink) return;
 
-    // If it's the home link, skip
     if (targetLink.getAttribute('href') === 'index.html' || targetLink.getAttribute('href') === '#top') return;
 
-    // Check if user is already logged in
     const user = getAuthUser();
     if (user && user.loggedIn) {
-      // User is logged in, proceed naturally to watch page
       return;
     }
 
-    // User is NOT logged in: Intercept and ask to Sign In or Sign Up
     e.preventDefault();
     const targetHref = targetLink.getAttribute('href') || 'watch.html';
     const isSignUpBtn = targetLink.textContent.toLowerCase().includes('sign up') || targetHref.includes('signup.html');
@@ -454,14 +653,17 @@ function initAuthPages() {
   if (signinForm) {
     signinForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      let name = email.split('@')[0];
-      name = name.charAt(0).toUpperCase() + name.slice(1);
-      setAuthUser({ name, email, loggedIn: true });
+      const loginInput = document.getElementById('email').value.trim();
+      const existing = findRegisteredAccount(loginInput);
+      const name = parseUserDisplayName(loginInput);
+      const email = loginInput.includes('@') ? loginInput : (existing && existing.email ? existing.email : `${loginInput.toLowerCase()}@kamui.stream`);
+      const avatar = (existing && existing.avatar) ? existing.avatar : getRandomDefaultAvatar();
+      
+      setAuthUser({ name, email, loggedIn: true, avatar });
       showToast(`Welcome back, ${name}! Taking you to stream...`, 'success');
       setTimeout(() => {
         window.location.href = 'watch.html';
-      }, 600);
+      }, 500);
     });
   }
 
@@ -469,24 +671,23 @@ function initAuthPages() {
   if (signupForm) {
     signupForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const name = document.getElementById('name').value.trim();
+      const name = document.getElementById('name').value.trim() || 'Member';
       const email = document.getElementById('email').value.trim();
-      setAuthUser({ name, email, loggedIn: true });
+      const avatar = getRandomDefaultAvatar();
+      
+      setAuthUser({ name, email, loggedIn: true, avatar });
       showToast(`Account created! Welcome, ${name}.`, 'success');
       setTimeout(() => {
         window.location.href = 'watch.html';
-      }, 600);
+      }, 500);
     });
   }
 
   // Google buttons on standalone auth pages
   document.querySelectorAll('.auth-alt').forEach(btn => {
-    btn.addEventListener('click', () => {
-      setAuthUser({ name: 'Anime Member', email: 'member@kamui.stream', loggedIn: true });
-      showToast('Signed in with Google. Redirecting...', 'success');
-      setTimeout(() => {
-        window.location.href = 'watch.html';
-      }, 600);
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openGoogleAuthModal('watch.html');
     });
   });
 }
@@ -666,7 +867,6 @@ if (modalOverlay) {
     modalPlay.addEventListener('click', () => {
       const user = getAuthUser();
       if (!user || !user.loggedIn) {
-        // Prompt for auth before playing episode
         openAuthModal(
           'Sign in required to play',
           `Please sign in or create an account to start streaming "${modalTitle.textContent || 'this title'}" in 4K HDR.`,
@@ -685,7 +885,6 @@ if (modalOverlay) {
     });
   }
 
-  // Open directly to a title if the page was linked with #slug
   const checkHash = () => {
     const hashId = window.location.hash.replace('#', '');
     if (hashId) {
@@ -705,6 +904,7 @@ if (modalOverlay) {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeAuthModal();
+    closeGoogleAuthModal();
     if (modalOverlay) modalOverlay.classList.remove('open');
   }
 });
@@ -731,12 +931,13 @@ if (titleVideo) {
 // ---------- Initialize App Auth State & Interceptors ----------
 document.addEventListener('DOMContentLoaded', () => {
   ensureAuthModal();
+  ensureGoogleAuthModal();
   updateNavAuth();
   initStartWatchingInterceptors();
   initAuthPages();
 });
 ensureAuthModal();
+ensureGoogleAuthModal();
 updateNavAuth();
 initStartWatchingInterceptors();
 initAuthPages();
-

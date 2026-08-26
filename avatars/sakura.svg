@@ -1,72 +1,93 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
   <defs>
-    <radialGradient id="sakuraBg" cx="50%" cy="40%" r="50%">
-      <stop offset="0%" stop-color="#3d1e2e"/>
-      <stop offset="100%" stop-color="#140a10"/>
+    <radialGradient id="sakuraBg" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#4c0519"/>
+      <stop offset="60%" stop-color="#24030d"/>
+      <stop offset="100%" stop-color="#0a0104"/>
     </radialGradient>
-    <linearGradient id="sakuraHair" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ff9ff3"/>
-      <stop offset="50%" stop-color="#f368e0"/>
-      <stop offset="100%" stop-color="#d93b9b"/>
-    </linearGradient>
     <linearGradient id="sakuraSkin" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fff5f5"/>
-      <stop offset="100%" stop-color="#fedbd0"/>
+      <stop offset="0%" stop-color="#fff5ed"/>
+      <stop offset="60%" stop-color="#fee7d6"/>
+      <stop offset="100%" stop-color="#fcd5be"/>
     </linearGradient>
+    <linearGradient id="sakuraHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbcfe8"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="80%" stop-color="#db2777"/>
+      <stop offset="100%" stop-color="#9d174d"/>
+    </linearGradient>
+    <linearGradient id="sakuraEyes" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="metalPlate" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="50%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+    <filter id="sakuraShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
   </defs>
-  <!-- Background Circle -->
-  <circle cx="80" cy="80" r="76" fill="url(#sakuraBg)" stroke="#ff7675" stroke-width="2.5"/>
-  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(255,118,117,0.2)" stroke-width="1"/>
-  
-  <!-- Red Headband in hair -->
-  <path d="M46 64 Q80 48 114 64 L118 72 Q80 54 42 72 Z" fill="#d63031"/>
-  
-  <!-- Back Hair (Short bob) -->
-  <path d="M40 70 Q28 92 34 118 Q50 126 80 126 Q110 126 126 118 Q132 92 120 70 Z" fill="url(#sakuraHair)"/>
-  
-  <!-- Crimson Qipao / Top -->
-  <path d="M42 136 Q80 124 118 136 L122 156 L38 156 Z" fill="#c0392b"/>
-  <path d="M66 130 Q80 140 94 130 L96 156 L64 156 Z" fill="url(#sakuraSkin)"/>
-  <circle cx="80" cy="144" r="5" fill="#ffffff" stroke="#c0392b" stroke-width="1"/>
-  
-  <!-- Head / Face -->
-  <ellipse cx="80" cy="86" rx="33" ry="31" fill="url(#sakuraSkin)"/>
-  
-  <!-- Byakugou Diamond Mark on forehead (Centred) -->
-  <polygon points="80,58 83,63 80,68 77,63" fill="#8e44ad"/>
-  
-  <!-- Cute Rosy Blush -->
-  <ellipse cx="58" cy="95" rx="6.5" ry="3" fill="#ff7675" opacity="0.45"/>
-  <ellipse cx="102" cy="95" rx="6.5" ry="3" fill="#ff7675" opacity="0.45"/>
-  
-  <!-- Emerald Green Eyes -->
+
+  <!-- Background Base & Outer Ring -->
+  <circle cx="80" cy="80" r="76" fill="url(#sakuraBg)" stroke="#f472b6" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(244,114,182,0.25)" stroke-width="1.2" stroke-dasharray="6 3"/>
+
+  <!-- Back Short Pink Hair -->
+  <path d="M36 68 Q20 92 28 122 Q46 130 80 130 Q114 130 132 122 Q140 92 124 68 Z" fill="url(#sakuraHair)" filter="url(#sakuraShadow)"/>
+
+  <!-- Shoulders & Red Ninja Top (Shippuden) -->
+  <g id="sakuraBody">
+    <path d="M34 136 Q80 118 126 136 L130 156 L30 156 Z" fill="#be123c"/>
+    <!-- White Zipper Center Line -->
+    <path d="M54 130 L80 154 L106 130 L110 156 L50 156 Z" fill="#e11d48"/>
+    <line x1="80" y1="130" x2="80" y2="156" stroke="#f8fafc" stroke-width="2"/>
+    <!-- Exposed Neck -->
+    <path d="M66 124 L80 138 L94 124 Z" fill="url(#sakuraSkin)"/>
+  </g>
+
+  <!-- Chibi Head & Neck -->
+  <rect x="73" y="112" width="14" height="18" rx="6" fill="url(#sakuraSkin)"/>
+  <path d="M42 82 C40 106 56 122 80 122 C104 122 120 106 118 82 C116 60 102 52 80 52 C58 52 44 60 42 82 Z" fill="url(#sakuraSkin)" filter="url(#sakuraShadow)"/>
+
+  <!-- Cheerful Rosy Blush -->
+  <ellipse cx="56" cy="97" rx="8" ry="4" fill="#fb7185" opacity="0.5"/>
+  <ellipse cx="104" cy="97" rx="8" ry="4" fill="#fb7185" opacity="0.5"/>
+
+  <!-- Bright Emerald-Green Anime Eyes -->
   <!-- Left Eye -->
-  <ellipse cx="64" cy="85" rx="8.5" ry="10" fill="#10ac84"/>
-  <ellipse cx="64" cy="87" rx="6.5" ry="7" fill="#1dd1a1"/>
-  <circle cx="61.5" cy="82" r="3.2" fill="#ffffff"/>
-  <circle cx="66" cy="88" r="1.5" fill="#ffffff"/>
-  <path d="M55 75 Q64 71 73 75" stroke="#2d3436" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="63" cy="84" rx="8.5" ry="11" fill="url(#sakuraEyes)"/>
+  <ellipse cx="63" cy="83" rx="5.5" ry="7" fill="#064e3b"/>
+  <circle cx="60.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="66" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M52 74 Q63 69 73 74" stroke="#18181b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M72 73 L76 71" stroke="#18181b" stroke-width="2.2" stroke-linecap="round"/>
+
   <!-- Right Eye -->
-  <ellipse cx="96" cy="85" rx="8.5" ry="10" fill="#10ac84"/>
-  <ellipse cx="96" cy="87" rx="6.5" ry="7" fill="#1dd1a1"/>
-  <circle cx="93.5" cy="82" r="3.2" fill="#ffffff"/>
-  <circle cx="98" cy="88" r="1.5" fill="#ffffff"/>
-  <path d="M87 75 Q96 71 105 75" stroke="#2d3436" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-  
-  <!-- Cheerful smile -->
-  <path d="M74 100 Q80 106 86 100" stroke="#d63031" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-  
-  <!-- Front parted pink bangs -->
-  <path d="M46 62 Q60 52 74 56 Q70 70 54 84 Q48 76 46 62 Z" fill="url(#sakuraHair)"/>
-  <path d="M114 62 Q100 52 86 56 Q90 70 106 84 Q112 76 114 62 Z" fill="url(#sakuraHair)"/>
-  <path d="M46 62 Q36 84 46 104 Q50 94 56 86 Z" fill="url(#sakuraHair)"/>
-  <path d="M114 62 Q124 84 114 104 Q110 94 104 86 Z" fill="url(#sakuraHair)"/>
-  
-  <!-- Cherry Blossom Petals -->
-  <ellipse cx="32" cy="74" rx="4" ry="7" fill="#ff9ff3" transform="rotate(-30 32 74)" opacity="0.8"/>
-  <ellipse cx="128" cy="76" rx="4" ry="7" fill="#ff9ff3" transform="rotate(30 128 76)" opacity="0.8"/>
-  
-  <!-- Badge Label -->
-  <rect x="36" y="136" width="88" height="16" rx="8" fill="rgba(10,15,24,0.85)" stroke="#ff7675" stroke-width="1"/>
-  <text x="80" y="148" text-anchor="middle" fill="#ff7675" font-family="'Outfit', sans-serif" font-size="9" font-weight="700" letter-spacing="0.08em">SAKURA · NARUTO</text>
+  <ellipse cx="97" cy="84" rx="8.5" ry="11" fill="url(#sakuraEyes)"/>
+  <ellipse cx="97" cy="83" rx="5.5" ry="7" fill="#064e3b"/>
+  <circle cx="94.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="100" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M87 74 Q97 69 108 74" stroke="#18181b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M107 74 L111 71" stroke="#18181b" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Energetic Sweet Smile -->
+  <path d="M72 102 Q80 108 88 102" stroke="#e11d48" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+
+  <!-- Red Konoha Headband Worn as Hairband -->
+  <g id="sakuraHeadband">
+    <!-- Red Cloth -->
+    <path d="M42 54 Q80 46 118 54 L119 64 Q80 56 41 64 Z" fill="#dc2626" stroke="#991b1b" stroke-width="0.8"/>
+    <!-- Metal Plate -->
+    <rect x="58" y="52" width="44" height="13" rx="3" fill="url(#metalPlate)" stroke="#475569" stroke-width="0.8"/>
+    <!-- Leaf Spiral Crest -->
+    <path d="M80 55 C78 55 76 56.5 76 58 C76 60 78 60.5 80 60.5 C82 60.5 83.5 59 83.5 58 C83.5 56 81.5 54.5 79 54.5 C75.5 54.5 73.5 57 73.5 59.5 C73.5 62 77 63.5 80 63.5 L84 62" fill="none" stroke="#1e293b" stroke-width="1.1" stroke-linecap="round"/>
+  </g>
+
+  <!-- Pink Front Bangs & Side Locks -->
+  <path d="M42 60 Q60 48 80 48 Q100 48 118 60 Q124 82 120 106 Q114 104 110 86 Q100 68 80 72 Q60 68 50 86 Q46 104 40 106 Q36 82 42 60 Z" fill="url(#sakuraHair)" filter="url(#sakuraShadow)"/>
+  <!-- Glossy Highlights -->
+  <path d="M54 52 Q80 46 106 52" stroke="#fdf2f8" stroke-width="2" fill="none" opacity="0.8"/>
 </svg>

@@ -1,65 +1,101 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
   <defs>
-    <radialGradient id="orihimeBg" cx="50%" cy="40%" r="50%">
-      <stop offset="0%" stop-color="#2c1f38"/>
-      <stop offset="100%" stop-color="#0f0a14"/>
+    <radialGradient id="orihimeBg" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#3d1d0f"/>
+      <stop offset="60%" stop-color="#1f0e06"/>
+      <stop offset="100%" stop-color="#0a0502"/>
     </radialGradient>
-    <linearGradient id="orihimeHair" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f39c12"/>
-      <stop offset="50%" stop-color="#e67e22"/>
-      <stop offset="100%" stop-color="#d35400"/>
-    </linearGradient>
     <linearGradient id="orihimeSkin" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fff8f2"/>
-      <stop offset="100%" stop-color="#fcdbc9"/>
+      <stop offset="0%" stop-color="#fff7ed"/>
+      <stop offset="60%" stop-color="#fee7d6"/>
+      <stop offset="100%" stop-color="#fcd5be"/>
     </linearGradient>
+    <linearGradient id="orihimeHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f97316"/>
+      <stop offset="80%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+    <linearGradient id="orihimeEyes" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#64748b"/>
+      <stop offset="50%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <filter id="orihimeShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
   </defs>
-  <!-- Background Circle -->
-  <circle cx="80" cy="80" r="76" fill="url(#orihimeBg)" stroke="#f39c12" stroke-width="2.5"/>
-  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(243,156,18,0.2)" stroke-width="1"/>
-  
-  <!-- Back Long Auburn Hair -->
-  <path d="M38 68 Q20 100 28 136 Q50 144 80 144 Q110 144 132 136 Q140 100 122 68 Z" fill="url(#orihimeHair)"/>
-  
-  <!-- Karakura High School Uniform -->
-  <path d="M42 136 Q80 124 118 136 L122 156 L38 156 Z" fill="#95a5a6"/>
-  <path d="M64 130 L80 140 L96 130 L98 156 L62 156 Z" fill="#ffffff"/>
-  <polygon points="80,136 74,152 86,152" fill="#c0392b"/>
-  
-  <!-- Head / Face -->
-  <ellipse cx="80" cy="86" rx="33" ry="31" fill="url(#orihimeSkin)"/>
-  
-  <!-- Cute Shy Blush -->
-  <ellipse cx="58" cy="95" rx="7" ry="3.5" fill="#ff7675" opacity="0.5"/>
-  <ellipse cx="102" cy="95" rx="7" ry="3.5" fill="#ff7675" opacity="0.5"/>
-  
-  <!-- Gentle Grey-Brown Eyes -->
+
+  <!-- Background Base & Outer Ring -->
+  <circle cx="80" cy="80" r="76" fill="url(#orihimeBg)" stroke="#38bdf8" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(56,189,248,0.25)" stroke-width="1.2" stroke-dasharray="6 3"/>
+
+  <!-- Back Flowing Ginger Hair -->
+  <path d="M34 68 Q16 96 22 136 Q48 144 80 144 Q112 144 138 136 Q144 96 126 68 Z" fill="url(#orihimeHair)" filter="url(#orihimeShadow)"/>
+
+  <!-- Shoulders & Karakura School Uniform (White Shirt, Grey Blazer, Red Ribbon) -->
+  <g id="orihimeBody">
+    <path d="M34 136 Q80 120 126 136 L130 156 L30 156 Z" fill="#475569"/>
+    <!-- White Shirt V-neck -->
+    <path d="M54 130 L80 156 L106 130 L110 156 L50 156 Z" fill="#f8fafc"/>
+    <path d="M60 130 L80 148 L100 130" stroke="#cbd5e1" stroke-width="1.5" fill="none"/>
+    <!-- Neck -->
+    <path d="M68 122 L80 136 L92 122 Z" fill="url(#orihimeSkin)"/>
+    <!-- Red Ribbon Bow -->
+    <g id="redRibbon" transform="translate(73, 140)">
+      <circle cx="7" cy="5" r="2.5" fill="#dc2626"/>
+      <path d="M7 5 Q0 0 2 8 Z" fill="#ef4444"/>
+      <path d="M7 5 Q14 0 12 8 Z" fill="#ef4444"/>
+    </g>
+  </g>
+
+  <!-- Chibi Head & Neck -->
+  <rect x="73" y="112" width="14" height="18" rx="6" fill="url(#orihimeSkin)"/>
+  <path d="M42 82 C40 106 56 122 80 122 C104 122 120 106 118 82 C116 60 102 52 80 52 C58 52 44 60 42 82 Z" fill="url(#orihimeSkin)" filter="url(#orihimeShadow)"/>
+
+  <!-- Sweet Rosy Blush -->
+  <ellipse cx="56" cy="97" rx="8" ry="4.5" fill="#f43f5e" opacity="0.5"/>
+  <ellipse cx="104" cy="97" rx="8" ry="4.5" fill="#f43f5e" opacity="0.5"/>
+
+  <!-- Iconic Shun Shun Rikka 6-Petal Blue Hair Pins -->
+  <!-- Left Hair Pin -->
+  <g id="leftPin" transform="translate(42, 54)">
+    <circle cx="6" cy="6" r="3.5" fill="#38bdf8" stroke="#0284c7" stroke-width="0.8"/>
+    <circle cx="6" cy="1" r="1.5" fill="#bae6fd"/>
+    <circle cx="6" cy="11" r="1.5" fill="#bae6fd"/>
+    <circle cx="1" cy="6" r="1.5" fill="#bae6fd"/>
+    <circle cx="11" cy="6" r="1.5" fill="#bae6fd"/>
+  </g>
+  <!-- Right Hair Pin -->
+  <g id="rightPin" transform="translate(106, 54)">
+    <circle cx="6" cy="6" r="3.5" fill="#38bdf8" stroke="#0284c7" stroke-width="0.8"/>
+    <circle cx="6" cy="1" r="1.5" fill="#bae6fd"/>
+    <circle cx="6" cy="11" r="1.5" fill="#bae6fd"/>
+    <circle cx="1" cy="6" r="1.5" fill="#bae6fd"/>
+    <circle cx="11" cy="6" r="1.5" fill="#bae6fd"/>
+  </g>
+
+  <!-- Large Soft Grey-Blue Anime Eyes -->
   <!-- Left Eye -->
-  <ellipse cx="64" cy="85" rx="8.5" ry="10.5" fill="#4b4b4b"/>
-  <ellipse cx="64" cy="87" rx="6.5" ry="7.5" fill="#7f8c8d"/>
-  <circle cx="61.5" cy="82" r="3.2" fill="#ffffff"/>
-  <circle cx="66" cy="88" r="1.5" fill="#ffffff"/>
-  <path d="M55 75 Q64 71 73 75" stroke="#2c3e50" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="63" cy="84" rx="8.5" ry="11" fill="url(#orihimeEyes)"/>
+  <ellipse cx="63" cy="83" rx="5.5" ry="7" fill="#334155"/>
+  <circle cx="60.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="66" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M52 74 Q63 69 73 74" stroke="#18181b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+
   <!-- Right Eye -->
-  <ellipse cx="96" cy="85" rx="8.5" ry="10.5" fill="#4b4b4b"/>
-  <ellipse cx="96" cy="87" rx="6.5" ry="7.5" fill="#7f8c8d"/>
-  <circle cx="93.5" cy="82" r="3.2" fill="#ffffff"/>
-  <circle cx="98" cy="88" r="1.5" fill="#ffffff"/>
-  <path d="M87 75 Q96 71 105 75" stroke="#2c3e50" stroke-width="2" fill="none" stroke-linecap="round"/>
-  
-  <!-- Sweet Smile -->
-  <path d="M74 100 Q80 106 86 100" stroke="#d63031" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-  
-  <!-- Front Bangs with Side Locks -->
-  <path d="M46 62 Q62 50 80 50 Q98 50 114 62 Q120 84 116 104 Q110 98 108 82 Q98 64 80 66 Q62 64 52 82 Q50 98 44 104 Q40 84 46 62 Z" fill="url(#orihimeHair)"/>
-  
-  <!-- Shun Shun Rikka Flower Hairpins (Cyan 6-petal pin) -->
-  <circle cx="48" cy="62" r="6" fill="#00cec9" stroke="#ffffff" stroke-width="1"/>
-  <circle cx="48" cy="62" r="2.5" fill="#ffeaa7"/>
-  <circle cx="112" cy="62" r="6" fill="#00cec9" stroke="#ffffff" stroke-width="1"/>
-  <circle cx="112" cy="62" r="2.5" fill="#ffeaa7"/>
-  
-  <!-- Badge Label -->
-  <rect x="36" y="136" width="88" height="16" rx="8" fill="rgba(10,15,24,0.85)" stroke="#f39c12" stroke-width="1"/>
-  <text x="80" y="148" text-anchor="middle" fill="#f39c12" font-family="'Outfit', sans-serif" font-size="9" font-weight="700" letter-spacing="0.08em">ORIHIME · BLEACH</text>
+  <ellipse cx="97" cy="84" rx="8.5" ry="11" fill="url(#orihimeEyes)"/>
+  <ellipse cx="97" cy="83" rx="5.5" ry="7" fill="#334155"/>
+  <circle cx="94.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="100" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M87 74 Q97 69 108 74" stroke="#18181b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+
+  <!-- Cheerful Sweet Smile -->
+  <path d="M72 102 Q80 108 88 102" stroke="#e11d48" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="80" cy="104" rx="2.5" ry="1.2" fill="#fda4af" opacity="0.8"/>
+
+  <!-- Flowing Ginger Front Bangs & Side Locks -->
+  <path d="M42 60 Q60 48 80 48 Q100 48 118 60 Q124 82 120 108 Q114 104 110 86 Q100 68 80 72 Q60 68 50 86 Q46 104 40 108 Q36 82 42 60 Z" fill="url(#orihimeHair)" filter="url(#orihimeShadow)"/>
+  <!-- Highlight Strands -->
+  <path d="M54 52 Q80 46 106 52" stroke="#fed7aa" stroke-width="2.2" fill="none" opacity="0.75"/>
 </svg>
