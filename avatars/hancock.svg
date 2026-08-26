@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="hancockBg" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#4a044e"/>
+      <stop offset="60%" stop-color="#240226"/>
+      <stop offset="100%" stop-color="#0a010b"/>
+    </radialGradient>
+    <linearGradient id="hancockSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff5ed"/>
+      <stop offset="60%" stop-color="#fde2d2"/>
+      <stop offset="100%" stop-color="#f8ccb6"/>
+    </linearGradient>
+    <linearGradient id="hancockHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181b"/>
+      <stop offset="40%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#020203"/>
+    </linearGradient>
+    <linearGradient id="hancockEyes" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="50%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="goldEarring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#facc15"/>
+      <stop offset="100%" stop-color="#ca8a04"/>
+    </linearGradient>
+    <filter id="hancockShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base & Outer Ring -->
+  <circle cx="80" cy="80" r="76" fill="url(#hancockBg)" stroke="#e879f9" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(232,121,249,0.25)" stroke-width="1.2" stroke-dasharray="6 3"/>
+
+  <!-- Back Long Straight Raven Hair -->
+  <path d="M32 68 Q14 96 20 138 Q48 144 80 144 Q112 144 140 138 Q146 96 128 68 Z" fill="url(#hancockHair)" filter="url(#hancockShadow)"/>
+
+  <!-- Shoulders & Royal Purple Empress Dress -->
+  <g id="hancockBody">
+    <path d="M34 136 Q80 118 126 136 L130 156 L30 156 Z" fill="#581c87"/>
+    <!-- Gold Trim High Collar -->
+    <path d="M54 130 L80 154 L106 130 L110 156 L50 156 Z" fill="#6b21a8"/>
+    <path d="M58 130 L80 148 L102 130" stroke="#facc15" stroke-width="2" fill="none"/>
+    <!-- Deep Neckline -->
+    <path d="M66 124 L80 138 L94 124 Z" fill="url(#hancockSkin)"/>
+    <path d="M70 132 Q80 140 90 132" stroke="#e09f7a" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <!-- Chibi Head & Neck -->
+  <rect x="73" y="112" width="14" height="18" rx="6" fill="url(#hancockSkin)"/>
+  <path d="M42 82 C40 106 56 122 80 122 C104 122 120 106 118 82 C116 60 102 52 80 52 C58 52 44 60 42 82 Z" fill="url(#hancockSkin)" filter="url(#hancockShadow)"/>
+
+  <!-- Empress Rosy Blush -->
+  <ellipse cx="56" cy="97" rx="8" ry="4" fill="#f43f5e" opacity="0.45"/>
+  <ellipse cx="104" cy="97" rx="8" ry="4" fill="#f43f5e" opacity="0.45"/>
+
+  <!-- Signature Golden Snake / Serpent Earrings -->
+  <!-- Left Earring -->
+  <g id="leftSnake" transform="translate(32, 84)">
+    <path d="M6 0 Q10 4 6 8 Q2 12 6 16 Q8 12 8 8 Q8 4 6 0 Z" fill="url(#goldEarring)" stroke="#a16207" stroke-width="0.6"/>
+    <circle cx="6" cy="1" r="1.5" fill="#facc15"/>
+    <!-- Snake Red Eye -->
+    <circle cx="7" cy="1" r="0.4" fill="#dc2626"/>
+  </g>
+  <!-- Right Earring -->
+  <g id="rightSnake" transform="translate(122, 84)">
+    <path d="M0 0 Q-4 4 0 8 Q4 12 0 16 Q-2 12 -2 8 Q-2 4 0 0 Z" fill="url(#goldEarring)" stroke="#a16207" stroke-width="0.6"/>
+    <circle cx="0" cy="1" r="1.5" fill="#facc15"/>
+    <circle cx="-1" cy="1" r="0.4" fill="#dc2626"/>
+  </g>
+
+  <!-- Dark Blue-Grey Anime Eyes with Haughty Eyelashes -->
+  <!-- Left Eye -->
+  <ellipse cx="63" cy="84" rx="8.5" ry="11" fill="url(#hancockEyes)"/>
+  <ellipse cx="63" cy="83" rx="5.5" ry="7" fill="#0f172a"/>
+  <circle cx="60.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="66" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M52 74 Q63 69 73 74" stroke="#09090b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M72 73 L76 71" stroke="#09090b" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Right Eye -->
+  <ellipse cx="97" cy="84" rx="8.5" ry="11" fill="url(#hancockEyes)"/>
+  <ellipse cx="97" cy="83" rx="5.5" ry="7" fill="#0f172a"/>
+  <circle cx="94.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="100" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M87 74 Q97 69 108 74" stroke="#09090b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M107 74 L111 72" stroke="#09090b" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Confident Smirk / Smile -->
+  <path d="M74 102 Q80 106 86 101" stroke="#be123c" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+  <!-- Classic Straight Hime Cut Front Locks -->
+  <path d="M42 60 Q60 48 80 48 Q100 48 118 60 Q124 82 122 112 Q116 112 112 88 Q110 70 100 70 Q80 70 60 70 Q50 70 48 88 Q44 112 38 112 Q36 82 42 60 Z" fill="url(#hancockHair)" filter="url(#hancockShadow)"/>
+  <!-- Straight Hime Cut Side Locks -->
+  <rect x="42" y="70" width="8" height="30" fill="url(#hancockHair)"/>
+  <line x1="42" y1="100" x2="50" y2="100" stroke="#09090b" stroke-width="1.5"/>
+  <rect x="110" y="70" width="8" height="30" fill="url(#hancockHair)"/>
+  <line x1="110" y1="100" x2="118" y2="100" stroke="#09090b" stroke-width="1.5"/>
+  <!-- Glossy Purple Sheen -->
+  <path d="M54 52 Q80 46 106 52" stroke="#c084fc" stroke-width="2" fill="none" opacity="0.6"/>
+</svg>

@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="rukiaBg" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="60%" stop-color="#0f0d26"/>
+      <stop offset="100%" stop-color="#050410"/>
+    </radialGradient>
+    <linearGradient id="rukiaSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff7ed"/>
+      <stop offset="60%" stop-color="#fee7d6"/>
+      <stop offset="100%" stop-color="#fcd5be"/>
+    </linearGradient>
+    <linearGradient id="rukiaHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="40%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="rukiaEyes" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="50%" stop-color="#9333ea"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <filter id="rukiaShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base & Outer Ring -->
+  <circle cx="80" cy="80" r="76" fill="url(#rukiaBg)" stroke="#a855f7" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(168,85,247,0.25)" stroke-width="1.2" stroke-dasharray="6 3"/>
+
+  <!-- Back Short Bob Locks -->
+  <path d="M36 68 Q22 92 28 122 Q46 130 80 130 Q114 130 132 122 Q138 92 124 68 Z" fill="url(#rukiaHair)" filter="url(#rukiaShadow)"/>
+
+  <!-- Shoulders & Black Shinigami Robes -->
+  <g id="rukiaBody">
+    <path d="M36 136 Q80 120 124 136 L128 156 L32 156 Z" fill="#09090b"/>
+    <!-- Crisp White Collar Lining -->
+    <path d="M54 130 L80 152 L106 130 L110 156 L50 156 Z" fill="#09090b"/>
+    <path d="M60 130 L80 146 L100 130" stroke="#f8fafc" stroke-width="2.5" fill="none"/>
+    <!-- Exposed Neck -->
+    <path d="M68 124 L80 136 L92 124 Z" fill="url(#rukiaSkin)"/>
+  </g>
+
+  <!-- Chibi Head & Neck -->
+  <rect x="73" y="112" width="14" height="18" rx="6" fill="url(#rukiaSkin)"/>
+  <path d="M42 82 C40 106 56 122 80 122 C104 122 120 106 118 82 C116 60 102 52 80 52 C58 52 44 60 42 82 Z" fill="url(#rukiaSkin)" filter="url(#rukiaShadow)"/>
+
+  <!-- Delicate Rosy Anime Blush -->
+  <ellipse cx="56" cy="97" rx="8" ry="4" fill="#f43f5e" opacity="0.4"/>
+  <ellipse cx="104" cy="97" rx="8" ry="4" fill="#f43f5e" opacity="0.4"/>
+
+  <!-- Deep Violet Anime Eyes with Starry Reflections -->
+  <!-- Left Eye -->
+  <ellipse cx="63" cy="84" rx="8.5" ry="11" fill="url(#rukiaEyes)"/>
+  <ellipse cx="63" cy="83" rx="5.5" ry="7" fill="#4c1d95"/>
+  <circle cx="60.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="66" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M52 74 Q63 69 73 74" stroke="#09090b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M72 73 L75 71" stroke="#09090b" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Right Eye -->
+  <ellipse cx="97" cy="84" rx="8.5" ry="11" fill="url(#rukiaEyes)"/>
+  <ellipse cx="97" cy="83" rx="5.5" ry="7" fill="#4c1d95"/>
+  <circle cx="94.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="100" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M87 74 Q97 69 108 74" stroke="#09090b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M107 74 L110 72" stroke="#09090b" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Gentle Smile -->
+  <path d="M75 102 Q80 106 85 102" stroke="#e11d48" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+
+  <!-- Sleek Raven Bob Hair with Signature Center Strand -->
+  <path d="M42 60 Q60 48 80 48 Q100 48 118 60 Q124 82 120 106 Q114 104 110 86 Q100 68 80 72 Q60 68 50 86 Q46 104 40 106 Q36 82 42 60 Z" fill="url(#rukiaHair)" filter="url(#rukiaShadow)"/>
+  <!-- Signature single centered strand hanging between eyes -->
+  <path d="M78 52 Q82 66 79 84 Q76 66 80 52 Z" fill="url(#rukiaHair)"/>
+  <path d="M79 84 L80 87 L78 84" stroke="#0f172a" stroke-width="1" fill="#0f172a"/>
+  <!-- Hair Gloss Highlights -->
+  <path d="M54 52 Q80 46 106 52" stroke="#6366f1" stroke-width="2" fill="none" opacity="0.6"/>
+</svg>

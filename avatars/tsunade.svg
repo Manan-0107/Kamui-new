@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="tsunadeBg" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#064e3b"/>
+      <stop offset="60%" stop-color="#022c22"/>
+      <stop offset="100%" stop-color="#01130e"/>
+    </radialGradient>
+    <linearGradient id="tsunadeSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff5ed"/>
+      <stop offset="60%" stop-color="#fde2d2"/>
+      <stop offset="100%" stop-color="#f8ccb6"/>
+    </linearGradient>
+    <linearGradient id="tsunadeHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#fde047"/>
+      <stop offset="80%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#ca8a04"/>
+    </linearGradient>
+    <linearGradient id="tsunadeEyes" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#78350f"/>
+      <stop offset="50%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="tsunadeShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base & Outer Ring -->
+  <circle cx="80" cy="80" r="76" fill="url(#tsunadeBg)" stroke="#22c55e" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(34,197,94,0.25)" stroke-width="1.2" stroke-dasharray="6 3"/>
+
+  <!-- Back Low Twin Ponytails -->
+  <g id="twinPonytails" filter="url(#tsunadeShadow)">
+    <path d="M30 90 Q12 114 20 144 Q28 130 38 116 Z" fill="url(#tsunadeHair)"/>
+    <path d="M130 90 Q148 114 140 144 Q132 130 122 116 Z" fill="url(#tsunadeHair)"/>
+  </g>
+
+  <!-- Back Hair -->
+  <path d="M36 68 Q20 92 28 122 Q46 130 80 130 Q114 130 132 122 Q140 92 124 68 Z" fill="url(#tsunadeHair)" filter="url(#tsunadeShadow)"/>
+
+  <!-- Shoulders & Green Haori Coat / Grey V-Neck Top -->
+  <g id="tsunadeBody">
+    <path d="M34 136 Q80 118 126 136 L130 156 L30 156 Z" fill="#15803d"/>
+    <!-- Grey Shirt V-neck -->
+    <path d="M54 130 L80 156 L106 130 L110 156 L50 156 Z" fill="#64748b"/>
+    <!-- Deep Cleavage Neckline -->
+    <path d="M64 124 L80 142 L96 124 Z" fill="url(#tsunadeSkin)"/>
+    <path d="M68 134 Q80 144 92 134" stroke="#e09f7a" stroke-width="1.8" fill="none"/>
+    <!-- First Hokage's Blue Crystal Necklace -->
+    <circle cx="80" cy="138" r="2" fill="#0284c7"/>
+    <path d="M78 138 L80 146 L82 138 Z" fill="#38bdf8" stroke="#0284c7" stroke-width="0.5"/>
+    <path d="M72 130 Q80 136 88 130" stroke="#0f172a" stroke-width="0.8" fill="none"/>
+  </g>
+
+  <!-- Chibi Head & Neck -->
+  <rect x="73" y="112" width="14" height="18" rx="6" fill="url(#tsunadeSkin)"/>
+  <path d="M42 82 C40 106 56 122 80 122 C104 122 120 106 118 82 C116 60 102 52 80 52 C58 52 44 60 42 82 Z" fill="url(#tsunadeSkin)" filter="url(#tsunadeShadow)"/>
+
+  <!-- Rosy Blush -->
+  <ellipse cx="56" cy="97" rx="8" ry="4" fill="#f43f5e" opacity="0.4"/>
+  <ellipse cx="104" cy="97" rx="8" ry="4" fill="#f43f5e" opacity="0.4"/>
+
+  <!-- Signature Violet Diamond Byakugou Strength of a Hundred Seal -->
+  <polygon points="80,59 83,63 80,67 77,63" fill="#7c3aed" stroke="#5b21b6" stroke-width="0.6"/>
+
+  <!-- Warm Hazel Anime Eyes -->
+  <!-- Left Eye -->
+  <ellipse cx="63" cy="84" rx="8.5" ry="11" fill="url(#tsunadeEyes)"/>
+  <ellipse cx="63" cy="83" rx="5.5" ry="7" fill="#451a03"/>
+  <circle cx="60.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="66" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M52 74 Q63 69 73 74" stroke="#18181b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M72 73 L76 71" stroke="#18181b" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Right Eye -->
+  <ellipse cx="97" cy="84" rx="8.5" ry="11" fill="url(#tsunadeEyes)"/>
+  <ellipse cx="97" cy="83" rx="5.5" ry="7" fill="#451a03"/>
+  <circle cx="94.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="100" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M87 74 Q97 69 108 74" stroke="#18181b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M107 74 L111 71" stroke="#18181b" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Confident Hokage Smile -->
+  <path d="M72 102 Q80 106 88 102" stroke="#be123c" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+
+  <!-- Blonde Center-Parted Bangs & Long Side Framing Locks -->
+  <path d="M42 60 Q60 48 80 48 Q100 48 118 60 Q124 82 120 112 Q114 108 110 86 Q100 68 80 72 Q60 68 50 86 Q46 108 40 112 Q36 82 42 60 Z" fill="url(#tsunadeHair)" filter="url(#tsunadeShadow)"/>
+  <!-- Highlight Strands -->
+  <path d="M54 52 Q80 46 106 52" stroke="#fef08a" stroke-width="2.2" fill="none" opacity="0.8"/>
+</svg>

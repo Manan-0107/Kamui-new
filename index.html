@@ -7,14 +7,22 @@
 <meta name="description" content="Kamui is an anime streaming platform: same-day simulcasts, full dub and sub libraries, 4K HDR, offline downloads, zero ads.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700&family=Shippori+Mincho+B1:wght@400;500;600;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet">
+
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="styles.css">
+<script>(function(){try{var t=localStorage.getItem('kamui_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 </head>
 <body>
 
 <header class="nav" id="siteNav">
   <a href="#top" class="brand">
     <span class="mark">神威</span>
+
+    <span class="brand-word">KAMUI</span>
+
     <span class="brand-word">K<svg class="sharingan" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
       <circle cx="50" cy="50" r="47" fill="#170608"/>
       <circle cx="50" cy="50" r="41" fill="#b31820"/>
@@ -26,12 +34,16 @@
       </g>
       <circle cx="50" cy="50" r="8.5" fill="#170608"/>
     </svg>MUI</span>
+ 
   </a>
   <nav class="links">
     <a href="#features">Features</a>
     <a href="#library">Library</a>
   </nav>
   <div class="nav-actions">
+    <button type="button" class="theme-moon-btn" id="themeToggleBtn" title="Shift Realm Theme (Click to cycle colors)" aria-label="Shift realm theme">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
     <a href="signin.html" class="link-cta">Sign in</a>
     <a href="watch.html" class="btn filled">Start watching</a>
   </div>
@@ -42,7 +54,9 @@
 
 <section class="hero">
   <canvas id="ember-canvas"></canvas>
-  <div class="hero-moon" aria-hidden="true"></div>
+  <div class="hero-moon" id="heroMoon" role="button" tabindex="0" title="Click to shift realm theme" aria-label="Shift realm theme">
+    <span class="moon-hint">✦ Click to Shift Realm</span>
+  </div>
   <div class="hero-mountains" aria-hidden="true">
     <svg viewBox="0 0 1440 400" preserveAspectRatio="none">
       <polygon points="0,400 0,260 180,180 340,240 520,140 700,220 900,150 1080,230 1260,170 1440,240 1440,400" fill="#0d1622"/>
@@ -53,7 +67,29 @@
   <div class="hero-content">
     <div class="hero-inner">
       <div class="eyebrow"><span class="rule"></span> Anime streaming &nbsp;·&nbsp; No ads &nbsp;·&nbsp; 4K HDR</div>
-      <h1 class="title"><span class="jp">神威</span>K<svg class="hero-sharingan" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+
+      <h1 class="title">
+        <span class="jp">神威</span>
+        <span class="title-word video-title-word">
+          <svg class="title-video-svg" viewBox="0 0 760 160" preserveAspectRatio="xMidYMid meet" role="img" aria-label="KAMUI">
+            <defs>
+              <clipPath id="kamuiTitleClip">
+                <text x="50%" y="58%" text-anchor="middle" dominant-baseline="central" class="svg-kamui-text">KAMUI</text>
+              </clipPath>
+              <linearGradient id="kamuiStrokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+                <stop offset="40%" stop-color="#f6edd9" stop-opacity="0.5" />
+                <stop offset="100%" stop-color="#e8b94f" stop-opacity="0.85" />
+              </linearGradient>
+            </defs>
+            <foreignObject x="0" y="0" width="760" height="160" clip-path="url(#kamuiTitleClip)">
+              <video class="title-bg-video" autoplay loop muted playsinline preload="auto" src="kamui-hero.mp4"></video>
+            </foreignObject>
+            <text x="50%" y="58%" text-anchor="middle" dominant-baseline="central" class="svg-kamui-stroke" aria-hidden="true">KAMUI</text>
+          </svg>
+        </span>
+      </h1>
+     <h1 class="title"><span class="jp">神威</span>K<svg class="hero-sharingan" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
         <circle cx="50" cy="50" r="48" fill="#d81f2a"/>
         <g class="sharingan-tomoe">
           <path d="M50 50 C24 54 10 40 10 20 C10 8 22 2 36 4 C30 18 30 34 50 50 Z" fill="#170608"/>
@@ -62,6 +98,7 @@
         </g>
         <circle cx="50" cy="50" r="11" fill="#170608"/>
       </svg>MUI</h1>
+
       <p class="tagline">Every story worth losing a season to — subbed, dubbed, and yours the moment it airs in Japan.</p>
       <div class="hero-meta">
         <span class="tag">Same-day simulcasts</span>
@@ -184,6 +221,9 @@
   <div class="wrap footer-inner">
     <div class="brand">
       <span class="mark">神威</span>
+
+      <span class="brand-word">KAMUI</span>
+
       <span class="brand-word">K<svg class="sharingan" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
         <circle cx="50" cy="50" r="47" fill="#170608"/>
         <circle cx="50" cy="50" r="41" fill="#b31820"/>
@@ -195,6 +235,7 @@
         </g>
         <circle cx="50" cy="50" r="8.5" fill="#170608"/>
       </svg>MUI</span>
+
     </div>
     <p class="footer-note">Concept design for an anime streaming platform. Not affiliated with any existing service.</p>
   </div>

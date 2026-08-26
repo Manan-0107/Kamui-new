@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="yoruichiBg" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#3b0764"/>
+      <stop offset="60%" stop-color="#1e0538"/>
+      <stop offset="100%" stop-color="#0a0114"/>
+    </radialGradient>
+    <linearGradient id="yoruichiSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fcd8b8"/>
+      <stop offset="60%" stop-color="#f5be94"/>
+      <stop offset="100%" stop-color="#e2a072"/>
+    </linearGradient>
+    <linearGradient id="yoruichiHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7e22ce"/>
+      <stop offset="40%" stop-color="#581c87"/>
+      <stop offset="80%" stop-color="#3b0764"/>
+      <stop offset="100%" stop-color="#1e0538"/>
+    </linearGradient>
+    <linearGradient id="yoruichiEyes" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ca8a04"/>
+      <stop offset="50%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#fde047"/>
+    </linearGradient>
+    <filter id="yoruichiShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base & Outer Ring -->
+  <circle cx="80" cy="80" r="76" fill="url(#yoruichiBg)" stroke="#facc15" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(250,204,21,0.25)" stroke-width="1.2" stroke-dasharray="6 3"/>
+
+  <!-- Back High Purple Ponytail -->
+  <g id="yoruichiPonytail" filter="url(#yoruichiShadow)">
+    <path d="M74 40 Q84 10 106 14 Q128 20 126 52 Q120 74 110 88 Q106 70 102 54 Q92 36 74 40 Z" fill="url(#yoruichiHair)"/>
+    <path d="M106 16 Q118 24 118 44" stroke="#c084fc" stroke-width="2" fill="none"/>
+    <!-- Yellow / Gold Ponytail Hair Tie -->
+    <ellipse cx="78" cy="38" rx="7" ry="5" fill="#facc15" stroke="#ca8a04" stroke-width="1"/>
+  </g>
+
+  <!-- Back Hair Strands -->
+  <path d="M34 68 Q18 96 26 126 Q48 136 80 136 Q112 136 134 126 Q142 96 126 68 Z" fill="url(#yoruichiHair)" filter="url(#yoruichiShadow)"/>
+
+  <!-- Shoulders & Stealth Assassin Top (Black, Orange Collar, Gold Ring) -->
+  <g id="yoruichiBody">
+    <path d="M34 136 Q80 118 126 136 L130 156 L30 156 Z" fill="#09090b"/>
+    <!-- Orange High Scarf / Collar -->
+    <path d="M52 124 Q80 138 108 124 L112 156 L48 156 Z" fill="#ea580c"/>
+    <path d="M60 126 Q80 136 100 126" stroke="#fb923c" stroke-width="2" fill="none"/>
+    <!-- Cleavage / Neckline -->
+    <path d="M68 122 L80 138 L92 122 Z" fill="url(#yoruichiSkin)"/>
+    <!-- Gold Brooch -->
+    <circle cx="80" cy="144" r="3.5" fill="#facc15" stroke="#ca8a04" stroke-width="0.8"/>
+  </g>
+
+  <!-- Chibi Head & Neck -->
+  <rect x="73" y="112" width="14" height="18" rx="6" fill="url(#yoruichiSkin)"/>
+  <path d="M42 82 C40 106 56 122 80 122 C104 122 120 106 118 82 C116 60 102 52 80 52 C58 52 44 60 42 82 Z" fill="url(#yoruichiSkin)" filter="url(#yoruichiShadow)"/>
+
+  <!-- Warm Rosy Blush -->
+  <ellipse cx="56" cy="97" rx="8" ry="4" fill="#f43f5e" opacity="0.4"/>
+  <ellipse cx="104" cy="97" rx="8" ry="4" fill="#f43f5e" opacity="0.4"/>
+
+  <!-- Golden Cat-Like Anime Eyes -->
+  <!-- Left Eye -->
+  <ellipse cx="63" cy="84" rx="8.5" ry="11" fill="url(#yoruichiEyes)"/>
+  <ellipse cx="63" cy="83" rx="4.5" ry="7" fill="#713f12"/>
+  <circle cx="60.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="66" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M52 74 Q63 69 73 74" stroke="#18181b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M72 73 L76 70" stroke="#18181b" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Right Eye -->
+  <ellipse cx="97" cy="84" rx="8.5" ry="11" fill="url(#yoruichiEyes)"/>
+  <ellipse cx="97" cy="83" rx="4.5" ry="7" fill="#713f12"/>
+  <circle cx="94.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="100" cy="88" r="1.8" fill="#ffffff"/>
+  <path d="M87 74 Q97 69 108 74" stroke="#18181b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M107 74 L111 70" stroke="#18181b" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Playful Confident Smirk -->
+  <path d="M72 102 Q82 106 90 99" stroke="#be123c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+
+  <!-- Sharp Sleek Purple Front Bangs & Side Locks -->
+  <path d="M42 60 Q60 48 80 48 Q100 48 118 60 Q124 82 120 108 Q114 104 110 86 Q100 68 80 72 Q60 68 50 86 Q46 104 40 108 Q36 82 42 60 Z" fill="url(#yoruichiHair)" filter="url(#yoruichiShadow)"/>
+  <path d="M64 54 Q72 70 78 82 Q72 68 70 54 Z" fill="#9333ea"/>
+  <path d="M96 54 Q88 70 82 82 Q88 68 90 54 Z" fill="#9333ea"/>
+  <!-- Lavender Gloss Highlights -->
+  <path d="M54 52 Q80 46 106 52" stroke="#c084fc" stroke-width="2" fill="none" opacity="0.7"/>
+</svg>

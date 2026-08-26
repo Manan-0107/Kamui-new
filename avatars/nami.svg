@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <radialGradient id="namiBg" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#3d220f"/>
+      <stop offset="60%" stop-color="#1f1006"/>
+      <stop offset="100%" stop-color="#0d0602"/>
+    </radialGradient>
+    <linearGradient id="namiSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff5ed"/>
+      <stop offset="60%" stop-color="#fde2d2"/>
+      <stop offset="100%" stop-color="#f8ccb6"/>
+    </linearGradient>
+    <linearGradient id="namiHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f97316"/>
+      <stop offset="80%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+    <linearGradient id="namiEyes" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#78350f"/>
+      <stop offset="50%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <filter id="namiShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base & Outer Ring -->
+  <circle cx="80" cy="80" r="76" fill="url(#namiBg)" stroke="#fb923c" stroke-width="2.5"/>
+  <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(251,146,60,0.25)" stroke-width="1.2" stroke-dasharray="6 3"/>
+
+  <!-- Back Flowing Orange Locks -->
+  <path d="M34 68 Q18 96 24 130 Q46 142 80 142 Q114 142 136 130 Q142 96 126 68 Z" fill="url(#namiHair)" filter="url(#namiShadow)"/>
+  <path d="M26 102 Q18 126 36 138 Q28 120 32 102 Z" fill="#ea580c"/>
+  <path d="M134 102 Q142 126 124 138 Q132 120 128 102 Z" fill="#ea580c"/>
+
+  <!-- Shoulders & Turquoise Outfit -->
+  <g id="namiBody">
+    <path d="M38 138 Q80 126 122 138 L126 156 L34 156 Z" fill="#0d9488"/>
+    <!-- Collarbones & cleavage neckline -->
+    <path d="M62 130 Q80 138 98 130 L102 156 L58 156 Z" fill="url(#namiSkin)"/>
+    <path d="M68 135 Q80 144 92 135" stroke="#e09f7a" stroke-width="2" fill="none"/>
+    <!-- Gold Ring / Bikini Accents -->
+    <circle cx="56" cy="144" r="3.5" fill="#fde047" stroke="#ca8a04" stroke-width="0.8"/>
+    <circle cx="104" cy="144" r="3.5" fill="#fde047" stroke="#ca8a04" stroke-width="0.8"/>
+  </g>
+
+  <!-- Chibi Head & Neck -->
+  <rect x="73" y="112" width="14" height="18" rx="6" fill="url(#namiSkin)"/>
+  <path d="M42 82 C40 106 56 122 80 122 C104 122 120 106 118 82 C116 60 102 52 80 52 C58 52 44 60 42 82 Z" fill="url(#namiSkin)" filter="url(#namiShadow)"/>
+
+  <!-- Soft Pink Anime Blush -->
+  <ellipse cx="56" cy="97" rx="8.5" ry="4.5" fill="#f87171" opacity="0.55"/>
+  <ellipse cx="104" cy="97" rx="8.5" ry="4.5" fill="#f87171" opacity="0.55"/>
+
+  <!-- Anime Amber Eyes with Triple Catchlights -->
+  <!-- Left Eye -->
+  <ellipse cx="63" cy="84" rx="8.5" ry="11" fill="url(#namiEyes)"/>
+  <ellipse cx="63" cy="81" rx="5.5" ry="6.5" fill="#451a03"/>
+  <circle cx="60.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="66" cy="88" r="1.8" fill="#ffffff"/>
+  <circle cx="61.5" cy="91" r="1.2" fill="#ffffff"/>
+  <!-- Top Eyelash / Eyeliner -->
+  <path d="M52 75 Q63 70 73 74" stroke="#1c1917" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M72 73 L76 71" stroke="#1c1917" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Right Eye (Playful Wink or open sparkle) -->
+  <ellipse cx="97" cy="84" rx="8.5" ry="11" fill="url(#namiEyes)"/>
+  <ellipse cx="97" cy="81" rx="5.5" ry="6.5" fill="#451a03"/>
+  <circle cx="94.5" cy="79.5" r="3.2" fill="#ffffff"/>
+  <circle cx="100" cy="88" r="1.8" fill="#ffffff"/>
+  <circle cx="95.5" cy="91" r="1.2" fill="#ffffff"/>
+  <!-- Top Eyelash / Eyeliner -->
+  <path d="M87 74 Q97 70 108 75" stroke="#1c1917" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M107 74 L111 72" stroke="#1c1917" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Cute Charming Anime Smile -->
+  <path d="M72 102 Q80 108 88 102" stroke="#e11d48" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="80" cy="103" rx="2.5" ry="1.2" fill="#fda4af" opacity="0.8"/>
+
+  <!-- Front Flowing Orange Bangs & Locks -->
+  <path d="M42 62 Q60 48 80 48 Q100 48 118 62 Q126 84 122 108 Q116 104 112 86 Q102 66 80 70 Q58 66 48 86 Q44 104 38 108 Q34 84 42 62 Z" fill="url(#namiHair)" filter="url(#namiShadow)"/>
+  <!-- Layered Hair Strands & Highlights -->
+  <path d="M54 52 Q66 66 60 84 Q52 70 54 52 Z" fill="#fdba74"/>
+  <path d="M74 48 Q82 64 88 74 Q80 62 74 48 Z" fill="#fdba74"/>
+  <path d="M106 52 Q94 66 100 84 Q108 70 106 52 Z" fill="#fdba74"/>
+
+  <!-- Tangerine Hair Clip Accessory -->
+  <g id="namiClip" transform="translate(108, 48)">
+    <circle cx="6" cy="6" r="8.5" fill="#f97316" stroke="#c2410c" stroke-width="1"/>
+    <ellipse cx="4" cy="4" rx="3" ry="1.8" fill="#fdba74" opacity="0.8"/>
+    <!-- Green Leaf -->
+    <path d="M6 -2 Q12 -4 14 2 Q8 0 6 -2 Z" fill="#22c55e" stroke="#15803d" stroke-width="0.8"/>
+  </g>
+</svg>
