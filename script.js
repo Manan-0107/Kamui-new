@@ -200,3 +200,22 @@ if (modalOverlay) {
   checkHash();
   window.addEventListener('hashchange', checkHash);
 }
+
+// ---------- Title Video Autoplay & Loop Assurance ----------
+const titleVideo = document.querySelector('.title-bg-video');
+if (titleVideo) {
+  titleVideo.muted = true;
+  const playVideo = () => {
+    const p = titleVideo.play();
+    if (p !== undefined) {
+      p.catch(() => {
+        titleVideo.muted = true;
+        titleVideo.play();
+      });
+    }
+  };
+  playVideo();
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) playVideo();
+  });
+}
