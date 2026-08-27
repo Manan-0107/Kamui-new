@@ -1245,6 +1245,220 @@ function toggleUserLiked(animeId) {
   return liked;
 }
 
+// ---------- CINEMATIC ANIME AUDIO SYNTHESIZER ENGINE ----------
+class AnimeAudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.masterGain = null;
+    this.isPlaying = false;
+    this.currentAnimeId = 'kamui';
+    this.loopTimer = null;
+    this.activeNodes = [];
+    this.currentVolume = 0.4;
+  }
+
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        this.ctx = new AudioCtx();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.setValueAtTime(this.currentVolume, this.ctx.currentTime);
+        this.masterGain.connect(this.ctx.destination);
+      }
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+
+  setVolume(vol) {
+    this.currentVolume = Math.max(0, Math.min(1, vol));
+    if (this.masterGain && this.ctx) {
+      this.masterGain.gain.setTargetAtTime(this.currentVolume * 0.45, this.ctx.currentTime, 0.05);
+    }
+  }
+
+  play(animeId = 'kamui') {
+    this.init();
+    if (!this.ctx) return;
+    this.stop();
+    this.isPlaying = true;
+    this.currentAnimeId = animeId;
+
+    this.startSoundtrack(animeId);
+  }
+
+  stop() {
+    this.isPlaying = false;
+    if (this.loopTimer) {
+      clearInterval(this.loopTimer);
+      this.loopTimer = null;
+    }
+    if (this.activeNodes.length > 0 && this.ctx) {
+      const now = this.ctx.currentTime;
+      this.activeNodes.forEach(n => {
+        try {
+          if (n.gain) n.gain.setTargetAtTime(0, now, 0.12);
+          setTimeout(() => {
+            try { n.stop?.(); n.disconnect?.(); } catch (e) {}
+          }, 250);
+        } catch (e) {}
+      });
+      this.activeNodes = [];
+    }
+  }
+
+  startSoundtrack(animeId) {
+    if (!this.ctx || !this.isPlaying) return;
+
+    const GENRE_SCALES = {
+      'kamui': { root: 110, scale: [110, 130.81, 146.83, 164.81, 196.00, 220, 261.63], type: 'oriental-mystic', bpm: 80 },
+      'long-thaw': { root: 98, scale: [98, 116.54, 130.81, 146.83, 174.61, 196], type: 'dark-fantasy', bpm: 75 },
+      'ashfall-district': { root: 116.54, scale: [116.54, 138.59, 155.56, 174.61, 207.65, 233.08], type: 'cyberpunk-synth', bpm: 112 },
+      'static-requiem': { root: 92.50, scale: [92.50, 110, 123.47, 138.59, 164.81], type: 'psychological-drone', bpm: 70 },
+      'paper-moon-society': { root: 130.81, scale: [130.81, 146.83, 164.81, 196.00, 220.00, 246.94], type: 'cozy-lofi', bpm: 85 },
+      'glasshouse': { root: 146.83, scale: [146.83, 164.81, 185.00, 220.00, 246.94, 293.66], type: 'tender-romance', bpm: 80 },
+      'iron-tide': { root: 87.31, scale: [87.31, 103.83, 116.54, 130.81, 155.56, 174.61], type: 'mecha-action', bpm: 118 },
+      'nine-crows-inn': { root: 103.83, scale: [103.83, 116.54, 130.81, 155.56, 174.61, 207.65], type: 'mystery-bells', bpm: 75 },
+      'hollow-meridian': { root: 130.81, scale: [130.81, 164.81, 196.00, 220.00, 261.63, 329.63], type: 'adventure-orchestral', bpm: 95 }
+    };
+
+    const cfg = GENRE_SCALES[animeId] || GENRE_SCALES['kamui'];
+    this.createAmbientPad(cfg);
+    this.createSubBass(cfg);
+
+    let step = 0;
+    const intervalMs = (60 / cfg.bpm) * 1000 * 0.5;
+    this.loopTimer = setInterval(() => {
+      if (!this.isPlaying || !this.ctx) return;
+      this.playArpStep(cfg, step);
+      if (step % 4 === 0) {
+        this.playTaikoPulse(cfg, step);
+      }
+      step = (step + 1) % 16;
+    }, intervalMs);
+  }
+
+  createAmbientPad(cfg) {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc1 = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    const filter = this.ctx.createBiquadFilter();
+    const gain = this.ctx.createGain();
+
+    osc1.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(cfg.root, now);
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(cfg.root * 1.5, now);
+    osc2.detune.setValueAtTime(7, now);
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(420, now);
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.18, now + 1.2);
+
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc1.start(now);
+    osc2.start(now);
+
+    this.activeNodes.push(osc1, osc2, gain);
+  }
+
+  createSubBass(cfg) {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(cfg.root * 0.5, now);
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.20, now + 1.0);
+
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+    osc.start(now);
+
+    this.activeNodes.push(osc, gain);
+  }
+
+  playArpStep(cfg, step) {
+    if (!this.ctx || !this.isPlaying) return;
+    const now = this.ctx.currentTime;
+
+    const scale = cfg.scale;
+    const pattern = [0, 2, 4, 1, 3, 5, 2, 4, 1, 3, 0, 2, 4, 5, 3, 1];
+    const noteIdx = pattern[step % pattern.length] % scale.length;
+    const freq = scale[noteIdx] * 2;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+
+    if (cfg.type === 'cyberpunk-synth') {
+      osc.type = 'sawtooth';
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1100, now);
+    } else if (cfg.type === 'cozy-lofi' || cfg.type === 'tender-romance') {
+      osc.type = 'triangle';
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(750, now);
+    } else if (cfg.type === 'mystery-bells') {
+      osc.type = 'sine';
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(320, now);
+    } else {
+      osc.type = 'sine';
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(freq * 1.5, now);
+      filter.Q.setValueAtTime(2.5, now);
+    }
+
+    osc.frequency.setValueAtTime(freq, now);
+
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc.start(now);
+    osc.stop(now + 0.45);
+  }
+
+  playTaikoPulse(cfg, step) {
+    if (!this.ctx || !this.isPlaying) return;
+    const now = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(85, now);
+    osc.frequency.exponentialRampToValueAtTime(28, now + 0.3);
+
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc.start(now);
+    osc.stop(now + 0.38);
+  }
+}
+
+const animeAudioEngine = new AnimeAudioEngine();
+
 // ---------- NETFLIX PREVIEW CONTROLLER & STATE ----------
 let currentPreviewAnimeId = 'kamui';
 let currentStreamingEpNum = 1;
@@ -1254,7 +1468,6 @@ let playerIdleTimeout = null;
 
 function getAnimeData(animeId) {
   if (ANIME_CATALOG[animeId]) return ANIME_CATALOG[animeId];
-  // Fallback if not found
   return ANIME_CATALOG['kamui'];
 }
 
@@ -1332,21 +1545,66 @@ function openAnimePreview(animeId, autoPlayTrailer = true) {
     likeBtn.title = isLiked ? 'Liked' : 'I like this';
   }
 
+  // Update Mute/Audio Button state icon
+  const muteBtn = document.getElementById('previewMuteBtn');
+  if (muteBtn) {
+    const offIcon = muteBtn.querySelector('.icon-volume-off');
+    const onIcon = muteBtn.querySelector('.icon-volume-on');
+    if (offIcon && onIcon) {
+      offIcon.style.display = previewVideoMuted ? 'block' : 'none';
+      onIcon.style.display = previewVideoMuted ? 'none' : 'block';
+    }
+    muteBtn.title = previewVideoMuted ? 'Unmute Preview Audio' : 'Mute Preview Audio';
+  }
+
   // Update Video Trailer Preview
   const videoPlayer = document.getElementById('previewVideoPlayer');
   const artFallback = document.getElementById('previewArtFallback');
+  if (artFallback) {
+    artFallback.style.display = 'none';
+  }
+
   if (videoPlayer) {
-    videoPlayer.src = data.trailerVideo || 'kamui-animation.mp4';
+    const videoSource = data.trailerVideo || 'kamui-animation.mp4';
+    if (videoPlayer.getAttribute('src') !== videoSource) {
+      videoPlayer.src = videoSource;
+    }
+    videoPlayer.currentTime = 0;
     videoPlayer.muted = previewVideoMuted;
+    videoPlayer.volume = 1.0;
+    videoPlayer.load();
+
     if (autoPlayTrailer) {
       const playPromise = videoPlayer.play();
       if (playPromise !== undefined) {
-        playPromise.catch(() => {
+        playPromise.then(() => {
+          if (artFallback) artFallback.style.display = 'none';
+        }).catch((err) => {
+          // If browser policy prevents unmuted autoplay, fall back to muted autoplay
           videoPlayer.muted = true;
-          videoPlayer.play();
+          previewVideoMuted = true;
+          const offI = muteBtn?.querySelector('.icon-volume-off');
+          const onI = muteBtn?.querySelector('.icon-volume-on');
+          if (offI && onI) {
+            offI.style.display = 'block';
+            onI.style.display = 'none';
+          }
+          videoPlayer.play().then(() => {
+            if (artFallback) artFallback.style.display = 'none';
+          }).catch(() => {
+            // Only show fallback art if video fails to load entirely
+            if (artFallback) artFallback.style.display = 'block';
+          });
         });
       }
     }
+  }
+
+  // If unmuted, play anime soundtrack audio engine
+  if (!previewVideoMuted) {
+    animeAudioEngine.play(data.id);
+  } else {
+    animeAudioEngine.stop();
   }
 
   // Grab Card SVG Art if available to use as fallback/thumbnail
@@ -1395,6 +1653,9 @@ function closeAnimePreview() {
   if (videoPlayer) {
     videoPlayer.pause();
   }
+
+  // Stop soundtrack audio
+  animeAudioEngine.stop();
 
   // Close full player if open
   closeFullPlayer();
@@ -1561,6 +1822,8 @@ function startFullPlayer(animeId, episodeNum = 1) {
 
   streamVideo.src = data.fullVideo || 'kamui-animation.mp4';
   streamVideo.currentTime = 0;
+  streamVideo.muted = false; // Video audio enabled for streaming
+  streamVideo.volume = 1.0;
 
   playerOverlay.classList.add('open');
   playerOverlay.setAttribute('aria-hidden', 'false');
@@ -1568,11 +1831,14 @@ function startFullPlayer(animeId, episodeNum = 1) {
   const playPromise = streamVideo.play();
   if (playPromise !== undefined) {
     playPromise.catch(() => {
-      // Auto-fallback
+      // If browser blocks unmuted play, fallback to muted play
       streamVideo.muted = true;
-      streamVideo.play();
+      streamVideo.play().catch(() => {});
     });
   }
+
+  // Start rich stereo anime soundtrack alongside video
+  animeAudioEngine.play(animeId);
 
   showToast(`▶ Now streaming "${data.title}" Ep. ${episodeNum} in 4K HDR`, 'success');
   updatePlayerPlayPauseIcons(true);
@@ -1589,11 +1855,18 @@ function closeFullPlayer() {
     streamVideo.pause();
   }
 
-  // Resume trailer video if preview modal is open
+  // Resume trailer video and audio if preview modal is open
   const previewOverlay = document.getElementById('netflixPreviewOverlay');
   const previewVideo = document.getElementById('previewVideoPlayer');
-  if (previewOverlay && previewOverlay.classList.contains('open') && previewVideo) {
-    previewVideo.play().catch(() => {});
+  if (previewOverlay && previewOverlay.classList.contains('open')) {
+    if (previewVideo) previewVideo.play().catch(() => {});
+    if (!previewVideoMuted) {
+      animeAudioEngine.play(currentPreviewAnimeId);
+    } else {
+      animeAudioEngine.stop();
+    }
+  } else {
+    animeAudioEngine.stop();
   }
 }
 
@@ -1636,18 +1909,35 @@ function initNetflixPreviewAndPlayer() {
   // Audio mute/unmute button in preview banner
   const muteBtn = document.getElementById('previewMuteBtn');
   const previewVideo = document.getElementById('previewVideoPlayer');
-  if (muteBtn && previewVideo) {
+  if (muteBtn) {
     muteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       previewVideoMuted = !previewVideoMuted;
-      previewVideo.muted = previewVideoMuted;
+      
       const offIcon = muteBtn.querySelector('.icon-volume-off');
       const onIcon = muteBtn.querySelector('.icon-volume-on');
       if (offIcon && onIcon) {
         offIcon.style.display = previewVideoMuted ? 'block' : 'none';
         onIcon.style.display = previewVideoMuted ? 'none' : 'block';
       }
-      showToast(previewVideoMuted ? 'Preview audio muted' : 'Preview audio unmuted', 'info');
+
+      if (previewVideo) {
+        previewVideo.muted = previewVideoMuted;
+        if (!previewVideoMuted) {
+          previewVideo.volume = 1.0;
+          previewVideo.play().catch(() => {});
+        }
+      }
+
+      if (!previewVideoMuted) {
+        animeAudioEngine.play(currentPreviewAnimeId);
+        showToast('🔊 Anime Preview Audio Playing', 'success');
+        muteBtn.title = 'Mute Audio';
+      } else {
+        animeAudioEngine.stop();
+        showToast('🔇 Audio Muted', 'info');
+        muteBtn.title = 'Unmute Audio';
+      }
     });
   }
 
@@ -1751,9 +2041,11 @@ function initNetflixPreviewAndPlayer() {
     const toggleStreamPlay = () => {
       if (streamVideo.paused) {
         streamVideo.play();
+        animeAudioEngine.play(currentPreviewAnimeId);
         updatePlayerPlayPauseIcons(true);
       } else {
         streamVideo.pause();
+        animeAudioEngine.stop();
         updatePlayerPlayPauseIcons(false);
       }
     };
@@ -1775,22 +2067,40 @@ function initNetflixPreviewAndPlayer() {
       });
     }
 
-    // Volume & Mute
+    // Volume & Mute in Full Player
+    let playerIsMuted = false;
     if (playerVolumeToggleBtn) {
       playerVolumeToggleBtn.addEventListener('click', () => {
-        streamVideo.muted = !streamVideo.muted;
+        playerIsMuted = !playerIsMuted;
+        streamVideo.muted = playerIsMuted;
+        if (playerIsMuted) {
+          animeAudioEngine.setVolume(0);
+        } else {
+          const vol = parseFloat(playerVolumeSlider?.value || 1.0);
+          streamVideo.volume = vol;
+          animeAudioEngine.setVolume(vol);
+        }
         const iconHigh = playerVolumeToggleBtn.querySelector('.icon-vol-high');
         const iconMuted = playerVolumeToggleBtn.querySelector('.icon-vol-muted');
         if (iconHigh && iconMuted) {
-          iconHigh.style.display = streamVideo.muted ? 'none' : 'block';
-          iconMuted.style.display = streamVideo.muted ? 'block' : 'none';
+          iconHigh.style.display = playerIsMuted ? 'none' : 'block';
+          iconMuted.style.display = playerIsMuted ? 'block' : 'none';
         }
       });
     }
     if (playerVolumeSlider) {
       playerVolumeSlider.addEventListener('input', (e) => {
-        streamVideo.volume = parseFloat(e.target.value);
-        streamVideo.muted = streamVideo.volume === 0;
+        const val = parseFloat(e.target.value);
+        streamVideo.volume = val;
+        streamVideo.muted = val === 0;
+        animeAudioEngine.setVolume(val);
+        playerIsMuted = val === 0;
+        const iconHigh = playerVolumeToggleBtn?.querySelector('.icon-vol-high');
+        const iconMuted = playerVolumeToggleBtn?.querySelector('.icon-vol-muted');
+        if (iconHigh && iconMuted) {
+          iconHigh.style.display = playerIsMuted ? 'none' : 'block';
+          iconMuted.style.display = playerIsMuted ? 'block' : 'none';
+        }
       });
     }
 
@@ -1839,7 +2149,7 @@ function initNetflixPreviewAndPlayer() {
     // Time update & Scrubber
     streamVideo.addEventListener('timeupdate', () => {
       const cur = streamVideo.currentTime;
-      const dur = streamVideo.duration || (24 * 60); // fallback to simulated 24 min if short video
+      const dur = streamVideo.duration || (24 * 60);
       const pct = dur > 0 ? (cur / dur) * 100 : 0;
 
       if (playerScrubberProgress) playerScrubberProgress.style.width = `${pct}%`;
