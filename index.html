@@ -146,29 +146,29 @@
       <a href="watch.html" class="btn">Browse full library</a>
     </div>
     <div class="poster-grid reveal">
-      <a href="watch.html#kamui" class="poster" style="--pc1:#c1501f;--pc2:#0a0f18">
+      <a href="watch.html#kamui" class="poster" data-anime-id="kamui" style="--pc1:#c1501f;--pc2:#0a0f18">
         <span class="poster-badge">Original</span>
         <span class="poster-title">Kamui</span>
         <span class="poster-genre">Dark fantasy</span>
       </a>
-      <a href="watch.html#ashfall-district" class="poster" style="--pc1:#6fa8b5;--pc2:#0a0f18">
+      <a href="watch.html#ashfall-district" class="poster" data-anime-id="ashfall-district" style="--pc1:#6fa8b5;--pc2:#0a0f18">
         <span class="poster-title">Ashfall District</span>
         <span class="poster-genre">Sci-fi</span>
       </a>
-      <a href="watch.html#paper-moon-society" class="poster" style="--pc1:#e8b94f;--pc2:#0a0f18">
+      <a href="watch.html#paper-moon-society" class="poster" data-anime-id="paper-moon-society" style="--pc1:#e8b94f;--pc2:#0a0f18">
         <span class="poster-title">Paper Moon Society</span>
         <span class="poster-genre">Slice of life</span>
       </a>
-      <a href="watch.html#iron-tide" class="poster" style="--pc1:#8a5fb0;--pc2:#0a0f18">
+      <a href="watch.html#iron-tide" class="poster" data-anime-id="iron-tide" style="--pc1:#8a5fb0;--pc2:#0a0f18">
         <span class="poster-title">Iron Tide</span>
         <span class="poster-genre">Mecha</span>
       </a>
-      <a href="watch.html#nine-crows-inn" class="poster" style="--pc1:#c1501f;--pc2:#101824">
+      <a href="watch.html#nine-crows-inn" class="poster" data-anime-id="nine-crows-inn" style="--pc1:#c1501f;--pc2:#101824">
         <span class="poster-badge">New</span>
         <span class="poster-title">Nine Crows Inn</span>
         <span class="poster-genre">Mystery</span>
       </a>
-      <a href="watch.html#glasshouse" class="poster" style="--pc1:#3f8f6e;--pc2:#0a0f18">
+      <a href="watch.html#glasshouse" class="poster" data-anime-id="glasshouse" style="--pc1:#3f8f6e;--pc2:#0a0f18">
         <span class="poster-title">Glasshouse</span>
         <span class="poster-genre">Romance</span>
       </a>
@@ -203,6 +203,208 @@
     <p class="footer-note">Concept design for an anime streaming platform. Not affiliated with any existing service.</p>
   </div>
 </footer>
+
+<!-- Netflix-Style Anime Preview Modal -->
+<div class="netflix-preview-overlay" id="netflixPreviewOverlay" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="netflix-preview-modal" id="netflixPreviewModal">
+    <!-- Modal Close Button -->
+    <button class="netflix-preview-close" id="previewCloseBtn" aria-label="Close preview" title="Close (Esc)">&times;</button>
+    
+    <!-- Hero / Backdrop Video Banner Section -->
+    <div class="preview-hero-banner" id="previewHeroBanner">
+      <!-- Embedded Video Preview Container -->
+      <div class="preview-video-wrap">
+        <video class="preview-video" id="previewVideoPlayer" loop playsinline muted preload="auto"></video>
+        <div class="preview-art-fallback" id="previewArtFallback"></div>
+        <div class="preview-hero-gradient-overlay"></div>
+      </div>
+
+      <!-- Video Audio Toggle Button -->
+      <div class="preview-hero-controls">
+        <button type="button" class="preview-circle-btn preview-mute-btn" id="previewMuteBtn" title="Toggle audio" aria-label="Toggle audio">
+          <svg class="icon-volume-off" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.73 4.73H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+          </svg>
+          <svg class="icon-volume-on" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:none;">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Hero Banner Floating Title & Primary CTAs -->
+      <div class="preview-hero-info">
+        <div class="preview-kanji-badge" id="previewKanjiBadge">神威 · KAMUI ORIGINAL</div>
+        <h2 class="preview-title" id="previewTitle">Kamui</h2>
+        
+        <div class="preview-action-row">
+          <button type="button" class="btn-netflix-play" id="previewMainPlayBtn">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <span id="previewPlayBtnText">Play Episode 1</span>
+          </button>
+          
+          <button type="button" class="btn-netflix-icon" id="previewAddListBtn" title="Add to My List" aria-label="Add to My List">
+            <svg class="icon-plus" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            <svg class="icon-check" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2.5" style="display:none;"><path d="M20 6L9 17l-5-5"/></svg>
+          </button>
+
+          <button type="button" class="btn-netflix-icon" id="previewLikeBtn" title="I like this" aria-label="Like title">
+            <svg class="icon-thumb" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          </button>
+
+          <div class="preview-quality-tags">
+            <span class="badge-match" id="previewMatchBadge">98% Match</span>
+            <span class="badge-rating" id="previewAgeRating">16+</span>
+            <span class="badge-ep-count" id="previewSeasonBadge">1 Season</span>
+            <span class="badge-hd">4K HDR</span>
+            <span class="badge-spatial">Spatial Audio</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Content Details (2 columns Netflix style) -->
+    <div class="preview-content-body">
+      <div class="preview-main-col">
+        <p class="preview-hook" id="previewHook"></p>
+        <p class="preview-synopsis" id="previewSynopsis"></p>
+        
+        <div class="preview-features-strip">
+          <div class="preview-feat-item">
+            <span class="feat-label">Audio:</span>
+            <span class="feat-val" id="previewAudioLangs">Japanese [Original], English (Dub), French, German</span>
+          </div>
+          <div class="preview-feat-item">
+            <span class="feat-label">Subtitles:</span>
+            <span class="feat-val" id="previewSubLangs">English [CC], Japanese, Spanish, German, French</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-side-col">
+        <div class="meta-block">
+          <span class="meta-label">Cast:</span>
+          <span class="meta-values" id="previewCast"></span>
+        </div>
+        <div class="meta-block">
+          <span class="meta-label">Genres:</span>
+          <span class="meta-values" id="previewGenres"></span>
+        </div>
+        <div class="meta-block">
+          <span class="meta-label">This anime is:</span>
+          <span class="meta-values" id="previewMood"></span>
+        </div>
+        <div class="meta-block">
+          <span class="meta-label">Studio:</span>
+          <span class="meta-values" id="previewStudio"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabbed Netflix Sections: "Episodes" & "More Like This" & "About" -->
+    <div class="preview-tabs-container">
+      <div class="preview-tabs-header" id="previewTabsHeader">
+        <button type="button" class="preview-tab-btn active" data-tab="episodes">Episodes</button>
+        <button type="button" class="preview-tab-btn" data-tab="more-like-this">More Like This</button>
+        <button type="button" class="preview-tab-btn" data-tab="about">About <span class="tab-title-name" id="tabAnimeTitleName">Kamui</span></button>
+      </div>
+
+      <!-- Tab Pane: Episodes -->
+      <div class="preview-tab-pane active" id="tabPaneEpisodes">
+        <div class="episodes-header-row">
+          <div class="episodes-season-badge">Season 1</div>
+          <span class="episodes-country-sub">Subbed &amp; Dubbed &bull; Same-Day Simulcast in 4K HDR</span>
+        </div>
+        <div class="episodes-list" id="episodesListContainer">
+          <!-- Dynamic Episode Cards -->
+        </div>
+      </div>
+
+      <!-- Tab Pane: More Like This -->
+      <div class="preview-tab-pane" id="tabPaneMoreLikeThis">
+        <div class="more-like-grid" id="moreLikeGridContainer">
+          <!-- Dynamic Recommendation Cards -->
+        </div>
+      </div>
+
+      <!-- Tab Pane: About -->
+      <div class="preview-tab-pane" id="tabPaneAbout">
+        <div class="about-anime-details" id="aboutAnimeDetails">
+          <!-- Dynamic About Information -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Full Netflix Video Player Overlay -->
+<div class="netflix-full-player-overlay" id="netflixFullPlayerOverlay" aria-hidden="true">
+  <div class="full-player-wrapper" id="fullPlayerWrapper">
+    <video class="full-player-video" id="fullStreamVideo" playsinline preload="auto"></video>
+    
+    <!-- Player UI Overlays -->
+    <div class="player-top-bar">
+      <button type="button" class="player-back-btn" id="playerBackBtn" title="Back to preview">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span class="player-back-title">Back to Preview</span>
+      </button>
+      <div class="player-anime-label" id="playerCurrentEpTitle">Kamui — Episode 1: The Bell of Frozen Ash</div>
+      <div class="player-quality-pill">4K HDR</div>
+    </div>
+
+    <!-- Skip Intro Button -->
+    <button type="button" class="btn-skip-intro" id="btnSkipIntro">Skip Intro &gt;&gt;</button>
+
+    <!-- Center Play/Pause Splash Icon -->
+    <div class="player-center-play" id="playerCenterPlayIcon">
+      <svg viewBox="0 0 24 24" width="56" height="56" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+
+    <!-- Bottom Controls Bar -->
+    <div class="player-bottom-controls" id="playerBottomControls">
+      <!-- Scrubber Bar -->
+      <div class="player-scrubber-wrap" id="playerScrubberWrap">
+        <div class="player-scrubber-track">
+          <div class="player-scrubber-buffered" id="playerScrubberBuffered"></div>
+          <div class="player-scrubber-progress" id="playerScrubberProgress"></div>
+        </div>
+        <div class="player-scrubber-thumb" id="playerScrubberThumb"></div>
+      </div>
+      
+      <div class="player-controls-row">
+        <div class="player-ctrls-left">
+          <button type="button" class="player-btn" id="playerPlayPauseBtn" title="Play/Pause (Space)">
+            <svg class="icon-play" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+          <button type="button" class="player-btn" id="playerRewindBtn" title="Rewind 10s (Left Arrow)">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.5 8V4L6 9.5 12.5 15v-4c4 0 7 2.5 7 6.5 0-6-3.5-9.5-7-9.5z"/></svg>
+          </button>
+          <button type="button" class="player-btn" id="playerForwardBtn" title="Forward 10s (Right Arrow)">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M11.5 8V4L18 9.5 11.5 15v-4c-4 0-7 2.5-7 6.5 0-6 3.5-9.5 7-9.5z"/></svg>
+          </button>
+          
+          <div class="player-volume-group">
+            <button type="button" class="player-btn" id="playerVolumeToggleBtn" title="Mute/Unmute (M)">
+              <svg class="icon-vol-high" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+              <svg class="icon-vol-muted" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.73 4.73H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+            </button>
+            <input type="range" class="player-vol-slider" id="playerVolumeSlider" min="0" max="1" step="0.05" value="1" title="Volume">
+          </div>
+
+          <span class="player-time-display" id="playerTimeDisplay">0:00 / 24:18</span>
+        </div>
+
+        <div class="player-ctrls-right">
+          <button type="button" class="player-btn text-pill" id="playerNextEpBtn" title="Next Episode">Next Ep ▶</button>
+          <button type="button" class="player-btn text-pill" id="playerSpeedBtn" title="Playback Speed">1.0x</button>
+          <button type="button" class="player-btn" id="playerFullscreenBtn" title="Toggle Fullscreen (F)">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>
