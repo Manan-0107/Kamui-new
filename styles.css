@@ -3347,3 +3347,537 @@ footer {
   text-align: center;
   margin: 14px 0 0;
 }
+
+/* ==========================================================================
+   CONTINUE WATCHING & WATCHLIST (MY LIST) SYSTEM
+   ========================================================================== */
+
+.shelf-section {
+  padding: 48px 0 20px;
+  position: relative;
+  transition: opacity .3s ease;
+}
+
+.shelf-section.hidden {
+  display: none !important;
+}
+
+.shelf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.shelf-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.shelf-kanji {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.shelf-kanji .glyph {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.shelf-title {
+  font-family: var(--serif-heading, var(--serif, 'Cinzel', serif));
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shelf-count-badge {
+  font-size: 12px;
+  font-family: var(--sans);
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--ink-dim, #94a3b8);
+}
+
+.shelf-clear-btn {
+  background: transparent;
+  border: none;
+  color: var(--ink-faint, #64748b);
+  font-size: 12px;
+  font-family: var(--sans);
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: color .2s, background .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.shelf-clear-btn:hover {
+  color: #ff5252;
+  background: rgba(255, 82, 82, 0.08);
+}
+
+/* Continue Watching Grid */
+.continue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.continue-card {
+  position: relative;
+  background: #0e131d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  text-align: left;
+  padding: 0;
+  outline: none;
+}
+
+.continue-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(232, 185, 79, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(232, 185, 79, 0.15);
+}
+
+.continue-thumb-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #151b27;
+  overflow: hidden;
+}
+
+.continue-thumb-svg,
+.continue-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s ease;
+}
+
+.continue-card:hover .continue-thumb-svg,
+.continue-card:hover .continue-thumb-img {
+  transform: scale(1.05);
+}
+
+.continue-thumb-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10,13,20,0.1) 0%, rgba(10,13,20,0.85) 100%);
+  pointer-events: none;
+}
+
+.continue-play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .25s ease;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+.continue-card:hover .continue-play-overlay {
+  opacity: 1;
+}
+
+.continue-play-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gold, #e8b94f);
+  color: #080c13;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(232, 185, 79, 0.6);
+  transform: scale(0.85);
+  transition: transform .2s ease;
+}
+
+.continue-card:hover .continue-play-icon {
+  transform: scale(1);
+}
+
+.continue-remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .2s, background .2s, color .2s, transform .2s;
+  z-index: 5;
+}
+
+.continue-card:hover .continue-remove-btn {
+  opacity: 1;
+}
+
+.continue-remove-btn:hover {
+  background: #ff5252;
+  color: #fff;
+  border-color: #ff5252;
+  transform: scale(1.1);
+}
+
+/* Progress bar pinned at bottom of thumb */
+.continue-progress-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  z-index: 3;
+}
+
+.continue-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d56e3a, var(--gold, #e8b94f));
+  transition: width .3s ease;
+  box-shadow: 0 0 8px rgba(232, 185, 79, 0.8);
+}
+
+.continue-body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.continue-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.continue-ep-badge {
+  font-weight: 700;
+  color: var(--gold, #e8b94f);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.continue-time-left {
+  color: var(--ink-faint, #64748b);
+  font-weight: 500;
+}
+
+.continue-anime-title {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.continue-ep-title {
+  font-size: 12px;
+  color: var(--ink-dim, #94a3b8);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Watchlist Grid / Shelf */
+.watchlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 18px;
+}
+
+.watchlist-card {
+  position: relative;
+  background: #0d121c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  aspect-ratio: 3 / 4.2;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.watchlist-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: rgba(232, 185, 79, 0.45);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(232, 185, 79, 0.15);
+}
+
+.watchlist-art-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.watchlist-art-wrap svg,
+.watchlist-art-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.watchlist-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8,12,19,0.1) 0%, rgba(8,12,19,0.5) 50%, rgba(8,12,19,0.95) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.watchlist-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 4;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(8, 12, 19, 0.8);
+  border: 1px solid rgba(232, 185, 79, 0.4);
+  color: var(--gold, #e8b94f);
+  padding: 3px 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+
+.watchlist-remove-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .2s, background .2s, color .2s, transform .2s;
+}
+
+.watchlist-card:hover .watchlist-remove-btn {
+  opacity: 1;
+}
+
+.watchlist-remove-btn:hover {
+  background: #ff5252;
+  color: #fff;
+  border-color: #ff5252;
+  transform: scale(1.1);
+}
+
+.watchlist-info {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.watchlist-card-title {
+  font-family: var(--serif-heading, var(--serif, 'Cinzel', serif));
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.watchlist-card-genre {
+  font-size: 12px;
+  color: var(--gold, #e8b94f);
+  font-weight: 500;
+}
+
+.watchlist-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.watchlist-card:hover .watchlist-actions-row {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.btn-watchlist-play {
+  flex: 1;
+  background: #ffffff;
+  color: #080c13;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.btn-watchlist-play:hover {
+  background: var(--gold, #e8b94f);
+}
+
+/* Empty Shelf State */
+.empty-shelf-state {
+  background: rgba(14, 19, 29, 0.6);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 40px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.empty-shelf-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(232, 185, 79, 0.1);
+  color: var(--gold, #e8b94f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-shelf-title {
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.empty-shelf-desc {
+  font-size: 13px;
+  color: var(--ink-dim, #94a3b8);
+  max-width: 440px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.empty-shelf-btn {
+  margin-top: 6px;
+  font-size: 13px;
+  padding: 8px 18px;
+}
+
+/* Episode progress bar in preview modal */
+.ep-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.ep-progress-fill {
+  height: 100%;
+  background: var(--gold, #e8b94f);
+  box-shadow: 0 0 6px rgba(232, 185, 79, 0.8);
+}
+
+/* Filter bar "My List" chip badge */
+.filter-chip-watchlist {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-chip-watchlist .chip-counter {
+  background: rgba(232, 185, 79, 0.2);
+  color: var(--gold, #e8b94f);
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.filter-chip-watchlist.active .chip-counter {
+  background: #080c13;
+  color: var(--gold, #e8b94f);
+}
+
+@media (max-width: 768px) {
+  .continue-grid {
+    grid-template-columns: 1fr;
+  }
+  .watchlist-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .shelf-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

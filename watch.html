@@ -39,6 +39,10 @@
     <p class="watch-hero-sub">Nine titles streaming now, subbed and dubbed. Pick one up — your progress follows you to any screen.</p>
     <div class="filter-bar" id="filterBar">
       <button class="filter-chip active" data-genre="all">All</button>
+      <button class="filter-chip filter-chip-watchlist" data-genre="watchlist" id="filterMyListChip" title="Filter by your saved shows">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+        My List <span class="chip-counter" id="watchlistCountBadge">0</span>
+      </button>
       <button class="filter-chip" data-genre="Dark fantasy">Dark fantasy</button>
       <button class="filter-chip" data-genre="Sci-fi">Sci-fi</button>
       <button class="filter-chip" data-genre="Mecha">Mecha</button>
@@ -51,8 +55,48 @@
   </div>
 </section>
 
-<section class="catalog">
+<!-- Continue Watching Shelf Section -->
+<section class="shelf-section" id="continueWatchingSection" aria-label="Continue Watching">
   <div class="wrap">
+    <div class="shelf-header">
+      <div class="shelf-title-wrap">
+        <span class="shelf-kanji"><span class="glyph">継</span> Resume Playback</span>
+        <h2 class="shelf-title">Continue Watching <span class="shelf-count-badge" id="continueCountBadge">0</span></h2>
+      </div>
+      <button type="button" class="shelf-clear-btn" id="clearContinueHistoryBtn" title="Clear watch history">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Clear History
+      </button>
+    </div>
+    <div class="continue-grid" id="continueWatchingGrid">
+      <!-- Dynamic Continue Watching Cards rendered by script.js -->
+    </div>
+  </div>
+</section>
+
+<!-- My Watchlist Shelf Section -->
+<section class="shelf-section" id="myWatchlistSection" aria-label="My Watchlist">
+  <div class="wrap">
+    <div class="shelf-header">
+      <div class="shelf-title-wrap">
+        <span class="shelf-kanji"><span class="glyph">録</span> Saved Titles</span>
+        <h2 class="shelf-title">My Watchlist <span class="shelf-count-badge" id="watchlistShelfCountBadge">0</span></h2>
+      </div>
+    </div>
+    <div class="watchlist-grid" id="myWatchlistGrid">
+      <!-- Dynamic Watchlist Cards rendered by script.js -->
+    </div>
+  </div>
+</section>
+
+<section class="catalog" id="fullCatalogSection">
+  <div class="wrap">
+    <div class="shelf-header" style="margin-bottom:18px;">
+      <div class="shelf-title-wrap">
+        <span class="shelf-kanji"><span class="glyph">全</span> All Shows</span>
+        <h2 class="shelf-title" id="catalogHeadingTitle">All Series</h2>
+      </div>
+    </div>
     <div class="catalog-grid" id="catalogGrid">
 
       <button class="watch-card" id="kamui" data-genre="Dark fantasy"

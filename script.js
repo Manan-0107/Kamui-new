@@ -1195,10 +1195,99 @@ const ANIME_CATALOG = {
   }
 };
 
-// User List & Likes State Storage
+// User List, Likes, and Continue Watching State Storage
 const MY_LIST_STORAGE_KEY = 'kamui_user_watchlist';
 const LIKED_STORAGE_KEY = 'kamui_user_liked_titles';
+const CONTINUE_WATCHING_STORAGE_KEY = 'kamui_continue_watching';
 
+// ---------- CONTINUE WATCHING DATA MANAGER ----------
+function getContinueWatching() {
+  try {
+    const raw = localStorage.getItem(CONTINUE_WATCHING_STORAGE_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function getAnimeProgress(animeId, episodeNum = null) {
+  const list = getContinueWatching();
+  if (episodeNum === null) {
+    return list.find(item => item.animeId === animeId) || null;
+  }
+  return list.find(item => item.animeId === animeId && item.episodeNum === episodeNum) || null;
+}
+
+let lastProgressSaveTime = 0;
+function saveAnimeProgress(animeId, episodeNum, currentTime, duration) {
+  if (!animeId || typeof currentTime !== 'number' || currentTime <= 0) return;
+  const now = Date.now();
+  if (now - lastProgressSaveTime < 1000) return; // Throttle saves
+  lastProgressSaveTime = now;
+
+  const data = getAnimeData(animeId);
+  const totalDuration = duration && duration > 0 ? duration : (24 * 60);
+  const pct = Math.min(100, Math.max(1, Math.round((currentTime / totalDuration) * 100)));
+  const currentEp = (data.episodes && data.episodes[episodeNum - 1]) || { title: `Episode ${episodeNum}`, duration: '24m' };
+
+  let list = getContinueWatching();
+  const existingIdx = list.findIndex(item => item.animeId === animeId);
+
+  const entry = {
+    animeId,
+    title: data.title,
+    kanji: data.kanji || '',
+    genre: data.genre || 'Anime',
+    episodeNum: episodeNum || 1,
+    episodeTitle: currentEp.title,
+    currentTime: Math.round(currentTime),
+    duration: Math.round(totalDuration),
+    percentage: pct,
+    updatedAt: now
+  };
+
+  if (existingIdx >= 0) {
+    list[existingIdx] = entry;
+  } else {
+    list.unshift(entry);
+  }
+
+  // Keep top 12 items
+  list = list.slice(0, 12);
+
+  try {
+    localStorage.setItem(CONTINUE_WATCHING_STORAGE_KEY, JSON.stringify(list));
+  } catch (e) {}
+
+  renderContinueWatchingShelves();
+}
+
+function removeFromContinueWatching(animeId, episodeNum = null) {
+  let list = getContinueWatching();
+  if (episodeNum !== null) {
+    list = list.filter(item => !(item.animeId === animeId && item.episodeNum === episodeNum));
+  } else {
+    list = list.filter(item => item.animeId !== animeId);
+  }
+  try {
+    localStorage.setItem(CONTINUE_WATCHING_STORAGE_KEY, JSON.stringify(list));
+  } catch (e) {}
+  
+  const data = getAnimeData(animeId);
+  showToast(`Removed "${data.title}" from Continue Watching.`, 'info');
+  renderContinueWatchingShelves();
+}
+
+function clearAllContinueWatching() {
+  try {
+    localStorage.removeItem(CONTINUE_WATCHING_STORAGE_KEY);
+  } catch (e) {}
+  showToast('Cleared watch history.', 'info');
+  renderContinueWatchingShelves();
+}
+
+// ---------- WATCHLIST & LIKES DATA MANAGER ----------
 function getUserWatchlist() {
   try {
     const raw = localStorage.getItem(MY_LIST_STORAGE_KEY);
@@ -1207,6 +1296,7 @@ function getUserWatchlist() {
     return [];
   }
 }
+
 function toggleUserWatchlist(animeId) {
   const list = getUserWatchlist();
   const index = list.indexOf(animeId);
@@ -1218,7 +1308,28 @@ function toggleUserWatchlist(animeId) {
     list.push(animeId);
     added = true;
   }
-  localStorage.setItem(MY_LIST_STORAGE_KEY, JSON.stringify(list));
+  try {
+    localStorage.setItem(MY_LIST_STORAGE_KEY, JSON.stringify(list));
+  } catch (e) {}
+
+  // Update UI shelves & badges
+  renderWatchlistShelves();
+
+  // Update preview modal button if open
+  const addListBtn = document.getElementById('previewAddListBtn');
+  if (addListBtn && currentPreviewAnimeId === animeId) {
+    addListBtn.classList.toggle('active', added);
+    const iconPlus = addListBtn.querySelector('.icon-plus');
+    const iconCheck = addListBtn.querySelector('.icon-check');
+    if (iconPlus && iconCheck) {
+      iconPlus.style.display = added ? 'none' : 'block';
+      iconCheck.style.display = added ? 'block' : 'none';
+    }
+    addListBtn.title = added ? 'Remove from My List' : 'Add to My List';
+  }
+
+  const data = getAnimeData(animeId);
+  showToast(added ? `✦ Added "${data.title}" to your Watchlist!` : `Removed "${data.title}" from your Watchlist.`, 'info');
   return added;
 }
 
@@ -1230,6 +1341,7 @@ function getUserLikedTitles() {
     return [];
   }
 }
+
 function toggleUserLiked(animeId) {
   const list = getUserLikedTitles();
   const index = list.indexOf(animeId);
@@ -1241,8 +1353,242 @@ function toggleUserLiked(animeId) {
     list.push(animeId);
     liked = true;
   }
-  localStorage.setItem(LIKED_STORAGE_KEY, JSON.stringify(list));
+  try {
+    localStorage.setItem(LIKED_STORAGE_KEY, JSON.stringify(list));
+  } catch (e) {}
   return liked;
+}
+
+// ---------- ART & TIME HELPERS ----------
+function getAnimeArtSvgOrFallback(animeId) {
+  const data = getAnimeData(animeId);
+  const cardElement = document.getElementById(animeId) || document.querySelector(`[data-anime-id="${animeId}"]`);
+  if (cardElement) {
+    const svgArt = cardElement.querySelector('.art');
+    if (svgArt) {
+      return svgArt.outerHTML;
+    }
+  }
+  return `
+    <svg class="art" viewBox="0 0 300 420" preserveAspectRatio="xMidYMid slice">
+      <rect width="300" height="420" fill="#101522"/>
+      <circle cx="150" cy="160" r="60" fill="var(--gold, #e8b94f)" opacity="0.8"/>
+      <text x="50%" y="85%" text-anchor="middle" fill="#ffffff" font-family="var(--serif, serif)" font-size="28">${data.kanji || '神威'}</text>
+    </svg>
+  `;
+}
+
+function formatRemainingTime(currentTime, duration) {
+  const rem = Math.max(0, (duration || (24 * 60)) - currentTime);
+  const mins = Math.ceil(rem / 60);
+  return `${mins}m left`;
+}
+
+// ---------- UI SHELF RENDERERS ----------
+function renderContinueWatchingShelves() {
+  const sections = document.querySelectorAll('#continueWatchingSection');
+  if (!sections.length) return;
+
+  const list = getContinueWatching();
+  const isHomepage = !window.location.pathname.endsWith('watch.html');
+
+  sections.forEach(sec => {
+    const grid = sec.querySelector('#continueWatchingGrid');
+    const countBadge = sec.querySelector('#continueCountBadge');
+    if (countBadge) countBadge.textContent = list.length;
+
+    if (list.length === 0) {
+      if (isHomepage) {
+        sec.style.display = 'none';
+      } else {
+        sec.style.display = 'block';
+        if (grid) {
+          grid.innerHTML = `
+            <div class="empty-shelf-state" style="grid-column: 1 / -1;">
+              <div class="empty-shelf-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              </div>
+              <h3 class="empty-shelf-title">No watch history yet</h3>
+              <p class="empty-shelf-desc">Start watching any anime in the catalog and pick up right where you left off from any device.</p>
+              <a href="#fullCatalogSection" class="btn filled empty-shelf-btn">Explore Catalog</a>
+            </div>
+          `;
+        }
+      }
+      return;
+    }
+
+    sec.style.display = 'block';
+    if (!grid) return;
+
+    grid.innerHTML = list.map(item => {
+      const data = getAnimeData(item.animeId);
+      const svgArt = getAnimeArtSvgOrFallback(item.animeId);
+      const timeLeft = formatRemainingTime(item.currentTime, item.duration);
+
+      return `
+        <div class="continue-card" data-anime-id="${item.animeId}" data-ep="${item.episodeNum}" role="button" tabindex="0">
+          <div class="continue-thumb-wrap">
+            <div class="continue-thumb-svg">${svgArt}</div>
+            <div class="continue-thumb-gradient"></div>
+            <div class="continue-play-overlay">
+              <div class="continue-play-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+            <button type="button" class="continue-remove-btn" data-remove-anime="${item.animeId}" title="Remove from Continue Watching" aria-label="Remove">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+            <div class="continue-progress-track">
+              <div class="continue-progress-fill" style="width: ${item.percentage}%;"></div>
+            </div>
+          </div>
+          <div class="continue-body">
+            <div class="continue-meta-row">
+              <span class="continue-ep-badge">Ep. ${item.episodeNum} · ${item.percentage}%</span>
+              <span class="continue-time-left">${timeLeft}</span>
+            </div>
+            <h4 class="continue-anime-title">${item.title}</h4>
+            <p class="continue-ep-title">${item.episodeTitle || 'Episode ' + item.episodeNum}</p>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach click handlers to continue cards
+    grid.querySelectorAll('.continue-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.continue-remove-btn')) return;
+        const animeId = card.dataset.animeId;
+        const epNum = parseInt(card.dataset.ep, 10) || 1;
+        const prog = getAnimeProgress(animeId, epNum);
+        startFullPlayer(animeId, epNum, prog ? prog.currentTime : null);
+      });
+    });
+
+    // Attach remove handlers
+    grid.querySelectorAll('.continue-remove-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const animeId = btn.dataset.removeAnime;
+        removeFromContinueWatching(animeId);
+      });
+    });
+  });
+
+  // Clear history button
+  document.querySelectorAll('#clearContinueHistoryBtn').forEach(btn => {
+    btn.onclick = () => {
+      if (confirm('Clear your entire Continue Watching history?')) {
+        clearAllContinueWatching();
+      }
+    };
+  });
+}
+
+function renderWatchlistShelves() {
+  const list = getUserWatchlist();
+  updateWatchlistBadges();
+
+  const sections = document.querySelectorAll('#myWatchlistSection');
+  if (!sections.length) return;
+
+  const isHomepage = !window.location.pathname.endsWith('watch.html');
+
+  sections.forEach(sec => {
+    const grid = sec.querySelector('#myWatchlistGrid');
+    const countBadge = sec.querySelector('#watchlistShelfCountBadge');
+    if (countBadge) countBadge.textContent = list.length;
+
+    if (list.length === 0) {
+      if (isHomepage) {
+        sec.style.display = 'none';
+      } else {
+        sec.style.display = 'block';
+        if (grid) {
+          grid.innerHTML = `
+            <div class="empty-shelf-state" style="grid-column: 1 / -1;">
+              <div class="empty-shelf-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+                </svg>
+              </div>
+              <h3 class="empty-shelf-title">Your Watchlist is empty</h3>
+              <p class="empty-shelf-desc">Save your favorite anime by clicking the "+ Add to My List" button on any show card or preview banner.</p>
+              <a href="#fullCatalogSection" class="btn filled empty-shelf-btn">Browse Anime</a>
+            </div>
+          `;
+        }
+      }
+      return;
+    }
+
+    sec.style.display = 'block';
+    if (!grid) return;
+
+    grid.innerHTML = list.map(animeId => {
+      const data = getAnimeData(animeId);
+      const svgArt = getAnimeArtSvgOrFallback(animeId);
+
+      return `
+        <div class="watchlist-card" data-anime-id="${data.id}" role="button" tabindex="0">
+          <div class="watchlist-art-wrap">${svgArt}</div>
+          <div class="watchlist-gradient-overlay"></div>
+          <span class="watchlist-badge">${data.badge || 'HD'}</span>
+          <button type="button" class="watchlist-remove-btn" data-remove-watchlist="${data.id}" title="Remove from Watchlist" aria-label="Remove">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+          <div class="watchlist-info">
+            <h4 class="watchlist-card-title">${data.title}</h4>
+            <span class="watchlist-card-genre">${data.genre || 'Anime'}</span>
+            <div class="watchlist-actions-row">
+              <button type="button" class="btn-watchlist-play" data-play-watchlist="${data.id}">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Play
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach card click to open preview
+    grid.querySelectorAll('.watchlist-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.watchlist-remove-btn') || e.target.closest('.btn-watchlist-play')) return;
+        const animeId = card.dataset.animeId;
+        openAnimePreview(animeId, true);
+      });
+    });
+
+    // Attach play button
+    grid.querySelectorAll('.btn-watchlist-play').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const animeId = btn.dataset.playWatchlist;
+        const prog = getAnimeProgress(animeId);
+        startFullPlayer(animeId, prog ? prog.episodeNum : 1, prog ? prog.currentTime : null);
+      });
+    });
+
+    // Attach remove from watchlist button
+    grid.querySelectorAll('.watchlist-remove-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const animeId = btn.dataset.removeWatchlist;
+        toggleUserWatchlist(animeId);
+      });
+    });
+  });
+}
+
+function updateWatchlistBadges() {
+  const count = getUserWatchlist().length;
+  const chipBadge = document.getElementById('watchlistCountBadge');
+  if (chipBadge) chipBadge.textContent = count;
+  const shelfBadge = document.getElementById('watchlistShelfCountBadge');
+  if (shelfBadge) shelfBadge.textContent = count;
 }
 
 // ---------- CINEMATIC ANIME AUDIO SYNTHESIZER ENGINE ----------
@@ -1522,6 +1868,17 @@ function openAnimePreview(animeId, autoPlayTrailer = true) {
   const tabTitleEl = document.getElementById('tabAnimeTitleName');
   if (tabTitleEl) tabTitleEl.textContent = data.title;
 
+  // Update Dynamic Play / Resume button CTA
+  const playBtnText = document.getElementById('previewPlayBtnText');
+  const animeProg = getAnimeProgress(data.id);
+  if (playBtnText) {
+    if (animeProg && animeProg.percentage > 0 && animeProg.percentage < 95) {
+      playBtnText.textContent = `Resume Ep. ${animeProg.episodeNum} (${formatRemainingTime(animeProg.currentTime, animeProg.duration)})`;
+    } else {
+      playBtnText.textContent = 'Play Episode 1';
+    }
+  }
+
   // Update My List button state
   const addListBtn = document.getElementById('previewAddListBtn');
   if (addListBtn) {
@@ -1668,6 +2025,8 @@ function renderEpisodesList(animeData, fallbackSvg) {
 
   const episodes = animeData.episodes || [];
   container.innerHTML = episodes.map((ep) => {
+    const epProg = getAnimeProgress(animeData.id, ep.num);
+    const hasProgress = epProg && epProg.percentage > 0;
     return `
       <div class="episode-card" data-ep="${ep.num}" data-anime="${animeData.id}">
         <span class="ep-number">${ep.num}</span>
@@ -1676,11 +2035,16 @@ function renderEpisodesList(animeData, fallbackSvg) {
           <div class="ep-play-overlay">
             <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
           </div>
+          ${hasProgress ? `
+            <div class="ep-progress-bar">
+              <div class="ep-progress-fill" style="width: ${epProg.percentage}%;"></div>
+            </div>
+          ` : ''}
         </div>
         <div class="ep-info">
           <div class="ep-title-row">
             <h4 class="ep-title">${ep.num}. ${ep.title}</h4>
-            <span class="ep-duration">${ep.duration}</span>
+            <span class="ep-duration">${hasProgress ? `<strong style="color:var(--gold);">${epProg.percentage}%</strong> · ` : ''}${ep.duration}</span>
           </div>
           <p class="ep-desc">${ep.desc}</p>
         </div>
@@ -1692,7 +2056,8 @@ function renderEpisodesList(animeData, fallbackSvg) {
   container.querySelectorAll('.episode-card').forEach(card => {
     card.addEventListener('click', () => {
       const epNum = parseInt(card.dataset.ep, 10) || 1;
-      startFullPlayer(animeData.id, epNum);
+      const prog = getAnimeProgress(animeData.id, epNum);
+      startFullPlayer(animeData.id, epNum, prog ? prog.currentTime : null);
     });
   });
 }
@@ -1790,7 +2155,7 @@ function activatePreviewTab(tabKey) {
 }
 
 // ---------- NETFLIX FULL VIDEO PLAYER CONTROLLER ----------
-function startFullPlayer(animeId, episodeNum = 1) {
+function startFullPlayer(animeId, episodeNum = 1, resumeSeekTime = null) {
   const user = getAuthUser();
   if (!user || !user.loggedIn) {
     const data = getAnimeData(animeId);
@@ -1821,7 +2186,19 @@ function startFullPlayer(animeId, episodeNum = 1) {
   }
 
   streamVideo.src = data.fullVideo || 'kamui-animation.mp4';
-  streamVideo.currentTime = 0;
+  
+  // Calculate target seek time if resuming
+  let targetTime = 0;
+  if (typeof resumeSeekTime === 'number' && resumeSeekTime > 0) {
+    targetTime = resumeSeekTime;
+  } else {
+    const prog = getAnimeProgress(animeId, episodeNum);
+    if (prog && prog.currentTime > 0 && prog.percentage < 95) {
+      targetTime = prog.currentTime;
+    }
+  }
+
+  streamVideo.currentTime = targetTime;
   streamVideo.muted = false; // Video audio enabled for streaming
   streamVideo.volume = 1.0;
 
@@ -1837,10 +2214,14 @@ function startFullPlayer(animeId, episodeNum = 1) {
     });
   }
 
+  // Record initial progress
+  saveAnimeProgress(animeId, episodeNum, Math.max(1, targetTime), streamVideo.duration || (24 * 60));
+
   // Start rich stereo anime soundtrack alongside video
   animeAudioEngine.play(animeId);
 
-  showToast(`▶ Now streaming "${data.title}" Ep. ${episodeNum} in 4K HDR`, 'success');
+  const resumeMsg = targetTime > 5 ? ` (Resumed at ${formatPlayerTime(targetTime)})` : '';
+  showToast(`▶ Now streaming "${data.title}" Ep. ${episodeNum}${resumeMsg} in 4K HDR`, 'success');
   updatePlayerPlayPauseIcons(true);
 }
 
@@ -1946,7 +2327,12 @@ function initNetflixPreviewAndPlayer() {
   if (mainPlayBtn) {
     mainPlayBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      startFullPlayer(currentPreviewAnimeId, 1);
+      const prog = getAnimeProgress(currentPreviewAnimeId);
+      if (prog && prog.percentage > 0 && prog.percentage < 95) {
+        startFullPlayer(currentPreviewAnimeId, prog.episodeNum || 1, prog.currentTime || null);
+      } else {
+        startFullPlayer(currentPreviewAnimeId, 1);
+      }
     });
   }
 
@@ -2158,6 +2544,11 @@ function initNetflixPreviewAndPlayer() {
         playerTimeDisplay.textContent = `${formatPlayerTime(cur)} / ${formatPlayerTime(dur)}`;
       }
 
+      // Record continue watching progress in real time
+      if (cur > 1 && currentPreviewAnimeId) {
+        saveAnimeProgress(currentPreviewAnimeId, currentStreamingEpNum, cur, dur);
+      }
+
       // Skip Intro button visibility (show between 2s and 20s)
       if (btnSkipIntro) {
         btnSkipIntro.style.display = (cur > 2 && cur < 22) ? 'block' : 'none';
@@ -2204,7 +2595,7 @@ function initNetflixPreviewAndPlayer() {
   window.addEventListener('hashchange', checkHashPreview);
 }
 
-// ---------- Watch page: genre filter ----------
+// ---------- Watch page: genre & watchlist filter ----------
 const filterBar = document.getElementById('filterBar');
 if (filterBar) {
   const chips = filterBar.querySelectorAll('.filter-chip');
@@ -2214,10 +2605,29 @@ if (filterBar) {
       chips.forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       const genre = chip.dataset.genre;
-      cards.forEach(card => {
-        const match = genre === 'all' || card.dataset.genre === genre;
-        card.classList.toggle('hidden', !match);
-      });
+
+      if (genre === 'watchlist') {
+        const mySavedList = getUserWatchlist();
+        let matchCount = 0;
+        cards.forEach(card => {
+          const id = card.id || card.dataset.title?.toLowerCase().replace(/\s+/g, '-');
+          const isSaved = mySavedList.includes(id);
+          card.classList.toggle('hidden', !isSaved);
+          if (isSaved) matchCount++;
+        });
+        const heading = document.getElementById('catalogHeadingTitle');
+        if (heading) heading.textContent = `My List (${matchCount})`;
+        if (matchCount === 0) {
+          showToast('Your Watchlist is empty! Add shows using "+ Add to My List".', 'info');
+        }
+      } else {
+        cards.forEach(card => {
+          const match = genre === 'all' || card.dataset.genre === genre;
+          card.classList.toggle('hidden', !match);
+        });
+        const heading = document.getElementById('catalogHeadingTitle');
+        if (heading) heading.textContent = genre === 'all' ? 'All Series' : `${genre} Series`;
+      }
     });
   });
 }
@@ -2307,6 +2717,8 @@ function initApp() {
   initNetflixPreviewAndPlayer();
   initStartWatchingInterceptors();
   initAuthPages();
+  renderContinueWatchingShelves();
+  renderWatchlistShelves();
 }
 
 if (document.readyState === 'loading') {
