@@ -2707,17 +2707,17 @@ if (titleVideo) {
   });
 }
 
-
-// ---------- Initialize App State & Interceptors ----------
-
 // ================================================================
-// NETFLIX-STYLE BROWSE SYSTEM
+// NETFLIX-STYLE BROWSE & BILLBOARD HERO SYSTEM
 // ================================================================
 
-// List of all anime in order for billboard & rows
 const CATALOG_IDS = Object.keys(ANIME_CATALOG);
+const BILLBOARD_IDS = ['kamui', 'ashfall-district', 'iron-tide', 'nine-crows-inn', 'static-requiem', 'paper-moon-society'];
+let currentBillboardIndex = 0;
+let billboardRotationTimer = null;
+let billboardAudioMuted = true;
 
-// SVG artwork lookup (matches watch.html SVG art blocks)
+// SVG Widescreen Artwork Lookup for Netflix Cards
 function getCardSvgArt(animeId) {
   const svgMap = {
     'kamui': `<svg class="browse-card-art" viewBox="0 0 300 170" preserveAspectRatio="xMidYMid slice">
@@ -2726,7 +2726,7 @@ function getCardSvgArt(animeId) {
       <circle cx="220" cy="50" r="55" fill="#e8b94f" opacity="0.12"/>
       <polygon points="0,110 60,90 130,115 190,80 250,100 300,90 300,170 0,170" fill="#1a2233"/>
       <polygon points="0,140 90,130 180,145 300,130 300,170 0,170" fill="#0a0d14"/>
-      <text x="18" y="160" fill="#ece3d0" font-family="serif" font-size="12">Kamui</text>
+      <text x="18" y="158" fill="#ece3d0" font-family="var(--serif, serif)" font-size="13">Kamui</text>
     </svg>`,
     'ashfall-district': `<svg class="browse-card-art" viewBox="0 0 300 170" preserveAspectRatio="xMidYMid slice">
       <rect width="300" height="170" fill="#0d1a1e"/>
@@ -2740,7 +2740,7 @@ function getCardSvgArt(animeId) {
       <circle cx="82" cy="50" r="2" fill="#6fa8b5"/>
       <circle cx="150" cy="40" r="2" fill="#6fa8b5"/>
       <circle cx="234" cy="20" r="22" fill="#6fa8b5" opacity="0.25"/>
-      <text x="18" y="162" fill="#bfe3ea" font-family="serif" font-size="10">Ashfall District</text>
+      <text x="18" y="158" fill="#bfe3ea" font-family="var(--serif, serif)" font-size="12">Ashfall District</text>
     </svg>`,
     'paper-moon-society': `<svg class="browse-card-art" viewBox="0 0 300 170" preserveAspectRatio="xMidYMid slice">
       <rect width="300" height="170" fill="#1c1912"/>
@@ -2748,7 +2748,7 @@ function getCardSvgArt(animeId) {
       <path d="M180 30 C 200 55, 190 90, 150 110 C 190 120, 220 145, 210 165" fill="none" stroke="#3a2f1c" stroke-width="2" opacity="0.7"/>
       <circle cx="140" cy="130" r="4" fill="#e8b94f" opacity="0.8"/>
       <circle cx="165" cy="145" r="3" fill="#e8b94f" opacity="0.6"/>
-      <text x="18" y="162" fill="#ece3d0" font-family="serif" font-size="9">Paper Moon Society</text>
+      <text x="18" y="158" fill="#ece3d0" font-family="var(--serif, serif)" font-size="11">Paper Moon Society</text>
     </svg>`,
     'iron-tide': `<svg class="browse-card-art" viewBox="0 0 300 170" preserveAspectRatio="xMidYMid slice">
       <rect width="300" height="170" fill="#151221"/>
@@ -2756,7 +2756,7 @@ function getCardSvgArt(animeId) {
       <circle cx="150" cy="80" r="36" fill="none" stroke="#8a5fb0" stroke-width="3" opacity="0.7"/>
       <circle cx="150" cy="80" r="8" fill="#8a5fb0"/>
       <path d="M0 130 C 60 115, 120 135, 180 115 C 240 98, 270 118, 300 105 L300 170 L0 170 Z" fill="#0d0b16"/>
-      <text x="18" y="162" fill="#d8c8ec" font-family="serif" font-size="12">Iron Tide</text>
+      <text x="18" y="158" fill="#d8c8ec" font-family="var(--serif, serif)" font-size="13">Iron Tide</text>
     </svg>`,
     'nine-crows-inn': `<svg class="browse-card-art" viewBox="0 0 300 170" preserveAspectRatio="xMidYMid slice">
       <rect width="300" height="170" fill="#150e0a"/>
@@ -2764,7 +2764,7 @@ function getCardSvgArt(animeId) {
       <ellipse cx="150" cy="40" rx="20" ry="10" fill="#c1501f" opacity="0.85"/>
       <path d="M60 90 q8 -11 20 -8 q-3 8 -13 13 q-3 3 -7 -5 Z" fill="#0c0806"/>
       <path d="M220 100 q8 -11 20 -8 q-3 8 -13 13 q-3 3 -7 -5 Z" fill="#0c0806"/>
-      <text x="18" y="162" fill="#ece3d0" font-family="serif" font-size="11">Nine Crows Inn</text>
+      <text x="18" y="158" fill="#ece3d0" font-family="var(--serif, serif)" font-size="12">Nine Crows Inn</text>
     </svg>`,
     'glasshouse': `<svg class="browse-card-art" viewBox="0 0 300 170" preserveAspectRatio="xMidYMid slice">
       <rect width="300" height="170" fill="#0e1c17"/>
@@ -2776,7 +2776,7 @@ function getCardSvgArt(animeId) {
         <line x1="200" y1="0" x2="200" y2="170"/>
       </g>
       <path d="M150 150 C 130 130 90 130 90 110 C 90 96 112 88 130 100 C 132 82 158 74 172 94 C 190 82 214 96 208 116 C 224 120 226 140 204 148 C 210 162 190 170 168 160 C 164 170 156 174 150 170 Z" fill="#3f8f6e" opacity="0.75"/>
-      <text x="18" y="162" fill="#bfe6d4" font-family="serif" font-size="12">Glasshouse</text>
+      <text x="18" y="158" fill="#bfe6d4" font-family="var(--serif, serif)" font-size="13">Glasshouse</text>
     </svg>`,
     'hollow-meridian': `<svg class="browse-card-art" viewBox="0 0 300 170" preserveAspectRatio="xMidYMid slice">
       <rect width="300" height="170" fill="#1a1108"/>
@@ -2785,36 +2785,31 @@ function getCardSvgArt(animeId) {
       <line x1="100" y1="80" x2="200" y2="80" stroke="#e5824a" stroke-width="1" opacity="0.5"/>
       <polygon points="150,40 157,80 150,120 143,80" fill="#e5824a" opacity="0.85"/>
       <polygon points="0,130 70,115 150,130 220,110 300,125 300,170 0,170" fill="#120b06"/>
-      <text x="18" y="162" fill="#f0c9a8" font-family="serif" font-size="10">Hollow Meridian</text>
+      <text x="18" y="158" fill="#f0c9a8" font-family="var(--serif, serif)" font-size="11">Hollow Meridian</text>
     </svg>`,
     'static-requiem': `<svg class="browse-card-art" viewBox="0 0 300 170" preserveAspectRatio="xMidYMid slice">
       <rect width="300" height="170" fill="#0c1418"/>
       <circle cx="150" cy="75" r="42" fill="none" stroke="#6fa8b5" stroke-width="2" opacity="0.6"/>
       <path d="M60 65 L110 65 L100 80 L140 50 L150 95 L170 40 L190 100 L210 65 L240 65" fill="none" stroke="#6fa8b5" stroke-width="1.5" opacity="0.8"/>
       <line x1="30" y1="130" x2="270" y2="120" stroke="#6fa8b5" stroke-width="1" opacity="0.3"/>
-      <text x="18" y="162" fill="#bfdbe2" font-family="serif" font-size="11">Static Requiem</text>
+      <text x="18" y="158" fill="#bfdbe2" font-family="var(--serif, serif)" font-size="12">Static Requiem</text>
     </svg>`,
     'long-thaw': `<svg class="browse-card-art" viewBox="0 0 300 170" preserveAspectRatio="xMidYMid slice">
       <rect width="300" height="170" fill="#0e1620"/>
       <circle cx="90" cy="55" r="28" fill="#e8b94f" opacity="0.7"/>
       <path d="M0 110 C 60 98 120 118 180 98 C 220 82 260 100 300 90 L300 170 L0 170 Z" fill="#101c28"/>
       <path d="M0 140 L80 130 L160 148 L240 130 L300 142 L300 170 L0 170 Z" fill="#080e14"/>
-      <text x="18" y="162" fill="#ece3d0" font-family="serif" font-size="11">The Long Thaw</text>
+      <text x="18" y="158" fill="#ece3d0" font-family="var(--serif, serif)" font-size="12">The Long Thaw</text>
     </svg>`
   };
   return svgMap[animeId] || `<svg class="browse-card-art" viewBox="0 0 300 170" preserveAspectRatio="xMidYMid slice">
     <rect width="300" height="170" fill="#101522"/>
     <circle cx="150" cy="75" r="50" fill="var(--gold,#e8b94f)" opacity="0.5"/>
-    <text x="50%" y="88%" text-anchor="middle" fill="#ffffff" font-family="serif" font-size="14">${ANIME_CATALOG[animeId]?.title || animeId}</text>
+    <text x="50%" y="88%" text-anchor="middle" fill="#ffffff" font-family="var(--serif, serif)" font-size="14">${ANIME_CATALOG[animeId]?.title || animeId}</text>
   </svg>`;
 }
 
-// Get SVG for widescreen (16:9) display in browse rows
-function getWidescreenSvg(animeId) {
-  return getCardSvgArt(animeId);
-}
-
-// Build a standard Netflix browse card
+// Build a Netflix Browse Card with Hover Expansion & Micro-Controls
 function buildBrowseCard(animeId) {
   const data = ANIME_CATALOG[animeId];
   if (!data) return '';
@@ -2824,7 +2819,7 @@ function buildBrowseCard(animeId) {
   return `
     <div class="browse-card" data-anime-id="${animeId}" tabindex="0" role="button" aria-label="${data.title}">
       <div class="browse-card-inner">
-        ${getWidescreenSvg(animeId)}
+        ${getCardSvgArt(animeId)}
         <div class="browse-card-gradient"></div>
         <span class="browse-card-badge ${badgeClass}">${data.badge}</span>
         <div class="browse-card-bottom">
@@ -2832,23 +2827,23 @@ function buildBrowseCard(animeId) {
         </div>
         <div class="browse-card-reveal">
           <div class="browse-card-reveal-actions">
-            <button class="reveal-btn-play" data-play-anime="${animeId}" title="Play">
+            <button type="button" class="reveal-btn-play" data-play-anime="${animeId}" title="Play">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </button>
-            <button class="reveal-btn-icon ${inList ? 'in-list' : ''}" data-list-toggle="${animeId}" title="${inList ? 'Remove from My List' : 'Add to My List'}">
+            <button type="button" class="reveal-btn-icon ${inList ? 'in-list' : ''}" data-list-toggle="${animeId}" title="${inList ? 'Remove from My List' : 'Add to My List'}">
               ${inList
                 ? '<svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>'
                 : '<svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>'
               }
             </button>
-            <button class="reveal-btn-chevron" data-info-anime="${animeId}" title="More info">
+            <button type="button" class="reveal-btn-chevron" data-info-anime="${animeId}" title="More info">
               <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M19 9l-7 7-7-7"/></svg>
             </button>
           </div>
           <div class="reveal-match-row">
             <span class="reveal-match">${data.match}</span>
             <span class="reveal-rating">${data.rating}</span>
-            <span class="reveal-seasons">${data.seasonsCount}</span>
+            <span class="reveal-seasons">${data.seasonsCount.split(' ')[0]} ${data.seasonsCount.split(' ')[1]}</span>
           </div>
           <div class="reveal-genres">
             ${(data.genres || [data.genre]).slice(0, 3).map(g => `<span class="reveal-genre-dot">${g}</span>`).join('')}
@@ -2859,7 +2854,7 @@ function buildBrowseCard(animeId) {
   `;
 }
 
-// Build a Top-10 card with giant number overlay
+// Build a Top 10 Card with Giant 3D Numbers
 function buildTop10Card(animeId, rank) {
   const data = ANIME_CATALOG[animeId];
   if (!data) return '';
@@ -2867,7 +2862,7 @@ function buildTop10Card(animeId, rank) {
     <div class="top10-card" data-anime-id="${animeId}" tabindex="0" role="button" aria-label="#${rank} ${data.title}">
       <div class="top10-number">${rank}</div>
       <div class="top10-card-inner">
-        ${getWidescreenSvg(animeId)}
+        ${getCardSvgArt(animeId)}
         <div class="top10-card-overlay"></div>
         <span class="top10-badge">${rank <= 3 ? 'TOP ' + rank : data.badge}</span>
       </div>
@@ -2875,56 +2870,60 @@ function buildTop10Card(animeId, rank) {
   `;
 }
 
-// Wire click events on a row's cards
+// Wire Event Handlers on Row Cards
 function wireRowCardEvents(trackEl) {
   if (!trackEl) return;
   trackEl.querySelectorAll('.browse-card').forEach(card => {
-    card.addEventListener('click', e => {
+    card.addEventListener('click', (e) => {
       const playBtn = e.target.closest('[data-play-anime]');
       const listBtn = e.target.closest('[data-list-toggle]');
       const infoBtn = e.target.closest('[data-info-anime]');
       const animeId = playBtn?.dataset.playAnime || listBtn?.dataset.listToggle || infoBtn?.dataset.infoAnime || card.dataset.animeId;
       if (!animeId) return;
+
       if (playBtn) {
         const prog = getAnimeProgress(animeId);
         startFullPlayer(animeId, prog ? prog.episodeNum : 1, prog ? prog.currentTime : null);
       } else if (listBtn) {
         toggleUserWatchlist(animeId);
-        // Re-render row to update button state
         renderContentRows();
       } else {
         openAnimePreview(animeId, true);
       }
     });
-    card.addEventListener('keydown', e => {
+
+    card.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') openAnimePreview(card.dataset.animeId, true);
     });
   });
 
   trackEl.querySelectorAll('.top10-card').forEach(card => {
-    card.addEventListener('click', () => openAnimePreview(card.dataset.animeId, true));
+    card.addEventListener('click', () => {
+      openAnimePreview(card.dataset.animeId, true);
+    });
   });
 }
 
-// Row arrow scroll wiring
+// Initialize Horizontal Row Arrow Slider Controls
 function initRowArrows() {
   document.querySelectorAll('.row-arrow').forEach(btn => {
-    btn.addEventListener('click', e => {
+    btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const trackId = btn.dataset.row;
       const track = document.getElementById(trackId);
       if (!track) return;
       const scrollAmount = track.clientWidth * 0.75;
-      track.scrollBy({ left: btn.classList.contains('row-arrow-right') ? scrollAmount : -scrollAmount, behavior: 'smooth' });
+      track.scrollBy({
+        left: btn.classList.contains('row-arrow-right') ? scrollAmount : -scrollAmount,
+        behavior: 'smooth'
+      });
     });
   });
 }
 
-// ---------- RENDER CONTENT ROWS ----------
+// Render Content Rows across the page
 function renderContentRows() {
-  const isWatchPage = window.location.pathname.endsWith('watch.html') || window.location.pathname === '/';
-
-  // --- Top 10 Row ---
+  // Top 10 Row
   const top10Grid = document.getElementById('top10Grid');
   if (top10Grid) {
     const top10Ids = CATALOG_IDS.slice(0, 9);
@@ -2932,15 +2931,23 @@ function renderContentRows() {
     wireRowCardEvents(top10Grid);
   }
 
-  // --- New on Kamui Row ---
+  // Trending Now Row
+  const trendingGrid = document.getElementById('trendingGrid');
+  if (trendingGrid) {
+    const trendingIds = ['kamui', 'ashfall-district', 'iron-tide', 'nine-crows-inn', 'static-requiem'];
+    trendingGrid.innerHTML = trendingIds.map(id => buildBrowseCard(id)).join('');
+    wireRowCardEvents(trendingGrid);
+  }
+
+  // New on Kamui Row
   const newGrid = document.getElementById('newKamuiGrid');
   if (newGrid) {
-    const newIds = CATALOG_IDS.filter(id => ['nine-crows-inn', 'long-thaw', 'static-requiem', 'hollow-meridian', 'glasshouse'].includes(id));
+    const newIds = ['nine-crows-inn', 'long-thaw', 'static-requiem', 'hollow-meridian', 'glasshouse'];
     newGrid.innerHTML = newIds.map(id => buildBrowseCard(id)).join('');
     wireRowCardEvents(newGrid);
   }
 
-  // --- Dark Fantasy Row ---
+  // Dark Fantasy Row
   const darkGrid = document.getElementById('darkFantasyGrid');
   if (darkGrid) {
     const darkIds = CATALOG_IDS.filter(id => {
@@ -2951,22 +2958,97 @@ function renderContentRows() {
     wireRowCardEvents(darkGrid);
   }
 
-  // --- Recommended Row (all shows in shuffled order) ---
-  const recGrid = document.getElementById('recommendedGrid');
-  if (recGrid) {
-    const shuffled = [...CATALOG_IDS].sort(() => Math.random() - 0.5);
-    recGrid.innerHTML = shuffled.map(id => buildBrowseCard(id)).join('');
-    wireRowCardEvents(recGrid);
+  // Sci-Fi, Cyberpunk & Mecha Row
+  const scifiGrid = document.getElementById('scifiGrid');
+  if (scifiGrid) {
+    const scifiIds = CATALOG_IDS.filter(id => {
+      const d = ANIME_CATALOG[id];
+      return (d.genres || []).some(g => ['Sci-Fi', 'Cyberpunk', 'Mecha', 'Action'].includes(g));
+    });
+    scifiGrid.innerHTML = scifiIds.map(id => buildBrowseCard(id)).join('');
+    wireRowCardEvents(scifiGrid);
   }
 
-  // Re-init arrows for newly created rows
+  // Cozy Slice of Life & Romance Row
+  const sliceGrid = document.getElementById('sliceGrid');
+  if (sliceGrid) {
+    const sliceIds = CATALOG_IDS.filter(id => {
+      const d = ANIME_CATALOG[id];
+      return (d.genres || []).some(g => ['Slice of Life', 'Romance', 'Comedy', 'Drama'].includes(g));
+    });
+    sliceGrid.innerHTML = sliceIds.map(id => buildBrowseCard(id)).join('');
+    wireRowCardEvents(sliceGrid);
+  }
+
   initRowArrows();
 }
 
-// ---------- NETFLIX BILLBOARD HERO ----------
-let billboardIndex = 0;
-let billboardTimer = null;
-const BILLBOARD_IDS = ['kamui', 'ashfall-district', 'iron-tide', 'nine-crows-inn', 'static-requiem'];
+// ---------- NETFLIX BILLBOARD SPOTLIGHT CONTROLLER ----------
+function fillBillboard(data, video, info) {
+  if (!data) return;
+
+  if (video) {
+    video.src = data.trailerVideo || 'kamui-animation.mp4';
+    video.muted = billboardAudioMuted;
+    video.play().catch(() => {});
+  }
+
+  const badge = document.getElementById('billboardBadge');
+  const title = document.getElementById('billboardTitle');
+  const synopsis = document.getElementById('billboardSynopsis');
+  const match = document.getElementById('billboardMatch');
+  const year = document.getElementById('billboardYear');
+  const rating = document.getElementById('billboardRating');
+  const seasons = document.getElementById('billboardSeasons');
+  const maturity = document.getElementById('billboardMaturity');
+  const genresCon = document.getElementById('billboardGenres');
+  const listBtn = document.getElementById('billboardListBtn');
+  const playText = document.getElementById('billboardPlayText');
+
+  if (badge) badge.textContent = `#1 in Anime Today · ${data.badge}`;
+  if (title) title.textContent = data.title;
+  if (synopsis) synopsis.textContent = data.synopsis;
+  if (match) match.textContent = data.match;
+  if (year) year.textContent = data.year;
+  if (rating) rating.textContent = data.rating;
+  if (seasons) seasons.textContent = (data.seasonsCount || '').split(' ').slice(0, 2).join(' ');
+  if (maturity) maturity.textContent = data.rating;
+
+  if (genresCon) {
+    genresCon.innerHTML = (data.genres || [data.genre]).slice(0, 4)
+      .map(g => `<span class="billboard-genre-tag">${g}</span>`).join('');
+  }
+
+  // Dynamic Watch Now vs Resume button text
+  const prog = getAnimeProgress(data.id);
+  if (playText) {
+    playText.textContent = (prog && prog.percentage > 0 && prog.percentage < 95)
+      ? `Resume Ep. ${prog.episodeNum}`
+      : 'Watch Now';
+  }
+
+  // Update List Button state
+  if (listBtn) {
+    const isSaved = getUserWatchlist().includes(data.id);
+    listBtn.classList.toggle('active', isSaved);
+    const iconPlus = listBtn.querySelector('.icon-plus');
+    const iconCheck = listBtn.querySelector('.icon-check');
+    if (iconPlus && iconCheck) {
+      iconPlus.style.display = isSaved ? 'none' : 'block';
+      iconCheck.style.display = isSaved ? 'block' : 'none';
+    }
+  }
+
+  // Sync Soundtrack Audio if unmuted
+  if (!billboardAudioMuted) {
+    animeAudioEngine.play(data.id);
+  } else {
+    animeAudioEngine.stop();
+  }
+
+  const hero = document.getElementById('billboardHero');
+  if (hero) hero._animeId = data.id;
+}
 
 function updateBillboard(idx, animate = true) {
   const data = ANIME_CATALOG[BILLBOARD_IDS[idx]];
@@ -2981,87 +3063,23 @@ function updateBillboard(idx, animate = true) {
       info.classList.remove('transitioning');
       fillBillboard(data, video, info);
       info.classList.add('transitioning-in');
-      setTimeout(() => info.classList.remove('transitioning-in'), 600);
-    }, 300);
+      setTimeout(() => info.classList.remove('transitioning-in'), 400);
+    }, 250);
   } else {
     fillBillboard(data, video, info);
   }
 
-  // Update dots
-  document.querySelectorAll('.billboard-dot').forEach((dot, i) => {
-    dot.classList.toggle('active', i === idx);
+  // Update thumbnail carousel highlight
+  document.querySelectorAll('.switcher-thumb').forEach((thumb, i) => {
+    thumb.classList.toggle('active', i === idx);
   });
 }
 
-function fillBillboard(data, video, info) {
-  if (!data) return;
-
-  // Video
-  if (video) {
-    video.src = data.trailerVideo || '';
-    video.muted = true;
-    video.play().catch(() => {});
-  }
-
-  // Text
-  const badge = document.getElementById('billboardBadge');
-  const title = document.getElementById('billboardTitle');
-  const synopsis = document.getElementById('billboardSynopsis');
-  const match = document.getElementById('billboardMatch');
-  const year = document.getElementById('billboardYear');
-  const rating = document.getElementById('billboardRating');
-  const seasons = document.getElementById('billboardSeasons');
-  const maturity = document.getElementById('billboardMaturity');
-  const genresCon = document.getElementById('billboardGenres');
-
-  if (badge) badge.textContent = data.badge;
-  if (title) title.textContent = data.title;
-  if (synopsis) synopsis.textContent = data.synopsis;
-  if (match) match.textContent = data.match;
-  if (year) year.textContent = data.year;
-  if (rating) rating.textContent = data.rating;
-  if (seasons) seasons.textContent = (data.seasonsCount || '').split(' ').slice(0, 2).join(' ');
-  if (maturity) maturity.textContent = data.rating;
-  if (genresCon) {
-    genresCon.innerHTML = (data.genres || [data.genre]).slice(0, 3)
-      .map(g => `<span class="billboard-genre-tag">${g}</span>`).join('');
-  }
-
-  // Store current id for play/info buttons
-  document.getElementById('billboardHero')._animeId = data.id;
-}
-
-function startBillboardRotation() {
-  // Build dots
-  const dotsEl = document.getElementById('billboardDots');
-  if (dotsEl) {
-    dotsEl.innerHTML = BILLBOARD_IDS.map((_, i) =>
-      `<div class="billboard-dot ${i === 0 ? 'active' : ''}" data-idx="${i}"></div>`
-    ).join('');
-    dotsEl.querySelectorAll('.billboard-dot').forEach(dot => {
-      dot.addEventListener('click', () => {
-        billboardIndex = parseInt(dot.dataset.idx);
-        updateBillboard(billboardIndex, true);
-        resetBillboardTimer();
-      });
-    });
-  }
-
-  // Initial render
-  updateBillboard(0, false);
-
-  // Auto-rotate every 12s
-  billboardTimer = setInterval(() => {
-    billboardIndex = (billboardIndex + 1) % BILLBOARD_IDS.length;
-    updateBillboard(billboardIndex, true);
-  }, 12000);
-}
-
 function resetBillboardTimer() {
-  if (billboardTimer) clearInterval(billboardTimer);
-  billboardTimer = setInterval(() => {
-    billboardIndex = (billboardIndex + 1) % BILLBOARD_IDS.length;
-    updateBillboard(billboardIndex, true);
+  if (billboardRotationTimer) clearInterval(billboardRotationTimer);
+  billboardRotationTimer = setInterval(() => {
+    currentBillboardIndex = (currentBillboardIndex + 1) % BILLBOARD_IDS.length;
+    updateBillboard(currentBillboardIndex, true);
   }, 12000);
 }
 
@@ -3069,42 +3087,106 @@ function initBillboard() {
   const hero = document.getElementById('billboardHero');
   if (!hero) return;
 
-  startBillboardRotation();
+  // Build Spotlight Switcher Thumbnails Carousel (matches screenshot)
+  const track = document.getElementById('billboardSwitcherTrack');
+  if (track) {
+    track.innerHTML = BILLBOARD_IDS.map((id, i) => `
+      <div class="switcher-thumb ${i === 0 ? 'active' : ''}" data-idx="${i}" title="${ANIME_CATALOG[id]?.title}">
+        ${getCardSvgArt(id)}
+      </div>
+    `).join('');
 
-  // Play button
+    track.querySelectorAll('.switcher-thumb').forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        currentBillboardIndex = parseInt(thumb.dataset.idx, 10);
+        updateBillboard(currentBillboardIndex, true);
+        resetBillboardTimer();
+      });
+    });
+  }
+
+  // Prev / Next buttons on Switcher
+  const prevBtn = document.getElementById('switcherPrevBtn');
+  const nextBtn = document.getElementById('switcherNextBtn');
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      currentBillboardIndex = (currentBillboardIndex - 1 + BILLBOARD_IDS.length) % BILLBOARD_IDS.length;
+      updateBillboard(currentBillboardIndex, true);
+      resetBillboardTimer();
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      currentBillboardIndex = (currentBillboardIndex + 1) % BILLBOARD_IDS.length;
+      updateBillboard(currentBillboardIndex, true);
+      resetBillboardTimer();
+    });
+  }
+
+  // Play Button
   const playBtn = document.getElementById('billboardPlayBtn');
   if (playBtn) {
     playBtn.addEventListener('click', () => {
-      const animeId = hero._animeId || BILLBOARD_IDS[billboardIndex];
+      const animeId = hero._animeId || BILLBOARD_IDS[currentBillboardIndex];
       const prog = getAnimeProgress(animeId);
       startFullPlayer(animeId, prog ? prog.episodeNum : 1, prog ? prog.currentTime : null);
     });
   }
 
-  // More Info button
+  // List Button
+  const listBtn = document.getElementById('billboardListBtn');
+  if (listBtn) {
+    listBtn.addEventListener('click', () => {
+      const animeId = hero._animeId || BILLBOARD_IDS[currentBillboardIndex];
+      const added = toggleUserWatchlist(animeId);
+      listBtn.classList.toggle('active', added);
+      const iconPlus = listBtn.querySelector('.icon-plus');
+      const iconCheck = listBtn.querySelector('.icon-check');
+      if (iconPlus && iconCheck) {
+        iconPlus.style.display = added ? 'none' : 'block';
+        iconCheck.style.display = added ? 'block' : 'none';
+      }
+    });
+  }
+
+  // More Info Button
   const infoBtn = document.getElementById('billboardInfoBtn');
   if (infoBtn) {
     infoBtn.addEventListener('click', () => {
-      const animeId = hero._animeId || BILLBOARD_IDS[billboardIndex];
+      const animeId = hero._animeId || BILLBOARD_IDS[currentBillboardIndex];
       openAnimePreview(animeId, true);
     });
   }
 
-  // Mute button
+  // Sound Toggle Button
   const muteBtn = document.getElementById('billboardMuteBtn');
   const billboardVideo = document.getElementById('billboardVideo');
   if (muteBtn && billboardVideo) {
     muteBtn.addEventListener('click', () => {
-      billboardVideo.muted = !billboardVideo.muted;
+      billboardAudioMuted = !billboardAudioMuted;
+      billboardVideo.muted = billboardAudioMuted;
       const iconOff = muteBtn.querySelector('.icon-volume-off');
       const iconOn = muteBtn.querySelector('.icon-volume-on');
-      if (iconOff) iconOff.style.display = billboardVideo.muted ? 'block' : 'none';
-      if (iconOn) iconOn.style.display = billboardVideo.muted ? 'none' : 'block';
+      if (iconOff) iconOff.style.display = billboardAudioMuted ? 'block' : 'none';
+      if (iconOn) iconOn.style.display = billboardAudioMuted ? 'none' : 'block';
+
+      if (!billboardAudioMuted) {
+        const currentAnimeId = hero._animeId || BILLBOARD_IDS[currentBillboardIndex];
+        animeAudioEngine.play(currentAnimeId);
+        showToast('🔊 Featured Audio Enabled', 'info');
+      } else {
+        animeAudioEngine.stop();
+        showToast('🔇 Audio Muted', 'info');
+      }
     });
   }
+
+  // Initial populate
+  updateBillboard(0, false);
+  resetBillboardTimer();
 }
 
-// ---------- NAV SEARCH ----------
+// ---------- NETFLIX EXPANDABLE LIVE SEARCH ----------
 function initBrowseSearch() {
   const searchBtn = document.getElementById('browseSearchBtn');
   const searchWrap = document.getElementById('browseSearchWrap');
@@ -3125,27 +3207,38 @@ function initBrowseSearch() {
     searchWrap.classList.remove('open');
     searchInput.value = '';
     if (resultsSection) resultsSection.style.display = 'none';
-    document.getElementById('contentRowsContainer')?.querySelectorAll('.content-row-section').forEach(s => s.style.display = '');
   }
 
-  searchBtn.addEventListener('click', openSearch);
-  if (searchClose) searchClose.addEventListener('click', closeSearch);
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && searchWrap.classList.contains('open')) closeSearch();
+  searchBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (searchWrap.classList.contains('open') && searchInput.value.trim()) {
+      // already open with value
+    } else {
+      openSearch();
+    }
   });
 
-  // Live search
+  if (searchClose) {
+    searchClose.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeSearch();
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && searchWrap.classList.contains('open')) {
+      closeSearch();
+    }
+  });
+
+  // Live real-time search input
   searchInput.addEventListener('input', () => {
     const q = searchInput.value.trim().toLowerCase();
     if (!q) {
       if (resultsSection) resultsSection.style.display = 'none';
-      document.getElementById('contentRowsContainer')?.querySelectorAll('.content-row-section').forEach(s => s.style.display = '');
       return;
     }
 
-    // Hide main rows, show results
-    document.getElementById('contentRowsContainer')?.querySelectorAll('.content-row-section:not(#searchResultsSection)').forEach(s => s.style.display = 'none');
     if (resultsSection) resultsSection.style.display = 'block';
 
     const matches = CATALOG_IDS.filter(id => {
@@ -3156,10 +3249,10 @@ function initBrowseSearch() {
              (d.synopsis || '').toLowerCase().includes(q);
     });
 
-    if (resultsTitle) resultsTitle.textContent = `Results for "${searchInput.value}"`;
+    if (resultsTitle) resultsTitle.textContent = `Search Results (${matches.length})`;
     if (resultsGrid) {
       if (matches.length === 0) {
-        resultsGrid.innerHTML = `<div class="row-empty-state">No results found for "${searchInput.value}"</div>`;
+        resultsGrid.innerHTML = `<div class="empty-shelf-state" style="width:100%;">No matches found for "${searchInput.value}".</div>`;
       } else {
         resultsGrid.innerHTML = matches.map(id => buildBrowseCard(id)).join('');
         wireRowCardEvents(resultsGrid);
@@ -3168,138 +3261,29 @@ function initBrowseSearch() {
   });
 }
 
-// ---------- UPDATED CONTINUE WATCHING SHELF RENDERER (for row layout) ----------
-function renderContinueWatchingRowShelf() {
-  const grid = document.getElementById('continueWatchingGrid');
-  const section = document.getElementById('continueWatchingSection');
-  if (!grid) return;
+// ---------- NETFLIX NOTIFICATIONS CONTROLLER ----------
+function initNotifications() {
+  const notifyWrap = document.getElementById('navNotifyWrap');
+  const notifyBtn = document.getElementById('navNotifyBtn');
+  if (!notifyWrap || !notifyBtn) return;
 
-  const list = getContinueWatching();
-  if (list.length === 0) {
-    if (section) section.style.display = 'none';
-    return;
-  }
+  notifyBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    notifyWrap.classList.toggle('open');
+  });
 
-  section && (section.style.display = '');
-  grid.innerHTML = list.map(item => {
-    const data = getAnimeData(item.animeId);
-    const timeLeft = formatRemainingTime(item.currentTime, item.duration);
-    return `
-      <div class="cw-browse-card" data-anime-id="${item.animeId}" data-ep="${item.episodeNum}" tabindex="0" role="button">
-        <div class="cw-art-wrap">
-          ${getCardSvgArt(item.animeId)}
-          <div class="cw-progress-track"><div class="cw-progress-fill" style="width:${item.percentage}%"></div></div>
-          <div class="cw-play-overlay">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="#ffffff"><path d="M8 5v14l11-7z"/></svg>
-          </div>
-        </div>
-        <div class="cw-info">
-          <div class="cw-title">${data.title}</div>
-          <div class="cw-episode-row">
-            <span class="cw-episode-label">Ep. ${item.episodeNum} · ${item.percentage}%</span>
-            <span class="cw-time-left">${timeLeft}</span>
-            <button class="cw-remove-btn" data-remove="${item.animeId}" title="Remove" aria-label="Remove">&times;</button>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
+  document.addEventListener('click', (e) => {
+    if (!notifyWrap.contains(e.target)) {
+      notifyWrap.classList.remove('open');
+    }
+  });
 
-  grid.querySelectorAll('.cw-browse-card').forEach(card => {
-    card.addEventListener('click', e => {
-      if (e.target.closest('.cw-remove-btn')) return;
-      const animeId = card.dataset.animeId;
-      const ep = parseInt(card.dataset.ep) || 1;
-      const prog = getAnimeProgress(animeId, ep);
-      startFullPlayer(animeId, ep, prog ? prog.currentTime : null);
+  notifyWrap.querySelectorAll('.notify-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const animeId = item.dataset.anime;
+      notifyWrap.classList.remove('open');
+      if (animeId) openAnimePreview(animeId, true);
     });
-  });
-  grid.querySelectorAll('.cw-remove-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      removeFromContinueWatching(btn.dataset.remove);
-    });
-  });
-}
-
-// ---------- UPDATED WATCHLIST SHELF RENDERER (for row layout) ----------
-function renderWatchlistRowShelf() {
-  const grid = document.getElementById('myWatchlistGrid');
-  const section = document.getElementById('myWatchlistSection');
-  if (!grid) return;
-
-  const list = getUserWatchlist();
-  if (list.length === 0) {
-    if (section) section.style.display = 'none';
-    return;
-  }
-
-  section && (section.style.display = '');
-  grid.innerHTML = list.map(animeId => {
-    const data = getAnimeData(animeId);
-    return `
-      <div class="wl-browse-card" data-anime-id="${animeId}" tabindex="0" role="button" aria-label="${data.title}">
-        <div class="wl-card-inner">
-          ${getCardSvgArt(animeId)}
-          <div class="wl-card-overlay"></div>
-          <div class="wl-card-title">${data.title}</div>
-          <button class="wl-remove-btn" data-remove-wl="${animeId}" title="Remove from My List" aria-label="Remove">&times;</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  grid.querySelectorAll('.wl-browse-card').forEach(card => {
-    card.addEventListener('click', e => {
-      if (e.target.closest('.wl-remove-btn')) return;
-      openAnimePreview(card.dataset.animeId, true);
-    });
-  });
-  grid.querySelectorAll('.wl-remove-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      toggleUserWatchlist(btn.dataset.removeWl);
-      renderWatchlistRowShelf();
-    });
-  });
-}
-
-// Override the previous shelf renderers for the watch page
-function renderContinueWatchingShelves() {
-  const isWatchPage = window.location.pathname.endsWith('watch.html') || window.location.pathname === '/';
-  if (isWatchPage && document.getElementById('continueWatchingGrid')?.closest('.row-track')) {
-    renderContinueWatchingRowShelf();
-    return;
-  }
-  // Fallback: original shelf-style renderers (for index.html)
-  const sections = document.querySelectorAll('#continueWatchingSection');
-  if (!sections.length) return;
-  const list = getContinueWatching();
-  sections.forEach(sec => {
-    const grid = sec.querySelector('#continueWatchingGrid');
-    if (list.length === 0) { sec.style.display = 'none'; return; }
-    sec.style.display = 'block';
-    if (!grid) return;
-    // Use new row-style cards for all pages
-    renderContinueWatchingRowShelf();
-  });
-}
-
-function renderWatchlistShelves() {
-  const isWatchPage = window.location.pathname.endsWith('watch.html') || window.location.pathname === '/';
-  if (isWatchPage && document.getElementById('myWatchlistGrid')?.closest('.row-track')) {
-    renderWatchlistRowShelf();
-    updateWatchlistBadges();
-    return;
-  }
-  // Fallback for index.html original grid
-  const list = getUserWatchlist();
-  updateWatchlistBadges();
-  const sections = document.querySelectorAll('#myWatchlistSection');
-  sections.forEach(sec => {
-    if (list.length === 0) { sec.style.display = 'none'; return; }
-    sec.style.display = 'block';
-    renderWatchlistRowShelf();
   });
 }
 
@@ -3314,13 +3298,12 @@ function initApp() {
   initStartWatchingInterceptors();
   initAuthPages();
 
-  const isWatchPage = window.location.pathname.endsWith('watch.html') || window.location.pathname === '/';
-  if (isWatchPage) {
-    initBillboard();
-    renderContentRows();
-    initBrowseSearch();
-    initRowArrows();
-  }
+  // Netflix Browse features
+  initBillboard();
+  renderContentRows();
+  initBrowseSearch();
+  initNotifications();
+  initRowArrows();
 
   renderContinueWatchingShelves();
   renderWatchlistShelves();
