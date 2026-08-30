@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePlayback } from '@/context/PlaybackContext';
 import { ANIME_CATALOG, CATALOG_IDS } from '@/lib/catalog';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
@@ -8,47 +8,15 @@ import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
 export const BillboardHero: React.FC = () => {
   const { playEpisode, openPreview, toggleWatchlist, isInWatchlist } = usePlayback();
 
-  const [activeId, setActiveId] = useState<string>('kamui');
+  const [activeId, setActiveId] = useState('kamui');
   const [isMuted, setIsMuted] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const anime = ANIME_CATALOG[activeId] || ANIME_CATALOG['kamui'];
   const inList = isInWatchlist(anime.id);
 
-  const spotlightList = CATALOG_IDS.slice(0, 6);
-
-  const switchSlide = useCallback((nextId: string) => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setActiveId(nextId);
-      setIsTransitioning(false);
-    }, 200);
-  }, []);
-
-  const handlePrev = useCallback(() => {
-    const currentIdx = spotlightList.indexOf(activeId);
-    const prevIdx = (currentIdx - 1 + spotlightList.length) % spotlightList.length;
-    switchSlide(spotlightList[prevIdx]);
-  }, [activeId, spotlightList, switchSlide]);
-
-  const handleNext = useCallback(() => {
-    const currentIdx = spotlightList.indexOf(activeId);
-    const nextIdx = (currentIdx + 1) % spotlightList.length;
-    switchSlide(spotlightList[nextIdx]);
-  }, [activeId, spotlightList, switchSlide]);
-
-  // Auto-sliding every 7 seconds when not hovered
-  useEffect(() => {
-    if (isHovered) return;
-    const timer = setInterval(() => {
-      handleNext();
-    }, 7000);
-    return () => clearInterval(timer);
-  }, [isHovered, handleNext]);
-
-  // Reset & play video when active slide changes
+  // Play video on active anime change
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
@@ -67,16 +35,14 @@ export const BillboardHero: React.FC = () => {
     <section
       className="billboard-hero"
       id="billboardHero"
-      aria-label="Featured Spotlight"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      aria-label="Featured Anime Spotlight"
     >
-      {/* Background Video & Cover Art */}
-      <div className="billboard-video-wrap">
+      {/* Background Video Stream */}
+      <div className="billboard-media-wrap" id="billboardMediaWrap">
         <video
           ref={videoRef}
-          className={`billboard-video ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
-          id="billboardVideo"
+          className="billboard-video"
+          id="billboardVideoPlayer"
           autoPlay
           loop
           muted={isMuted}
@@ -187,7 +153,7 @@ export const BillboardHero: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Controls: Audio + Maturity + Spotlight Carousel */}
+        {/* Right Controls: Audio + Maturity */}
         <div className="billboard-side-ctrls">
           <div className="billboard-top-toggles">
             <button
@@ -212,90 +178,8 @@ export const BillboardHero: React.FC = () => {
               {anime.rating}
             </span>
           </div>
-
-          {/* Mini Spotlight Switcher Carousel */}
-          <div className="billboard-switcher-container">
-            <div className="switcher-header">
-              <span className="switcher-header-label">Featured Spotlight</span>
-              <span className="switcher-header-count">
-                {spotlightList.indexOf(activeId) + 1} / {spotlightList.length}
-              </span>
-            </div>
-
-            <div className="billboard-switcher-wrap" id="billboardSwitcherWrap">
-              <button
-                type="button"
-                className="switcher-nav-btn switcher-nav-prev"
-                id="switcherPrevBtn"
-                aria-label="Previous spotlight"
-                onClick={handlePrev}
-              >
-                ‹
-              </button>
-
-              <div className="billboard-switcher-track" id="billboardSwitcherTrack">
-                {spotlightList.map((id) => {
-                  const item = ANIME_CATALOG[id];
-                  if (!item) return null;
-                  const isActive = id === activeId;
-                  return (
-                    <div
-                      key={id}
-                      className={`switcher-thumb-card ${isActive ? 'active' : ''}`}
-                      onClick={() => switchSlide(id)}
-                      title={item.title}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      <div className="switcher-thumb-media">
-                        <AnimeArtSvg animeId={id} className="switcher-thumb-art" />
-                        <div className="switcher-thumb-gradient" />
-                        {isActive && (
-                          <div className="switcher-active-badge">
-                            <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
-                              <path d="M8 5v14l11-7z" />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                      <span className="switcher-thumb-title">{item.title}</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <button
-                type="button"
-                className="switcher-nav-btn switcher-nav-next"
-                id="switcherNextBtn"
-                aria-label="Next spotlight"
-                onClick={handleNext}
-              >
-                ›
-              </button>
-            </div>
-
-            {/* Auto-Slide Progress Indicators */}
-            <div className="switcher-indicators">
-              {spotlightList.map((id, index) => {
-                const isActive = id === activeId;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    className={`switcher-dot ${isActive ? 'active' : ''}`}
-                    onClick={() => switchSlide(id)}
-                    aria-label={`Go to slide ${index + 1}`}
-                  >
-                    {isActive && !isHovered && <span className="switcher-dot-fill" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </div>
       </div>
     </section>
   );
 };
-

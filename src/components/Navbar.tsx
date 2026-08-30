@@ -358,9 +358,9 @@ export const Navbar: React.FC = () => {
                         setProfileDropdownOpen(false);
                         openProfileModal();
                       }}
-                      title="View & Edit Profile Strength, Socials, and Atsumaru Badges"
+                      title="View & Edit Profile Strength, Social Accounts, and Badges"
                     >
-                      ⚡ Profile Strength &amp; Badges →
+                      ⚡ Profile Strength &amp; Socials →
                     </button>
                   </div>
                 </div>

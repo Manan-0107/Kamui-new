@@ -18,7 +18,7 @@ interface BadgeDefinition {
 
 export const ProfileStrengthModal: React.FC = () => {
   const { user, isProfileModalOpen, closeProfileModal, updateSocials, updateAvatar } = useAuth();
-  const { watchlist, continueWatching, likedTitles } = usePlayback();
+  const { watchlist, continueWatching } = usePlayback();
 
   const [instagram, setInstagram] = useState('');
   const [snapchat, setSnapchat] = useState('');
@@ -53,30 +53,17 @@ export const ProfileStrengthModal: React.FC = () => {
   if (!isProfileModalOpen) return null;
 
   // Calculate Profile Strength (0 - 100%)
-  let strengthScore = 15; // Base account
-  if (user?.avatar) strengthScore += 10;
+  let strengthScore = 20; // Base account
+  if (user?.avatar) strengthScore += 15;
   if (instagram.trim()) strengthScore += 15;
   if (snapchat.trim()) strengthScore += 15;
   if (myanimelist.trim() || anilist.trim()) strengthScore += 20;
-  if (discord.trim()) strengthScore += 10;
+  if (discord.trim()) strengthScore += 5;
   if (bio.trim()) strengthScore += 5;
   if (watchlist.length > 0) strengthScore += 5;
-  if (continueWatching.length > 0) strengthScore += 5;
   const strength = Math.min(100, strengthScore);
 
-  // Determine Rank Tier
-  let rankTier = { title: '🌱 Novice Initiate', level: 'Level 1', color: '#94a3b8' };
-  if (strength >= 85) {
-    rankTier = { title: '👑 Legendary Sovereign', level: 'Max Level 5', color: '#e8b94f' };
-  } else if (strength >= 65) {
-    rankTier = { title: '⚡ Anime Sensei', level: 'Level 4', color: '#c084fc' };
-  } else if (strength >= 45) {
-    rankTier = { title: '🔥 Elite Otaku', level: 'Level 3', color: '#f97316' };
-  } else if (strength >= 25) {
-    rankTier = { title: '⚔️ Wandering Shinobi', level: 'Level 2', color: '#38bdf8' };
-  }
-
-  // Define Atsumaru Tags & Badges
+  // Define Anime Tags & Badges
   const badges: BadgeDefinition[] = [
     {
       id: 'shonen',
@@ -86,11 +73,11 @@ export const ProfileStrengthModal: React.FC = () => {
       desc: 'Added or watched fast-paced action & mecha series.',
       color: '#f97316',
       unlocked: watchlist.length > 0 || continueWatching.length > 0,
-      progressText: watchlist.length > 0 ? 'Unlocked' : 'Save 1 action title to unlock'
+      progressText: watchlist.length > 0 || continueWatching.length > 0 ? 'Unlocked' : 'Save 1 action title to unlock'
     },
     {
       id: 'dark-realm',
-      name: 'Dark Realm Sorcerer',
+      name: 'Dark Fantasy Sorcerer',
       glyph: '🌙',
       category: 'Dark Fantasy',
       desc: 'Explored supernatural lore and mythological realms.',
@@ -106,14 +93,14 @@ export const ProfileStrengthModal: React.FC = () => {
       desc: 'Connected official MyAnimeList or AniList profile.',
       color: '#38bdf8',
       unlocked: Boolean(myanimelist.trim() || anilist.trim()),
-      progressText: myanimelist.trim() || anilist.trim() ? 'Linked' : 'Add MyAnimeList or AniList username'
+      progressText: myanimelist.trim() || anilist.trim() ? 'Linked' : 'Add MAL or AniList profile'
     },
     {
       id: 'socialite',
-      name: 'Atsumaru Socialite',
+      name: 'Community Pioneer',
       glyph: '📸',
-      category: 'Community',
-      desc: 'Shared Instagram or Snapchat handle with the clan.',
+      category: 'Social Connect',
+      desc: 'Connected Instagram or Snapchat account.',
       color: '#f43f5e',
       unlocked: Boolean(instagram.trim() || snapchat.trim()),
       progressText: instagram.trim() || snapchat.trim() ? 'Connected' : 'Add Instagram or Snapchat'
@@ -123,7 +110,7 @@ export const ProfileStrengthModal: React.FC = () => {
       name: 'Binge Conqueror',
       glyph: '⚡',
       category: 'Watch Activity',
-      desc: 'Actively tracking series in Continue Watching.',
+      desc: 'Actively streaming episodes on Kamui.',
       color: '#fbbf24',
       unlocked: continueWatching.length > 0,
       progressText: continueWatching.length > 0 ? `${continueWatching.length} in progress` : 'Start watching any episode'
@@ -184,7 +171,7 @@ export const ProfileStrengthModal: React.FC = () => {
           &times;
         </button>
 
-        {/* Modal Header & Profile Banner */}
+        {/* Modal Header & User Info */}
         <div className="profile-modal-header">
           <div className="profile-banner-avatar-wrap">
             <img
@@ -205,9 +192,7 @@ export const ProfileStrengthModal: React.FC = () => {
           <div className="profile-banner-details">
             <div className="profile-name-row">
               <h2 className="profile-user-title">{user?.name || 'Kamui Member'}</h2>
-              <span className="profile-rank-pill" style={{ color: rankTier.color, borderColor: rankTier.color }}>
-                {rankTier.title}
-              </span>
+              <span className="profile-tier-badge">✦ KAMUI MEMBER · 4K HDR</span>
             </div>
             <p className="profile-user-email">{user?.email || 'user@kamui.stream'}</p>
             {bio && <p className="profile-user-bio">"{bio}"</p>}
@@ -218,10 +203,10 @@ export const ProfileStrengthModal: React.FC = () => {
         <div className="profile-strength-box">
           <div className="strength-header-row">
             <span className="strength-label">
-              <span className="strength-icon">⚡</span> Profile Strength &amp; Atsumaru Rank
+              <span className="strength-icon">⚡</span> Profile Strength
             </span>
-            <span className="strength-percentage" style={{ color: rankTier.color }}>
-              {strength}% · {rankTier.level}
+            <span className="strength-percentage" style={{ color: 'var(--gold, #e8b94f)' }}>
+              {strength}% Complete
             </span>
           </div>
 
@@ -230,15 +215,15 @@ export const ProfileStrengthModal: React.FC = () => {
               className="strength-bar-fill"
               style={{
                 width: `${strength}%`,
-                background: `linear-gradient(90deg, #c1501f 0%, #e8b94f 50%, ${rankTier.color} 100%)`
+                background: 'linear-gradient(90deg, #c1501f 0%, #e8b94f 60%, #ffd875 100%)'
               }}
             />
           </div>
 
           <p className="strength-tip">
             {strength < 100
-              ? '💡 Connect your MyAnimeList, AniList, Instagram or Snapchat below to boost your strength to 100% and unlock rare Sovereign Badges!'
-              : '🌟 Maximum Profile Strength achieved! All Atsumaru badges & title perks unlocked.'}
+              ? 'Connect your Instagram, Snapchat, MyAnimeList, and AniList accounts to boost your profile strength.'
+              : '🌟 Profile fully completed! All social links & badges are synced.'}
           </p>
         </div>
 
@@ -249,14 +234,14 @@ export const ProfileStrengthModal: React.FC = () => {
             className={`profile-tab-item ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
           >
-            Socials &amp; Bio
+            Social Accounts &amp; Bio
           </button>
           <button
             type="button"
             className={`profile-tab-item ${activeTab === 'badges' ? 'active' : ''}`}
             onClick={() => setActiveTab('badges')}
           >
-            Atsumaru Badges ({badges.filter((b) => b.unlocked).length}/{badges.length})
+            Anime Badges ({badges.filter((b) => b.unlocked).length}/{badges.length})
           </button>
           <button
             type="button"
@@ -363,7 +348,7 @@ export const ProfileStrengthModal: React.FC = () => {
                 <input
                   type="text"
                   id="inputBio"
-                  placeholder="e.g. Binging Shonen &amp; Dark Fantasy the night it airs."
+                  placeholder="e.g. Streaming dark fantasy &amp; shonen the night it airs."
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={120}
@@ -379,11 +364,11 @@ export const ProfileStrengthModal: React.FC = () => {
           </form>
         )}
 
-        {/* Tab Content 2: Atsumaru Badges */}
+        {/* Tab Content 2: Badges */}
         {activeTab === 'badges' && (
           <div className="profile-badges-container">
             <p className="badges-intro-text">
-              Earn exclusive Atsumaru Clan Badges and prestige titles by exploring genres, saving shows, and linking tracking accounts:
+              Earn exclusive badges and titles by watching series, saving to your watchlist, and connecting your profile:
             </p>
 
             <div className="profile-badges-grid">
@@ -417,7 +402,7 @@ export const ProfileStrengthModal: React.FC = () => {
         {activeTab === 'avatars' && (
           <div className="profile-avatars-tab">
             <p className="avatars-intro-text">
-              Select your authentic Chibi character avatar (One Piece, Bleach, Naruto):
+              Select your favorite Chibi character avatar (One Piece, Bleach, Naruto):
             </p>
             <div className="chibi-avatar-grid">
               {DEFAULT_AVATARS.map((item) => (

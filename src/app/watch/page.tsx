@@ -72,10 +72,7 @@ export default function WatchPage() {
         {/* Row 1: Continue Watching */}
         <ContinueWatchingShelf />
 
-        {/* Row 2: Top 10 in Anime Today */}
-        <Top10Track />
-
-        {/* Row 3: My Watchlist */}
+        {/* Row 2: My Watchlist */}
         {watchlist.length > 0 && (
           <ContentRow
             id="myWatchlistSection"
@@ -85,6 +82,9 @@ export default function WatchPage() {
             animeIds={watchlist}
           />
         )}
+
+        {/* Row 3: Top 10 in Anime Today */}
+        <Top10Track />
 
         {/* Row 4: Trending Now & Simulcasts */}
         <ContentRow

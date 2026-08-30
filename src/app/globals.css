@@ -1126,9 +1126,7 @@ footer {
 }
 
 .art-title {
-  font-family: 'Shippori Mincho B1', serif;
-  font-size: 17px;
-  fill: var(--ink);
+  display: none;
 }
 
 .watch-badge {
@@ -5776,7 +5774,287 @@ footer {
 }
 
 /* ==========================================================================
-   ATSUMARU PROFILE STRENGTH & BADGES MODAL
+   NETFLIX BROWSE CONTAINER & SPACING
+   ========================================================================== */
+
+.netflix-browse-container {
+  padding: 24px 0 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+/* ==========================================================================
+   CONTINUE WATCHING SHELF
+   ========================================================================== */
+
+.continue-card {
+  flex: 0 0 250px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #111724;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+}
+
+.continue-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(232, 185, 79, 0.5);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85), 0 0 20px rgba(232, 185, 79, 0.15);
+}
+
+.continue-thumb-wrap {
+  position: relative;
+  width: 100%;
+  height: 125px;
+  background: #090d15;
+  overflow: hidden;
+}
+
+.continue-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.continue-play-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+}
+
+.continue-card:hover .continue-play-overlay {
+  background: var(--gold, #e8b94f);
+  border-color: var(--gold, #e8b94f);
+  color: #0a0f18;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.continue-remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cbd5e1;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  line-height: 1;
+}
+
+.continue-card:hover .continue-remove-btn {
+  opacity: 1;
+}
+
+.continue-remove-btn:hover {
+  background: rgba(239, 68, 68, 0.85);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.continue-progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  position: relative;
+}
+
+.continue-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c1501f 0%, #e50914 100%);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 8px rgba(229, 9, 20, 0.6);
+}
+
+.continue-meta {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #111724;
+}
+
+.continue-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.continue-ep {
+  font-size: 11px;
+  color: var(--gold, #e8b94f);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.shelf-clear-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shelf-clear-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* ==========================================================================
+   TOP 10 NUMBERED TRACK (AUTHENTIC NETFLIX STYLE)
+   ========================================================================== */
+
+.top10-track {
+  display: flex;
+  gap: 16px;
+  padding: 14px 0 32px;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.top10-item {
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+  flex: 0 0 220px;
+  height: 165px;
+  cursor: pointer;
+  transition: transform 0.28s cubic-bezier(0.2, 1, 0.3, 1), z-index 0.28s;
+  z-index: 5;
+}
+
+.top10-item:hover {
+  transform: scale(1.08);
+  z-index: 25;
+}
+
+.top10-rank-num {
+  position: relative;
+  width: 95px;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  flex-shrink: 0;
+  margin-right: -24px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.top10-svg-num {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.top10-text-outline {
+  font-family: var(--sans, 'Outfit', sans-serif);
+  font-size: 128px;
+  font-weight: 900;
+  fill: #060a12;
+  stroke: #475569;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.top10-text-fill {
+  font-family: var(--sans, 'Outfit', sans-serif);
+  font-size: 128px;
+  font-weight: 900;
+  fill: #060a12;
+}
+
+.top10-card-wrap {
+  position: relative;
+  width: 125px;
+  height: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0d121c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.top10-poster-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.top10-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  background: linear-gradient(180deg, transparent 0%, rgba(5, 8, 14, 0.95) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.top10-card-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top10-card-genre {
+  font-size: 9.5px;
+  color: var(--gold, #e8b94f);
+}
+
+/* ==========================================================================
+   PROFILE & SOCIALS MODAL
    ========================================================================== */
 
 .profile-modal-overlay {

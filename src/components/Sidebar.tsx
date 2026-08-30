@@ -243,10 +243,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <User size={18} className="sidebar-icon" />
               <span className="sidebar-label">
-                {user?.loggedIn ? user.name || 'Profile & Badges' : 'Your Profile'}
+                {user?.loggedIn ? user.name || 'Profile & Socials' : 'Your Profile'}
               </span>
               {user?.loggedIn && (
-                <span className="sidebar-badge-pill pro">⚡ STATS</span>
+                <span className="sidebar-badge-pill pro">PRO</span>
               )}
             </div>
 

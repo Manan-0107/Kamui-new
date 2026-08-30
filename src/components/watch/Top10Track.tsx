@@ -24,7 +24,7 @@ export const Top10Track: React.FC = () => {
   };
 
   return (
-    <section className="content-row-section" id="top10Section" aria-label="Top 10">
+    <section className="content-row-section" id="top10Section" aria-label="Top 10 in Anime Today">
       <div className="row-header">
         <div className="row-title-wrap">
           <span className="row-kanji-glyph">十</span>
@@ -52,6 +52,9 @@ export const Top10Track: React.FC = () => {
                 key={`${id}-${rank}`}
                 className="top10-item"
                 onClick={() => openPreview(anime.id)}
+                role="button"
+                tabIndex={0}
+                title={`#${rank} · ${anime.title}`}
               >
                 <div className="top10-rank-num">
                   <svg viewBox="0 0 100 140" className="top10-svg-num">
@@ -76,10 +79,6 @@ export const Top10Track: React.FC = () => {
 
                 <div className="top10-card-wrap">
                   <AnimePosterSvg animeId={anime.id} className="top10-poster-art" />
-                  <div className="top10-card-overlay">
-                    <span className="top10-card-title">{anime.title}</span>
-                    <span className="top10-card-genre">{anime.genre}</span>
-                  </div>
                 </div>
               </div>
             );
