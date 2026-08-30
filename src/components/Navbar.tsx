@@ -20,7 +20,7 @@ export const Navbar: React.FC = () => {
 
   const { cycleTheme } = useTheme();
   const { user, logout, updateAvatar, openAuthModal } = useAuth();
-  const { searchQuery, setSearchQuery, isSearchOpen, setIsSearchOpen, openPreview } = usePlayback();
+  const { searchQuery, setSearchQuery, isSearchOpen, setIsSearchOpen, openPreview, toggleSidebar, openSidebar } = usePlayback();
 
   const profileRef = useRef<HTMLDivElement | null>(null);
   const notifyRef = useRef<HTMLDivElement | null>(null);
@@ -69,11 +69,27 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className={`nav ${scrolled ? 'scrolled' : ''}`} id="siteNav">
-      {/* Brand */}
-      <Link href="/" className="brand">
-        <span className="mark">神威</span>
-        <span className="brand-word">KAMUI</span>
-      </Link>
+      {/* Brand & Sidebar Toggle */}
+      <div className="nav-brand-group">
+        <button
+          type="button"
+          className="nav-sidebar-toggle-btn"
+          id="navSidebarToggleBtn"
+          aria-label="Open sidebar menu"
+          title="Open menu"
+          onClick={() => toggleSidebar()}
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <Link href="/" className="brand">
+          <span className="mark">神威</span>
+          <span className="brand-word">KAMUI</span>
+        </Link>
+      </div>
 
       {/* Nav Links Desktop */}
       <nav
@@ -404,7 +420,7 @@ export const Navbar: React.FC = () => {
         className="menu-toggle"
         id="menuToggle"
         aria-label="Toggle menu"
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        onClick={() => toggleSidebar()}
       >
         <span />
         <span />

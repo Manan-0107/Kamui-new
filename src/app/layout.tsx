@@ -8,6 +8,7 @@ import { NetflixPreviewModal } from '@/components/modals/NetflixPreviewModal';
 import { FullVideoPlayer } from '@/components/modals/FullVideoPlayer';
 import { GoogleAuthModal } from '@/components/modals/GoogleAuthModal';
 import { AuthPromptModal } from '@/components/modals/AuthPromptModal';
+import { Sidebar } from '@/components/Sidebar';
 
 export const metadata: Metadata = {
   title: 'Kamui — Stream anime the night it airs',
@@ -45,6 +46,7 @@ export default function RootLayout({
                 <FullVideoPlayer />
                 <GoogleAuthModal />
                 <AuthPromptModal />
+                <Sidebar />
               </PlaybackProvider>
             </AuthProvider>
           </ThemeProvider>

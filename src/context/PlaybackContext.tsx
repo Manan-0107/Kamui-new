@@ -41,6 +41,13 @@ interface PlaybackContextType {
   toggleLike: (animeId: string) => void;
   isLiked: (animeId: string) => boolean;
 
+  // Sidebar
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (open: boolean) => void;
+  openSidebar: () => void;
+  closeSidebar: () => void;
+  toggleSidebar: () => void;
+
   // Filter & Search
   filterGenre: string;
   setFilterGenre: (genre: string) => void;
@@ -67,8 +74,13 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [filterGenre, setFilterGenre] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const { showToast } = useToast();
+
+  const openSidebar = useCallback(() => setIsSidebarOpen(true), []);
+  const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);
+  const toggleSidebar = useCallback(() => setIsSidebarOpen((prev) => !prev), []);
 
   useEffect(() => {
     try {
@@ -267,7 +279,12 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         searchQuery,
         setSearchQuery,
         isSearchOpen,
-        setIsSearchOpen
+        setIsSearchOpen,
+        isSidebarOpen,
+        setIsSidebarOpen,
+        openSidebar,
+        closeSidebar,
+        toggleSidebar
       }}
     >
       {children}
