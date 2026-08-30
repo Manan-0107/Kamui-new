@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { PlaybackProvider } from '@/context/PlaybackContext';
 import { NetflixPreviewModal } from '@/components/modals/NetflixPreviewModal';
+import { NetflixHoverPortal } from '@/components/modals/NetflixHoverPortal';
 import { FullVideoPlayer } from '@/components/modals/FullVideoPlayer';
 import { GoogleAuthModal } from '@/components/modals/GoogleAuthModal';
 import { AuthPromptModal } from '@/components/modals/AuthPromptModal';
@@ -44,6 +45,7 @@ export default function RootLayout({
               <PlaybackProvider>
                 {children}
                 <NetflixPreviewModal />
+                <NetflixHoverPortal />
                 <FullVideoPlayer />
                 <GoogleAuthModal />
                 <AuthPromptModal />

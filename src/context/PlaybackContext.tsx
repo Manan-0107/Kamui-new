@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { ContinueWatchingItem } from '@/lib/types';
 import { ANIME_CATALOG } from '@/lib/catalog';
 import { useToast } from './ToastContext';
@@ -55,6 +55,11 @@ interface PlaybackContextType {
   setSearchQuery: (q: string) => void;
   isSearchOpen: boolean;
   setIsSearchOpen: (open: boolean) => void;
+
+  // Global Hover Portal
+  hoveredAnimeId: string | null;
+  hoverRect: { top: number; left: number; width: number; height: number } | null;
+  setHoveredCard: (animeId: string | null, rect?: { top: number; left: number; width: number; height: number } | null) => void;
 }
 
 const PlaybackContext = createContext<PlaybackContextType | undefined>(undefined);
@@ -75,6 +80,27 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+
+  // Global Hover Portal State
+  const [hoveredAnimeId, setHoveredAnimeIdState] = useState<string | null>(null);
+  const [hoverRect, setHoverRectState] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const setHoveredCard = useCallback((animeId: string | null, rect?: { top: number; left: number; width: number; height: number } | null) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+
+    if (animeId && rect) {
+      hoverTimeoutRef.current = setTimeout(() => {
+        setHoveredAnimeIdState(animeId);
+        setHoverRectState(rect);
+      }, 350);
+    } else {
+      hoverTimeoutRef.current = setTimeout(() => {
+        setHoveredAnimeIdState(null);
+        setHoverRectState(null);
+      }, 250);
+    }
+  }, []);
 
   const { showToast } = useToast();
 
@@ -317,7 +343,10 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setIsSidebarOpen,
         openSidebar,
         closeSidebar,
-        toggleSidebar
+        toggleSidebar,
+        hoveredAnimeId,
+        hoverRect,
+        setHoveredCard
       }}
     >
       {children}
