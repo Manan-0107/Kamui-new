@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { usePlayback } from '@/context/PlaybackContext';
 import { ANIME_CATALOG, CATALOG_IDS } from '@/lib/catalog';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
@@ -10,6 +10,8 @@ export const BillboardHero: React.FC = () => {
 
   const [activeId, setActiveId] = useState<string>('kamui');
   const [isMuted, setIsMuted] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const anime = ANIME_CATALOG[activeId] || ANIME_CATALOG['kamui'];
@@ -17,6 +19,36 @@ export const BillboardHero: React.FC = () => {
 
   const spotlightList = CATALOG_IDS.slice(0, 6);
 
+  const switchSlide = useCallback((nextId: string) => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setActiveId(nextId);
+      setIsTransitioning(false);
+    }, 200);
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    const currentIdx = spotlightList.indexOf(activeId);
+    const prevIdx = (currentIdx - 1 + spotlightList.length) % spotlightList.length;
+    switchSlide(spotlightList[prevIdx]);
+  }, [activeId, spotlightList, switchSlide]);
+
+  const handleNext = useCallback(() => {
+    const currentIdx = spotlightList.indexOf(activeId);
+    const nextIdx = (currentIdx + 1) % spotlightList.length;
+    switchSlide(spotlightList[nextIdx]);
+  }, [activeId, spotlightList, switchSlide]);
+
+  // Auto-sliding every 7 seconds when not hovered
+  useEffect(() => {
+    if (isHovered) return;
+    const timer = setInterval(() => {
+      handleNext();
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [isHovered, handleNext]);
+
+  // Reset & play video when active slide changes
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
@@ -31,25 +63,19 @@ export const BillboardHero: React.FC = () => {
     }
   };
 
-  const handlePrev = () => {
-    const currentIdx = spotlightList.indexOf(activeId);
-    const prevIdx = (currentIdx - 1 + spotlightList.length) % spotlightList.length;
-    setActiveId(spotlightList[prevIdx]);
-  };
-
-  const handleNext = () => {
-    const currentIdx = spotlightList.indexOf(activeId);
-    const nextIdx = (currentIdx + 1) % spotlightList.length;
-    setActiveId(spotlightList[nextIdx]);
-  };
-
   return (
-    <section className="billboard-hero" id="billboardHero" aria-label="Featured Spotlight">
-      {/* Background Video */}
+    <section
+      className="billboard-hero"
+      id="billboardHero"
+      aria-label="Featured Spotlight"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Background Video & Cover Art */}
       <div className="billboard-video-wrap">
         <video
           ref={videoRef}
-          className="billboard-video"
+          className={`billboard-video ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
           id="billboardVideo"
           autoPlay
           loop
@@ -58,20 +84,26 @@ export const BillboardHero: React.FC = () => {
           preload="auto"
           src={anime.trailerVideo}
         />
+        <div className="billboard-fallback-art">
+          <AnimeArtSvg animeId={anime.id} />
+        </div>
         <div className="billboard-vignette-left" />
         <div className="billboard-vignette-bottom" />
+        <div className="billboard-vignette-top" />
       </div>
 
       <div className="billboard-content-grid">
         {/* Left Hero Info */}
-        <div className="billboard-info" id="billboardInfo">
+        <div className={`billboard-info ${isTransitioning ? 'transitioning' : 'transitioning-in'}`} id="billboardInfo">
           <div className="billboard-badge-row">
             <span className="billboard-badge billboard-badge-rank" id="billboardBadge">
-              #1 in Anime Today · Newly Added
+              <span className="badge-flame-icon">🔥</span> #1 in Anime Today · Newly Added
             </span>
-            <span className="billboard-badge" id="billboardOriginBadge">
-              {anime.badge}
-            </span>
+            {anime.badge && (
+              <span className="billboard-badge" id="billboardOriginBadge">
+                {anime.badge}
+              </span>
+            )}
           </div>
 
           <h1 className="billboard-title" id="billboardTitle">
@@ -85,11 +117,11 @@ export const BillboardHero: React.FC = () => {
             <span className="badge-rating" id="billboardRating">
               {anime.rating}
             </span>
-            <span id="billboardYear">{anime.year}</span>
-            <span>•</span>
-            <span id="billboardSeasons">{anime.seasonsCount}</span>
-            <span>•</span>
-            <span className="badge-hd">4K HDR</span>
+            <span id="billboardYear" className="meta-year">{anime.year}</span>
+            <span className="meta-dot">•</span>
+            <span id="billboardSeasons" className="meta-seasons">{anime.seasonsCount}</span>
+            <span className="meta-dot">•</span>
+            <span className="badge-hd">4K Ultra HD</span>
             <span className="badge-spatial">Dolby Atmos</span>
           </div>
 
@@ -162,7 +194,7 @@ export const BillboardHero: React.FC = () => {
               type="button"
               className="billboard-sound-btn"
               id="billboardMuteBtn"
-              title="Toggle audio"
+              title={isMuted ? 'Unmute' : 'Mute'}
               aria-label="Toggle audio"
               onClick={handleMuteToggle}
             >
@@ -182,46 +214,88 @@ export const BillboardHero: React.FC = () => {
           </div>
 
           {/* Mini Spotlight Switcher Carousel */}
-          <div className="billboard-switcher-wrap" id="billboardSwitcherWrap" title="Switch Featured Spotlight">
-            <button
-              type="button"
-              className="switcher-nav-btn"
-              id="switcherPrevBtn"
-              aria-label="Previous featured"
-              onClick={handlePrev}
-            >
-              ‹
-            </button>
-            <div className="billboard-switcher-track" id="billboardSwitcherTrack">
-              {spotlightList.map((id) => {
-                const item = ANIME_CATALOG[id];
-                if (!item) return null;
+          <div className="billboard-switcher-container">
+            <div className="switcher-header">
+              <span className="switcher-header-label">Featured Spotlight</span>
+              <span className="switcher-header-count">
+                {spotlightList.indexOf(activeId) + 1} / {spotlightList.length}
+              </span>
+            </div>
+
+            <div className="billboard-switcher-wrap" id="billboardSwitcherWrap">
+              <button
+                type="button"
+                className="switcher-nav-btn switcher-nav-prev"
+                id="switcherPrevBtn"
+                aria-label="Previous spotlight"
+                onClick={handlePrev}
+              >
+                ‹
+              </button>
+
+              <div className="billboard-switcher-track" id="billboardSwitcherTrack">
+                {spotlightList.map((id) => {
+                  const item = ANIME_CATALOG[id];
+                  if (!item) return null;
+                  const isActive = id === activeId;
+                  return (
+                    <div
+                      key={id}
+                      className={`switcher-thumb-card ${isActive ? 'active' : ''}`}
+                      onClick={() => switchSlide(id)}
+                      title={item.title}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <div className="switcher-thumb-media">
+                        <AnimeArtSvg animeId={id} className="switcher-thumb-art" />
+                        <div className="switcher-thumb-gradient" />
+                        {isActive && (
+                          <div className="switcher-active-badge">
+                            <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                              <path d="M8 5v14l11-7z" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <span className="switcher-thumb-title">{item.title}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                className="switcher-nav-btn switcher-nav-next"
+                id="switcherNextBtn"
+                aria-label="Next spotlight"
+                onClick={handleNext}
+              >
+                ›
+              </button>
+            </div>
+
+            {/* Auto-Slide Progress Indicators */}
+            <div className="switcher-indicators">
+              {spotlightList.map((id, index) => {
                 const isActive = id === activeId;
                 return (
-                  <div
+                  <button
                     key={id}
-                    className={`switcher-thumb-card ${isActive ? 'active' : ''}`}
-                    onClick={() => setActiveId(id)}
-                    title={item.title}
+                    type="button"
+                    className={`switcher-dot ${isActive ? 'active' : ''}`}
+                    onClick={() => switchSlide(id)}
+                    aria-label={`Go to slide ${index + 1}`}
                   >
-                    <AnimeArtSvg animeId={id} className="switcher-thumb-art" />
-                    <span className="switcher-thumb-title">{item.title}</span>
-                  </div>
+                    {isActive && !isHovered && <span className="switcher-dot-fill" />}
+                  </button>
                 );
               })}
             </div>
-            <button
-              type="button"
-              className="switcher-nav-btn"
-              id="switcherNextBtn"
-              aria-label="Next featured"
-              onClick={handleNext}
-            >
-              ›
-            </button>
           </div>
         </div>
       </div>
     </section>
   );
 };
+

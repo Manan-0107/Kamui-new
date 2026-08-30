@@ -31,13 +31,13 @@ export const ContentRow: React.FC<ContentRowProps> = ({
 
   const handleScrollLeft = () => {
     if (trackRef.current) {
-      trackRef.current.scrollBy({ left: -600, behavior: 'smooth' });
+      trackRef.current.scrollBy({ left: -750, behavior: 'smooth' });
     }
   };
 
   const handleScrollRight = () => {
     if (trackRef.current) {
-      trackRef.current.scrollBy({ left: 600, behavior: 'smooth' });
+      trackRef.current.scrollBy({ left: 750, behavior: 'smooth' });
     }
   };
 
@@ -53,11 +53,19 @@ export const ContentRow: React.FC<ContentRowProps> = ({
             )}
           </h2>
         </div>
-        {onClear && (
-          <button type="button" className="shelf-clear-btn" onClick={onClear} title={clearLabel}>
-            {clearLabel}
-          </button>
-        )}
+        <div className="row-header-right">
+          <span className="row-explore-all" onClick={() => {
+            const fullCat = document.getElementById('fullCatalogSection');
+            if (fullCat) fullCat.scrollIntoView({ behavior: 'smooth' });
+          }}>
+            Explore All <span className="explore-chevron">›</span>
+          </span>
+          {onClear && (
+            <button type="button" className="shelf-clear-btn" onClick={onClear} title={clearLabel}>
+              {clearLabel}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="row-track-wrapper">
@@ -67,7 +75,7 @@ export const ContentRow: React.FC<ContentRowProps> = ({
           aria-label="Scroll left"
           onClick={handleScrollLeft}
         >
-          ‹
+          <span className="arrow-icon">‹</span>
         </button>
 
         <div ref={trackRef} className="row-track" id={`${id}-track`}>
@@ -81,18 +89,31 @@ export const ContentRow: React.FC<ContentRowProps> = ({
                 key={anime.id}
                 className="netflix-row-card"
                 onClick={() => openPreview(anime.id)}
+                role="button"
+                tabIndex={0}
               >
+                {/* Main Thumbnail & Badge */}
                 <div className="card-thumb-wrap">
                   <AnimeArtSvg animeId={anime.id} className="row-card-art" />
-                  {anime.badge && <span className="row-card-badge">{anime.badge}</span>}
+                  <div className="row-card-gradient" />
+                  {anime.badge && (
+                    <span className={`row-card-badge ${anime.badgeType ? `badge-${anime.badgeType}` : ''}`}>
+                      {anime.badge}
+                    </span>
+                  )}
+                  <div className="card-static-title-wrap">
+                    <span className="card-static-title">{anime.title}</span>
+                  </div>
                 </div>
 
-                <div className="row-card-info">
+                {/* Netflix Hover Expansion Panel */}
+                <div className="row-card-hover-panel">
+                  {/* Action Buttons */}
                   <div className="row-card-actions">
                     <button
                       type="button"
                       className="row-card-play-btn"
-                      title="Play"
+                      title="Play Episode 1"
                       onClick={(e) => {
                         e.stopPropagation();
                         playEpisode(anime.id, 1);
@@ -106,7 +127,7 @@ export const ContentRow: React.FC<ContentRowProps> = ({
                     <button
                       type="button"
                       className={`row-card-icon-btn ${inList ? 'active' : ''}`}
-                      title={inList ? 'In My List' : 'Add to My List'}
+                      title={inList ? 'Remove from My List' : 'Add to My List'}
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleWatchlist(anime.id);
@@ -125,8 +146,8 @@ export const ContentRow: React.FC<ContentRowProps> = ({
 
                     <button
                       type="button"
-                      className="row-card-icon-btn"
-                      title="More details"
+                      className="row-card-icon-btn row-card-chevron-btn"
+                      title="Episode info & preview"
                       onClick={(e) => {
                         e.stopPropagation();
                         openPreview(anime.id);
@@ -138,11 +159,23 @@ export const ContentRow: React.FC<ContentRowProps> = ({
                     </button>
                   </div>
 
+                  {/* Title & Metadata Line */}
                   <h3 className="row-card-title">{anime.title}</h3>
+
                   <div className="row-card-meta">
                     <span className="row-card-match">{anime.match}</span>
                     <span className="row-card-rating">{anime.rating}</span>
-                    <span className="row-card-genre">{anime.genre}</span>
+                    <span className="row-card-seasons">1 Season</span>
+                    <span className="row-card-hd">HD</span>
+                  </div>
+
+                  {/* Genre Tags */}
+                  <div className="row-card-genres">
+                    {anime.genres.slice(0, 3).map((g) => (
+                      <span key={g} className="row-card-genre-item">
+                        {g}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -156,9 +189,10 @@ export const ContentRow: React.FC<ContentRowProps> = ({
           aria-label="Scroll right"
           onClick={handleScrollRight}
         >
-          ›
+          <span className="arrow-icon">›</span>
         </button>
       </div>
     </section>
   );
 };
+
