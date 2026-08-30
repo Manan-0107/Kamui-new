@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { usePlayback } from '@/context/PlaybackContext';
@@ -10,6 +10,7 @@ import { DEFAULT_AVATARS } from '@/lib/avatars';
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const isWatchPage = pathname === '/watch';
   const isAuthPage = pathname === '/signin' || pathname === '/signup';
 
@@ -20,11 +21,20 @@ export const Navbar: React.FC = () => {
 
   const { cycleTheme } = useTheme();
   const { user, logout, updateAvatar, openAuthModal } = useAuth();
-  const { searchQuery, setSearchQuery, isSearchOpen, setIsSearchOpen, openPreview, toggleSidebar, openSidebar } = usePlayback();
+  const {
+    searchQuery,
+    setSearchQuery,
+    isSearchOpen,
+    setIsSearchOpen,
+    openPreview,
+    toggleSidebar
+  } = usePlayback();
 
   const profileRef = useRef<HTMLDivElement | null>(null);
   const notifyRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const searchWrapRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   // Scroll blur detection
   useEffect(() => {
@@ -36,19 +46,23 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close dropdowns on outside click
+  // Close dropdowns & search on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (profileRef.current && !profileRef.current.contains(target)) {
         setProfileDropdownOpen(false);
       }
-      if (notifyRef.current && !notifyRef.current.contains(e.target as Node)) {
+      if (notifyRef.current && !notifyRef.current.contains(target)) {
         setNotifyDropdownOpen(false);
+      }
+      if (searchWrapRef.current && !searchWrapRef.current.contains(target) && !searchQuery) {
+        setIsSearchOpen(false);
       }
     };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+  }, [searchQuery, setIsSearchOpen]);
 
   const handleDeviceAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -63,6 +77,26 @@ export const Navbar: React.FC = () => {
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  const scrollToSection = (sectionId: string) => {
+    setMobileMenuOpen(false);
+    if (pathname === '/watch') {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      router.push(`/watch#${sectionId}`);
+    }
+  };
+
+  const handleSearchToggle = () => {
+    const nextState = !isSearchOpen;
+    setIsSearchOpen(nextState);
+    if (nextState) {
+      setTimeout(() => searchInputRef.current?.focus(), 120);
+    }
   };
 
   const currentAvatar = user?.avatar || '/avatars/nami.svg';
@@ -110,78 +144,100 @@ export const Navbar: React.FC = () => {
             : undefined
         }
       >
-        {isWatchPage ? (
-          <>
-            <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-              Home
-            </Link>
-            <a href="#top10Section" onClick={() => setMobileMenuOpen(false)}>
-              Top 10
-            </a>
-            <a href="#trendingSection" onClick={() => setMobileMenuOpen(false)}>
-              Simulcasts
-            </a>
-            <a href="#myWatchlistSection" onClick={() => setMobileMenuOpen(false)}>
-              My List
-            </a>
-            <a href="#fullCatalogSection" onClick={() => setMobileMenuOpen(false)}>
-              Full Library
-            </a>
-          </>
-        ) : (
-          <>
-            <Link href="/#features" onClick={() => setMobileMenuOpen(false)}>
-              Features
-            </Link>
-            <Link href="/watch" onClick={() => setMobileMenuOpen(false)}>
-              Library
-            </Link>
-          </>
-        )}
+        <Link
+          href="/"
+          className={pathname === '/' ? 'active' : ''}
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          Home
+        </Link>
+        <a
+          href="/watch#top10Section"
+          onClick={(e) => {
+            e.preventDefault();
+            scrollToSection('top10Section');
+          }}
+        >
+          Top 10
+        </a>
+        <a
+          href="/watch#trendingSection"
+          onClick={(e) => {
+            e.preventDefault();
+            scrollToSection('trendingSection');
+          }}
+        >
+          Simulcasts
+        </a>
+        <a
+          href="/watch#myWatchlistSection"
+          onClick={(e) => {
+            e.preventDefault();
+            scrollToSection('myWatchlistSection');
+          }}
+        >
+          My List
+        </a>
       </nav>
 
       {/* Actions */}
       <div className="nav-actions">
-        {/* Expandable Search on Watch page */}
-        {isWatchPage && (
-          <div className={`browse-search-wrap ${isSearchOpen ? 'open' : ''}`} id="browseSearchWrap">
-            <input
-              type="text"
-              className="browse-search-input"
-              id="browseSearchInput"
-              placeholder="Titles, genres, cast..."
-              aria-label="Search anime"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setIsSearchOpen(true)}
-            />
+        {/* Expandable Search with Smooth Slider */}
+        <div
+          ref={searchWrapRef}
+          className={`browse-search-wrap ${isSearchOpen ? 'open' : ''}`}
+          id="browseSearchWrap"
+        >
+          <button
+            type="button"
+            className="browse-search-btn"
+            title="Search anime"
+            aria-label="Search"
+            onClick={handleSearchToggle}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+          <input
+            ref={searchInputRef}
+            type="text"
+            className="browse-search-input"
+            id="browseSearchInput"
+            placeholder="Search anime, genres, titles..."
+            aria-label="Search anime"
+            value={searchQuery}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSearchQuery(val);
+              if (val.trim() && pathname !== '/watch') {
+                router.push('/watch');
+              }
+            }}
+            onFocus={() => setIsSearchOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setIsSearchOpen(false);
+              } else if (e.key === 'Enter' && pathname !== '/watch') {
+                router.push('/watch');
+              }
+            }}
+          />
+          {searchQuery && (
             <button
               type="button"
-              className="browse-search-btn"
-              title="Search anime"
-              aria-label="Search"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="browse-search-close"
+              aria-label="Clear search"
+              onClick={() => {
+                setSearchQuery('');
+                searchInputRef.current?.focus();
+              }}
             >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <circle cx="11" cy="11" r="8" />
-                <path d="M21 21l-4.35-4.35" />
-              </svg>
+              &times;
             </button>
-            {isSearchOpen && (
-              <button
-                type="button"
-                className="browse-search-close"
-                aria-label="Close search"
-                onClick={() => {
-                  setSearchQuery('');
-                  setIsSearchOpen(false);
-                }}
-              >
-                &times;
-              </button>
-            )}
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Realm Theme Switcher */}
         <button
@@ -389,7 +445,7 @@ export const Navbar: React.FC = () => {
         ) : (
           <>
             {pathname === '/signin' ? (
-              <Link href="/signup" className="link-cta">
+              <Link href="/signup" className="btn filled">
                 Sign up
               </Link>
             ) : pathname === '/signup' ? (
@@ -397,19 +453,14 @@ export const Navbar: React.FC = () => {
                 Sign in
               </Link>
             ) : (
-              <Link href="/signin" className="link-cta">
-                Sign in
-              </Link>
-            )}
-
-            {isWatchPage ? (
-              <Link href="/" className="btn filled">
-                Home
-              </Link>
-            ) : (
-              <Link href="/watch" className="btn filled">
-                Start watching
-              </Link>
+              <>
+                <Link href="/signin" className="link-cta">
+                  Sign in
+                </Link>
+                <Link href="/signup" className="btn filled">
+                  Start watching
+                </Link>
+              </>
             )}
           </>
         )}

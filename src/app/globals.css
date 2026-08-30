@@ -4698,57 +4698,90 @@ footer {
   align-items: center;
 }
 
-.browse-search-input {
-  width: 0;
-  opacity: 0;
-  background: rgba(8, 12, 20, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 20px;
-  color: #ffffff;
-  font-size: 13px;
-  font-family: var(--sans);
-  padding: 6px 32px 6px 14px;
-  transition: width .35s ease, opacity .35s ease, border-color .2s;
-  outline: none;
-}
-
-.browse-search-wrap.open .browse-search-input {
-  width: 230px;
-  opacity: 1;
-  border-color: var(--gold, #e8b94f);
-  box-shadow: 0 0 14px rgba(232, 185, 79, 0.25);
-}
-
 .browse-search-btn {
   background: transparent;
   border: none;
-  color: #ffffff;
+  color: var(--ink-dim, #cbd5e1);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
-  transition: color .2s, transform .2s;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  padding: 0;
+  transition: all 0.2s ease;
+  z-index: 3;
 }
 
 .browse-search-btn:hover {
   color: var(--gold, #e8b94f);
-  transform: scale(1.1);
+  background: rgba(232, 185, 79, 0.12);
+  transform: scale(1.05);
+}
+
+.browse-search-input {
+  width: 0;
+  max-width: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  background: rgba(10, 15, 24, 0.95) !important;
+  border: 1px solid transparent !important;
+  border-radius: 20px;
+  color: #ffffff !important;
+  font-size: 13px;
+  font-family: var(--sans);
+  padding: 0 !important;
+  margin-left: -36px;
+  outline: none;
+  transition: width 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, padding 0.32s ease, visibility 0.32s, border-color 0.2s ease;
+  box-shadow: none;
+}
+
+.browse-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.browse-search-wrap.open .browse-search-input {
+  width: 260px;
+  max-width: 260px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  padding: 7px 32px 7px 40px !important;
+  border: 1px solid rgba(232, 185, 79, 0.45) !important;
+  background: rgba(10, 15, 24, 0.95) !important;
+  box-shadow: 0 0 16px rgba(232, 185, 79, 0.25);
 }
 
 .browse-search-close {
   position: absolute;
   right: 10px;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.08);
   border: none;
   color: #94a3b8;
   cursor: pointer;
   display: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
   font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  transition: all 0.15s ease;
+  z-index: 4;
+}
+
+.browse-search-close:hover {
+  color: #ffffff;
+  background: rgba(232, 185, 79, 0.3);
 }
 
 .browse-search-wrap.open .browse-search-close {
-  display: block;
+  display: flex;
 }
 
 /* ---------- NOTIFICATIONS DROPDOWN ---------- */

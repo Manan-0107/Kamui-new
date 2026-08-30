@@ -5,7 +5,6 @@ import { usePlayback } from '@/context/PlaybackContext';
 
 const GENRES = [
   'all',
-  'watchlist',
   'Dark fantasy',
   'Sci-fi',
   'Mecha',
@@ -17,7 +16,7 @@ const GENRES = [
 ];
 
 export const FilterChips: React.FC = () => {
-  const { filterGenre, setFilterGenre, watchlist } = usePlayback();
+  const { filterGenre, setFilterGenre } = usePlayback();
 
   return (
     <section className="watch-hero" style={{ padding: '24px 0 10px', minHeight: 'auto' }}>
@@ -32,22 +31,6 @@ export const FilterChips: React.FC = () => {
                   onClick={() => setFilterGenre('all')}
                 >
                   All
-                </button>
-              );
-            }
-            if (genre === 'watchlist') {
-              return (
-                <button
-                  key="watchlist"
-                  className={`filter-chip filter-chip-watchlist ${filterGenre === 'watchlist' ? 'active' : ''}`}
-                  id="filterMyListChip"
-                  title="Filter by your saved shows"
-                  onClick={() => setFilterGenre('watchlist')}
-                >
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-                    <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
-                  </svg>
-                  My List <span className="chip-counter" id="watchlistCountBadge">{watchlist.length}</span>
                 </button>
               );
             }
