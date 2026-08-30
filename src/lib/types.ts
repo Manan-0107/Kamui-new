@@ -16,6 +16,8 @@ export interface AnimeData {
   year: string;
   rating: string;
   match: string;
+  contentType?: 'series' | 'movie';
+  duration?: string;
   seasonsCount: string;
   trailerVideo: string;
   fullVideo: string;

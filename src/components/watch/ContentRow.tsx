@@ -54,10 +54,13 @@ export const ContentRow: React.FC<ContentRowProps> = ({
           </h2>
         </div>
         <div className="row-header-right">
-          <span className="row-explore-all" onClick={() => {
-            const fullCat = document.getElementById('fullCatalogSection');
-            if (fullCat) fullCat.scrollIntoView({ behavior: 'smooth' });
-          }}>
+          <span
+            className="row-explore-all"
+            onClick={() => {
+              const fullCat = document.getElementById('fullCatalogSection');
+              if (fullCat) fullCat.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
             Explore All <span className="explore-chevron">›</span>
           </span>
           {onClear && (
@@ -106,76 +109,88 @@ export const ContentRow: React.FC<ContentRowProps> = ({
                   </div>
                 </div>
 
-                {/* Netflix Hover Expansion Panel */}
+                {/* Netflix Hover Micro-Popout Panel */}
                 <div className="row-card-hover-panel">
-                  {/* Action Buttons */}
-                  <div className="row-card-actions">
-                    <button
-                      type="button"
-                      className="row-card-play-btn"
-                      title="Play Episode 1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        playEpisode(anime.id, 1);
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </button>
-
-                    <button
-                      type="button"
-                      className={`row-card-icon-btn ${inList ? 'active' : ''}`}
-                      title={inList ? 'Remove from My List' : 'Add to My List'}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleWatchlist(anime.id);
-                      }}
-                    >
-                      {inList ? (
-                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2.5">
-                          <path d="M20 6L9 17l-5-5" />
-                        </svg>
-                      ) : (
-                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2.5">
-                          <path d="M12 5v14M5 12h14" />
-                        </svg>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="row-card-icon-btn row-card-chevron-btn"
-                      title="Episode info & preview"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openPreview(anime.id);
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2">
-                        <path d="M6 9l6 6 6-6" />
-                      </svg>
-                    </button>
+                  {/* Top Media Artwork */}
+                  <div className="hover-panel-media">
+                    <AnimeArtSvg animeId={anime.id} className="hover-panel-art" />
+                    <div className="hover-panel-gradient" />
+                    {anime.badge && (
+                      <span className="hover-panel-badge">{anime.badge}</span>
+                    )}
                   </div>
 
-                  {/* Title & Metadata Line */}
-                  <h3 className="row-card-title">{anime.title}</h3>
+                  {/* Body Content */}
+                  <div className="hover-panel-body">
+                    {/* Action Buttons */}
+                    <div className="row-card-actions">
+                      <button
+                        type="button"
+                        className="row-card-play-btn"
+                        title="Play Now"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          playEpisode(anime.id, 1);
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </button>
 
-                  <div className="row-card-meta">
-                    <span className="row-card-match">{anime.match}</span>
-                    <span className="row-card-rating">{anime.rating}</span>
-                    <span className="row-card-seasons">1 Season</span>
-                    <span className="row-card-hd">HD</span>
-                  </div>
+                      <button
+                        type="button"
+                        className={`row-card-icon-btn ${inList ? 'active' : ''}`}
+                        title={inList ? 'Remove from My List' : 'Add to My List'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleWatchlist(anime.id);
+                        }}
+                      >
+                        {inList ? (
+                          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2.5">
+                            <path d="M20 6L9 17l-5-5" />
+                          </svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2.5">
+                            <path d="M12 5v14M5 12h14" />
+                          </svg>
+                        )}
+                      </button>
 
-                  {/* Genre Tags */}
-                  <div className="row-card-genres">
-                    {anime.genres.slice(0, 3).map((g) => (
-                      <span key={g} className="row-card-genre-item">
-                        {g}
-                      </span>
-                    ))}
+                      <button
+                        type="button"
+                        className="row-card-icon-btn row-card-chevron-btn"
+                        title="Episode info & full details"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openPreview(anime.id);
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2">
+                          <path d="M6 9l6 6 6-6" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/* Title & Metadata Line */}
+                    <h3 className="row-card-title">{anime.title}</h3>
+
+                    <div className="row-card-meta">
+                      <span className="row-card-match">{anime.match}</span>
+                      <span className="row-card-rating">{anime.rating}</span>
+                      <span className="row-card-seasons">{anime.duration || anime.seasonsCount || '1 Season'}</span>
+                      <span className="row-card-hd">4K HD</span>
+                    </div>
+
+                    {/* Genre Tags */}
+                    <div className="row-card-genres">
+                      {anime.genres.slice(0, 3).map((g) => (
+                        <span key={g} className="row-card-genre-item">
+                          {g}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -195,4 +210,3 @@ export const ContentRow: React.FC<ContentRowProps> = ({
     </section>
   );
 };
-

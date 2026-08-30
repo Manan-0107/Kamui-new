@@ -9,6 +9,7 @@ interface AnimeArtSvgProps {
 export const AnimeArtSvg: React.FC<AnimeArtSvgProps> = ({ animeId, className = 'w-full h-full object-cover' }) => {
   switch (animeId) {
     case 'kamui':
+    case 'kamui-movie':
       return (
         <svg className={className} viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice">
           <defs>
@@ -65,6 +66,7 @@ export const AnimeArtSvg: React.FC<AnimeArtSvgProps> = ({ animeId, className = '
       );
 
     case 'ashfall-district':
+    case 'ashfall-movie':
       return (
         <svg className={className} viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice">
           <defs>
@@ -115,6 +117,7 @@ export const AnimeArtSvg: React.FC<AnimeArtSvgProps> = ({ animeId, className = '
       );
 
     case 'paper-moon-society':
+    case 'papermoon-movie':
       return (
         <svg className={className} viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice">
           <defs>

@@ -9,6 +9,7 @@ interface AnimePosterSvgProps {
 export const AnimePosterSvg: React.FC<AnimePosterSvgProps> = ({ animeId, className = 'art' }) => {
   switch (animeId) {
     case 'kamui':
+    case 'kamui-movie':
       return (
         <svg className={className} viewBox="0 0 300 420" preserveAspectRatio="xMidYMid slice">
           <defs>
@@ -48,6 +49,7 @@ export const AnimePosterSvg: React.FC<AnimePosterSvgProps> = ({ animeId, classNa
       );
 
     case 'ashfall-district':
+    case 'ashfall-movie':
       return (
         <svg className={className} viewBox="0 0 300 420" preserveAspectRatio="xMidYMid slice">
           <defs>
@@ -78,6 +80,7 @@ export const AnimePosterSvg: React.FC<AnimePosterSvgProps> = ({ animeId, classNa
       );
 
     case 'paper-moon-society':
+    case 'papermoon-movie':
       return (
         <svg className={className} viewBox="0 0 300 420" preserveAspectRatio="xMidYMid slice">
           <defs>

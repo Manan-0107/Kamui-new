@@ -5,6 +5,7 @@ import { usePlayback } from '@/context/PlaybackContext';
 
 const GENRES = [
   'all',
+  'Movies',
   'Dark fantasy',
   'Sci-fi',
   'Mecha',
@@ -19,7 +20,7 @@ export const FilterChips: React.FC = () => {
   const { filterGenre, setFilterGenre } = usePlayback();
 
   return (
-    <section className="watch-hero" style={{ padding: '24px 0 10px', minHeight: 'auto' }}>
+    <section className="filter-chips-section" id="filterChipsSection">
       <div className="wrap">
         <div className="filter-bar" id="filterBar">
           {GENRES.map((genre) => {
@@ -27,6 +28,7 @@ export const FilterChips: React.FC = () => {
               return (
                 <button
                   key="all"
+                  type="button"
                   className={`filter-chip ${filterGenre === 'all' ? 'active' : ''}`}
                   onClick={() => setFilterGenre('all')}
                 >
@@ -37,7 +39,8 @@ export const FilterChips: React.FC = () => {
             return (
               <button
                 key={genre}
-                className={`filter-chip ${filterGenre === genre ? 'active' : ''}`}
+                type="button"
+                className={`filter-chip ${filterGenre.toLowerCase() === genre.toLowerCase() ? 'active' : ''}`}
                 onClick={() => setFilterGenre(genre)}
               >
                 {genre}

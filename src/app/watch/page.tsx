@@ -125,6 +125,14 @@ export default function WatchPage() {
           title="Cozy Slice of Life & Romance"
           animeIds={['paper-moon-society', 'glasshouse', 'hollow-meridian']}
         />
+
+        {/* Row 9: Feature Anime Movies */}
+        <ContentRow
+          id="moviesSection"
+          kanji="映"
+          title="Feature Anime Movies (4K HDR)"
+          animeIds={['kamui-movie', 'ashfall-movie', 'papermoon-movie']}
+        />
       </div>
 
       {/* Full Catalog Section */}
