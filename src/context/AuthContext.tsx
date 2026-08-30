@@ -26,12 +26,16 @@ interface AuthContextType {
   login: (name: string, email?: string, avatar?: string, provider?: 'google' | 'password') => void;
   logout: () => void;
   updateAvatar: (newAvatarSrc: string, customLabel?: string) => void;
+  updateSocials: (newSocials: UserSession['socials']) => void;
   authModal: AuthModalConfig;
   openAuthModal: (heading?: string, sub?: string, redirectUrl?: string, defaultTab?: 'signin' | 'signup') => void;
   closeAuthModal: () => void;
   googleModal: GoogleModalConfig;
   openGoogleModal: (redirectUrl?: string) => void;
   closeGoogleModal: () => void;
+  isProfileModalOpen: boolean;
+  openProfileModal: () => void;
+  closeProfileModal: () => void;
   registeredAccounts: UserSession[];
   findAccount: (query: string) => UserSession | null;
   parseUserDisplayName: (input: string) => string;
@@ -44,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [registeredAccounts, setRegisteredAccounts] = useState<UserSession[]>([]);
   const [authModal, setAuthModal] = useState<AuthModalConfig>({ isOpen: false });
   const [googleModal, setGoogleModal] = useState<GoogleModalConfig>({ isOpen: false });
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const { showToast } = useToast();
 
   const getSavedAccounts = (): UserSession[] => {
@@ -181,6 +186,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [user, showToast]
   );
 
+  const updateSocials = useCallback(
+    (newSocials: UserSession['socials']) => {
+      if (!user) return;
+      const updatedUser: UserSession = { ...user, socials: { ...user.socials, ...newSocials } };
+      setUser(updatedUser);
+      saveAccount(updatedUser);
+      try {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedUser));
+      } catch (e) {}
+      showToast('Profile socials & bio updated!', 'success');
+    },
+    [user, showToast]
+  );
+
+  const openProfileModal = useCallback(() => {
+    setIsProfileModalOpen(true);
+  }, []);
+
+  const closeProfileModal = useCallback(() => {
+    setIsProfileModalOpen(false);
+  }, []);
+
   const openAuthModal = useCallback(
     (heading?: string, sub?: string, redirectUrl = '/watch', defaultTab: 'signin' | 'signup' = 'signin') => {
       setAuthModal({
@@ -213,12 +240,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         logout,
         updateAvatar,
+        updateSocials,
         authModal,
         openAuthModal,
         closeAuthModal,
         googleModal,
         openGoogleModal,
         closeGoogleModal,
+        isProfileModalOpen,
+        openProfileModal,
+        closeProfileModal,
         registeredAccounts,
         findAccount,
         parseUserDisplayName

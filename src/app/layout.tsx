@@ -8,6 +8,7 @@ import { NetflixPreviewModal } from '@/components/modals/NetflixPreviewModal';
 import { FullVideoPlayer } from '@/components/modals/FullVideoPlayer';
 import { GoogleAuthModal } from '@/components/modals/GoogleAuthModal';
 import { AuthPromptModal } from '@/components/modals/AuthPromptModal';
+import { ProfileStrengthModal } from '@/components/modals/ProfileStrengthModal';
 import { Sidebar } from '@/components/Sidebar';
 
 export const metadata: Metadata = {
@@ -46,6 +47,7 @@ export default function RootLayout({
                 <FullVideoPlayer />
                 <GoogleAuthModal />
                 <AuthPromptModal />
+                <ProfileStrengthModal />
                 <Sidebar />
               </PlaybackProvider>
             </AuthProvider>

@@ -43,12 +43,23 @@ export interface ContinueWatchingItem {
   updatedAt: number;
 }
 
+export interface UserSocials {
+  instagram?: string;
+  snapchat?: string;
+  myanimelist?: string;
+  anilist?: string;
+  discord?: string;
+  bio?: string;
+}
+
 export interface UserSession {
   loggedIn: boolean;
   name: string;
   email: string;
   avatar: string;
   authProvider?: 'google' | 'password';
+  socials?: UserSocials;
+  customBadges?: string[];
 }
 
 export type RealmThemeId =

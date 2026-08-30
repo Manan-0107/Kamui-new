@@ -20,7 +20,7 @@ export const Navbar: React.FC = () => {
   const [notifyDropdownOpen, setNotifyDropdownOpen] = useState(false);
 
   const { cycleTheme } = useTheme();
-  const { user, logout, updateAvatar, openAuthModal } = useAuth();
+  const { user, logout, updateAvatar, openAuthModal, openProfileModal } = useAuth();
   const {
     searchQuery,
     setSearchQuery,
@@ -151,24 +151,6 @@ export const Navbar: React.FC = () => {
         >
           Home
         </Link>
-        <a
-          href="/watch#top10Section"
-          onClick={(e) => {
-            e.preventDefault();
-            scrollToSection('top10Section');
-          }}
-        >
-          Top 10
-        </a>
-        <a
-          href="/watch#trendingSection"
-          onClick={(e) => {
-            e.preventDefault();
-            scrollToSection('trendingSection');
-          }}
-        >
-          Simulcasts
-        </a>
         <a
           href="/watch#myWatchlistSection"
           onClick={(e) => {
@@ -369,7 +351,17 @@ export const Navbar: React.FC = () => {
                   <div className="profile-user-info">
                     <h4 className="profile-dropdown-name">{user.name || 'Member'}</h4>
                     <p className="profile-dropdown-email">{user.email || 'user@kamui.stream'}</p>
-                    <span className="profile-tier-badge">✦ KAMUI MEMBER · 4K HDR</span>
+                    <button
+                      type="button"
+                      className="profile-tier-badge profile-strength-btn"
+                      onClick={() => {
+                        setProfileDropdownOpen(false);
+                        openProfileModal();
+                      }}
+                      title="View & Edit Profile Strength, Socials, and Atsumaru Badges"
+                    >
+                      ⚡ Profile Strength &amp; Badges →
+                    </button>
                   </div>
                 </div>
 
@@ -416,13 +408,16 @@ export const Navbar: React.FC = () => {
                 </div>
 
                 <div className="profile-dropdown-footer">
-                  <Link
-                    href={isWatchPage ? '/' : '/watch'}
+                  <button
+                    type="button"
                     className="profile-link-btn"
-                    onClick={() => setProfileDropdownOpen(false)}
+                    onClick={() => {
+                      setProfileDropdownOpen(false);
+                      openProfileModal();
+                    }}
                   >
-                    {isWatchPage ? 'Home' : 'Watch Library'}
-                  </Link>
+                    Socials &amp; Badges
+                  </button>
                   <button
                     type="button"
                     className="profile-logout-btn"
