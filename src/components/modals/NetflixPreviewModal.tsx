@@ -35,6 +35,18 @@ export const NetflixPreviewModal: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isPreviewOpen, closePreview]);
 
+  // Prevent background scrolling when preview modal is open
+  useEffect(() => {
+    if (isPreviewOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isPreviewOpen]);
+
   // Autoplay trailer video when opened
   useEffect(() => {
     if (isPreviewOpen && videoRef.current) {
