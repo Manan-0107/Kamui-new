@@ -4,12 +4,15 @@ import { ToastProvider } from '@/context/ToastContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { PlaybackProvider } from '@/context/PlaybackContext';
+import { FriendsProvider } from '@/context/FriendsContext';
+import { CommentsProvider } from '@/context/CommentsContext';
 import { NetflixPreviewModal } from '@/components/modals/NetflixPreviewModal';
 import { NetflixHoverPortal } from '@/components/modals/NetflixHoverPortal';
 import { FullVideoPlayer } from '@/components/modals/FullVideoPlayer';
 import { GoogleAuthModal } from '@/components/modals/GoogleAuthModal';
 import { AuthPromptModal } from '@/components/modals/AuthPromptModal';
 import { ProfileStrengthModal } from '@/components/modals/ProfileStrengthModal';
+import { FriendsModal } from '@/components/modals/FriendsModal';
 import { Sidebar } from '@/components/Sidebar';
 
 export const metadata: Metadata = {
@@ -42,16 +45,21 @@ export default function RootLayout({
         <ToastProvider>
           <ThemeProvider>
             <AuthProvider>
-              <PlaybackProvider>
-                {children}
-                <NetflixPreviewModal />
-                <NetflixHoverPortal />
-                <FullVideoPlayer />
-                <GoogleAuthModal />
-                <AuthPromptModal />
-                <ProfileStrengthModal />
-                <Sidebar />
-              </PlaybackProvider>
+              <FriendsProvider>
+                <CommentsProvider>
+                  <PlaybackProvider>
+                    {children}
+                    <NetflixPreviewModal />
+                    <NetflixHoverPortal />
+                    <FullVideoPlayer />
+                    <FriendsModal />
+                    <GoogleAuthModal />
+                    <AuthPromptModal />
+                    <ProfileStrengthModal />
+                    <Sidebar />
+                  </PlaybackProvider>
+                </CommentsProvider>
+              </FriendsProvider>
             </AuthProvider>
           </ThemeProvider>
         </ToastProvider>

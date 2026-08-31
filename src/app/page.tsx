@@ -121,17 +121,27 @@ export default function HomePage() {
       <FeatureCards />
 
       {/* Dynamic Continue Watching on Homepage */}
-      {continueWatching.length > 0 && <ContinueWatchingShelf />}
+      {continueWatching.length > 0 && (
+        <section className="home-shelf-section">
+          <div className="wrap">
+            <ContinueWatchingShelf />
+          </div>
+        </section>
+      )}
 
       {/* Dynamic Watchlist on Homepage */}
       {watchlist.length > 0 && (
-        <ContentRow
-          id="myWatchlistSection"
-          kanji="録"
-          title="My Watchlist"
-          countBadge={watchlist.length}
-          animeIds={watchlist}
-        />
+        <section className="home-shelf-section">
+          <div className="wrap">
+            <ContentRow
+              id="myWatchlistSection"
+              kanji="録"
+              title="My Watchlist"
+              countBadge={watchlist.length}
+              animeIds={watchlist}
+            />
+          </div>
+        </section>
       )}
 
       {/* Poster Catalog Preview */}

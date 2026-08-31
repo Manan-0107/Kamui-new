@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { usePlayback } from '@/context/PlaybackContext';
 import { ANIME_CATALOG } from '@/lib/catalog';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
+import { CommentSection } from '@/components/comments/CommentSection';
 
 export const NetflixPreviewModal: React.FC = () => {
   const {
@@ -18,7 +19,7 @@ export const NetflixPreviewModal: React.FC = () => {
     openPreview
   } = usePlayback();
 
-  const [activeTab, setActiveTab] = useState<'episodes' | 'more-like-this' | 'about'>('episodes');
+  const [activeTab, setActiveTab] = useState<'episodes' | 'more-like-this' | 'about' | 'discussion'>('episodes');
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -255,6 +256,13 @@ export const NetflixPreviewModal: React.FC = () => {
             </button>
             <button
               type="button"
+              className={`preview-tab-btn ${activeTab === 'discussion' ? 'active' : ''}`}
+              onClick={() => setActiveTab('discussion')}
+            >
+              💬 Discussion &amp; Chat
+            </button>
+            <button
+              type="button"
               className={`preview-tab-btn ${activeTab === 'about' ? 'active' : ''}`}
               onClick={() => setActiveTab('about')}
             >
@@ -347,6 +355,13 @@ export const NetflixPreviewModal: React.FC = () => {
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* Discussion & Comments Pane */}
+          {activeTab === 'discussion' && (
+            <div className="preview-tab-pane active" id="tabPaneDiscussion">
+              <CommentSection animeId={anime.id} />
             </div>
           )}
 
