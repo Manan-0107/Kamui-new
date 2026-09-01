@@ -138,6 +138,8 @@ export const Navbar: React.FC = () => {
                 inset: '70px 0 auto 0',
                 flexDirection: 'column',
                 gap: 0,
+                transform: 'none',
+                left: 0,
                 background: 'var(--night)',
                 padding: '10px 30px 30px',
                 borderBottom: '1px solid var(--line)',
