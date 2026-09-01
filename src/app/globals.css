@@ -255,6 +255,29 @@ nav.links {
   display: flex;
   align-items: center;
   gap: 34px;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, gap 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+header.nav.search-open nav.links,
+nav.links.search-open {
+  transform: translateX(calc(-50% - 95px));
+}
+
+@media (max-width: 1200px) {
+  header.nav.search-open nav.links,
+  nav.links.search-open {
+    transform: translateX(calc(-50% - 115px));
+    gap: 24px;
+  }
+}
+
+@media (max-width: 1024px) {
+  header.nav.search-open nav.links,
+  nav.links.search-open {
+    transform: translateX(calc(-50% - 130px));
+    gap: 20px;
+  }
 }
 
 nav.links a {

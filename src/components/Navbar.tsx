@@ -104,7 +104,7 @@ export const Navbar: React.FC = () => {
   const currentAvatar = user?.avatar || '/avatars/nami.svg';
 
   return (
-    <header className={`nav ${scrolled ? 'scrolled' : ''}`} id="siteNav">
+    <header className={`nav ${scrolled ? 'scrolled' : ''} ${isSearchOpen ? 'search-open' : ''}`} id="siteNav">
       {/* Brand & Sidebar Toggle */}
       <div className="nav-brand-group">
         <button
@@ -129,7 +129,7 @@ export const Navbar: React.FC = () => {
 
       {/* Nav Links Desktop */}
       <nav
-        className="links"
+        className={`links ${isSearchOpen ? 'search-open' : ''}`}
         style={
           mobileMenuOpen
             ? {
