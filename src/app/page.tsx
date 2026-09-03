@@ -13,7 +13,7 @@ import { ContentRow } from '@/components/watch/ContentRow';
 import { ContinueWatchingShelf } from '@/components/watch/ContinueWatchingShelf';
 
 export default function HomePage() {
-  const { watchlist, continueWatching } = usePlayback();
+  const { watchlist, continueWatching, likedTitles } = usePlayback();
 
   return (
     <>
@@ -125,6 +125,21 @@ export default function HomePage() {
         <section className="home-shelf-section">
           <div className="wrap">
             <ContinueWatchingShelf />
+          </div>
+        </section>
+      )}
+
+      {/* Dynamic Liked Anime on Homepage */}
+      {likedTitles.length > 0 && (
+        <section className="home-shelf-section">
+          <div className="wrap">
+            <ContentRow
+              id="likedAnimeSection"
+              kanji="好"
+              title="Liked Anime"
+              countBadge={likedTitles.length}
+              animeIds={likedTitles}
+            />
           </div>
         </section>
       )}

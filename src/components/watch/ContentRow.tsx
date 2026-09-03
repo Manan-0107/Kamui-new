@@ -14,6 +14,8 @@ interface ContentRowProps {
   animeIds: string[];
   onClear?: () => void;
   clearLabel?: string;
+  emptyMessage?: string;
+  alwaysShow?: boolean;
 }
 
 export const ContentRow: React.FC<ContentRowProps> = ({
@@ -23,12 +25,54 @@ export const ContentRow: React.FC<ContentRowProps> = ({
   countBadge,
   animeIds,
   onClear,
-  clearLabel = 'Clear'
+  clearLabel = 'Clear',
+  emptyMessage,
+  alwaysShow = false
 }) => {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const { openPreview, setHoveredCard } = usePlayback();
 
-  if (animeIds.length === 0) return null;
+  if (animeIds.length === 0) {
+    if (!alwaysShow) return null;
+    return (
+      <section className="content-row-section content-row-empty-section" id={id} aria-label={title}>
+        <div className="row-header">
+          <div className="row-title-wrap">
+            <span className="row-kanji-glyph">{kanji}</span>
+            <h2 className="row-title">
+              {title}
+              {typeof countBadge === 'number' && (
+                <span className="shelf-count-badge">0</span>
+              )}
+            </h2>
+          </div>
+        </div>
+        <div className="row-empty-card">
+          <div className="row-empty-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+            </svg>
+          </div>
+          <div className="row-empty-text-wrap">
+            <h4 className="row-empty-heading">No titles in {title.toLowerCase()} yet</h4>
+            <p className="row-empty-desc">
+              {emptyMessage || 'Click the 👍 like icon or add button on any anime card or modal to curate your list.'}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="row-empty-action-btn"
+            onClick={() => {
+              const fullCat = document.getElementById('fullCatalogSection');
+              if (fullCat) fullCat.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Browse All Series →
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   const handleScrollLeft = () => {
     if (trackRef.current) {

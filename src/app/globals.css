@@ -8419,4 +8419,114 @@ nextjs-portal,
   overflow-y: auto;
   padding: 16px;
 }
+
+/* ==========================================================================
+   EMPTY CONTENT ROW & LIKED ANIME SECTION STYLES
+   ========================================================================== */
+.content-row-empty-section,
+.content-row-section,
+#contentRowsContainer,
+#likedAnimeSection,
+#myWatchlistSection,
+#top10Section,
+#trendingSection,
+#newSection,
+#darkFantasySection,
+#scifiSection,
+#mechaSection,
+#mysterySection,
+#romanceSection,
+#sliceOfLifeSection,
+#adventureSection,
+#psychologicalSection,
+#moviesSection,
+#fullCatalogSection {
+  scroll-margin-top: 100px;
+  transition: background-color 0.4s ease;
+}
+
+.row-empty-card {
+  margin: 8px 48px 20px;
+  padding: 28px 32px;
+  background: linear-gradient(135deg, rgba(18, 25, 38, 0.7) 0%, rgba(10, 15, 24, 0.85) 100%);
+  border: 1px dashed rgba(232, 185, 79, 0.3);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.row-empty-card:hover {
+  border-color: rgba(232, 185, 79, 0.6);
+  box-shadow: 0 12px 32px rgba(232, 185, 79, 0.1);
+}
+
+.row-empty-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(232, 185, 79, 0.12);
+  border: 1px solid rgba(232, 185, 79, 0.3);
+  color: var(--gold, #e8b94f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.row-empty-text-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row-empty-heading {
+  font-family: var(--serif-heading, var(--serif, 'Cinzel', serif));
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.row-empty-desc {
+  font-size: 13px;
+  color: var(--ink-dim, #94a3b8);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.row-empty-action-btn {
+  background: rgba(232, 185, 79, 0.15);
+  border: 1px solid rgba(232, 185, 79, 0.4);
+  color: var(--gold, #e8b94f);
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.row-empty-action-btn:hover {
+  background: var(--gold, #e8b94f);
+  color: #080c13;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(232, 185, 79, 0.35);
+}
+
+@media (max-width: 768px) {
+  .row-empty-card {
+    margin: 8px 20px 20px;
+    padding: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
 

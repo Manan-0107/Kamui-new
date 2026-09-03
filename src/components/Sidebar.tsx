@@ -91,11 +91,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setFilterGenre(genreKey);
     setSearchQuery('');
     onClose();
+    const sectionMap: Record<string, string> = {
+      'Action': 'trendingSection',
+      'Dark Fantasy': 'darkFantasySection',
+      'Sci-Fi': 'scifiSection',
+      'Mecha': 'mechaSection',
+      'Mystery': 'mysterySection',
+      'Romance': 'romanceSection',
+      'Slice of Life': 'sliceOfLifeSection',
+      'Adventure': 'adventureSection',
+      'Psychological': 'psychologicalSection',
+      'Comedy': 'sliceOfLifeSection',
+      'Fantasy': 'darkFantasySection',
+      'Movies': 'moviesSection'
+    };
+    const targetSection = sectionMap[genreKey] || 'fullCatalogSection';
     if (pathname !== '/watch') {
-      router.push('/watch#catalogFilterSection');
+      router.push(`/watch#${targetSection}`);
     } else {
-      const el = document.getElementById('catalogFilterSection') || document.getElementById('fullCatalogSection');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      const el = document.getElementById(targetSection) || document.getElementById('fullCatalogSection');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -106,7 +121,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
       router.push('/watch#myWatchlistSection');
     } else {
       const el = document.getElementById('myWatchlistSection') || document.getElementById('contentRowsContainer');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleLikedClick = () => {
+    setFilterGenre('liked');
+    onClose();
+    if (pathname !== '/watch') {
+      router.push('/watch#likedAnimeSection');
+    } else {
+      const el = document.getElementById('likedAnimeSection') || document.getElementById('contentRowsContainer');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -283,11 +309,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             <div
-              className="sidebar-nav-item"
-              onClick={() => {
-                onClose();
-                if (pathname !== '/watch') router.push('/watch');
-              }}
+              className={`sidebar-nav-item ${filterGenre === 'liked' ? 'active' : ''}`}
+              id="sidebarLikedBtn"
+              onClick={handleLikedClick}
             >
               <ThumbsUp size={18} className="sidebar-icon" />
               <span className="sidebar-label">Liked Anime</span>

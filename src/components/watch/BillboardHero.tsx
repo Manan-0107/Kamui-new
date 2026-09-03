@@ -6,7 +6,7 @@ import { ANIME_CATALOG, CATALOG_IDS } from '@/lib/catalog';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
 
 export const BillboardHero: React.FC = () => {
-  const { playEpisode, openPreview, toggleWatchlist, isInWatchlist } = usePlayback();
+  const { playEpisode, openPreview, toggleWatchlist, isInWatchlist, isLiked, toggleLike } = usePlayback();
 
   const [activeId, setActiveId] = useState('kamui');
   const [isMuted, setIsMuted] = useState(true);
@@ -15,6 +15,7 @@ export const BillboardHero: React.FC = () => {
 
   const anime = ANIME_CATALOG[activeId] || ANIME_CATALOG['kamui'];
   const inList = isInWatchlist(anime.id);
+  const liked = isLiked(anime.id);
 
   // Play video on active anime change
   useEffect(() => {
@@ -134,6 +135,19 @@ export const BillboardHero: React.FC = () => {
                   <path d="M12 5v14M5 12h14" />
                 </svg>
               )}
+            </button>
+
+            <button
+              type="button"
+              className={`btn-billboard-icon ${liked ? 'active' : ''}`}
+              id="billboardLikeBtn"
+              title={liked ? 'Liked' : 'Like this anime'}
+              aria-label="Like this anime"
+              onClick={() => toggleLike(anime.id)}
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+              </svg>
             </button>
           </div>
         </div>

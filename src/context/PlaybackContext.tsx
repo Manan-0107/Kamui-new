@@ -40,6 +40,7 @@ interface PlaybackContextType {
   likedTitles: string[];
   toggleLike: (animeId: string) => void;
   isLiked: (animeId: string) => boolean;
+  clearLikedTitles: () => void;
 
   // Sidebar
   isSidebarOpen: boolean;
@@ -150,7 +151,13 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
 
       const rawLikes = localStorage.getItem(LIKED_STORAGE_KEY);
-      if (rawLikes) setLikedTitles(JSON.parse(rawLikes));
+      if (rawLikes) {
+        setLikedTitles(JSON.parse(rawLikes));
+      } else {
+        const defaultLikes = ['kamui', 'nine-crows-inn'];
+        setLikedTitles(defaultLikes);
+        localStorage.setItem(LIKED_STORAGE_KEY, JSON.stringify(defaultLikes));
+      }
     } catch (e) {}
   }, []);
 
@@ -309,6 +316,14 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     [likedTitles]
   );
 
+  const clearLikedTitles = useCallback(() => {
+    setLikedTitles([]);
+    try {
+      localStorage.removeItem(LIKED_STORAGE_KEY);
+    } catch (e) {}
+    showToast('Liked anime list cleared', 'info');
+  }, [showToast]);
+
   return (
     <PlaybackContext.Provider
       value={{
@@ -333,6 +348,7 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         likedTitles,
         toggleLike,
         isLiked,
+        clearLikedTitles,
         filterGenre,
         setFilterGenre,
         searchQuery,
