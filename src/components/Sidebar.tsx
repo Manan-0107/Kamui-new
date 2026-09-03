@@ -33,6 +33,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { usePlayback } from '@/context/PlaybackContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useFriends } from '@/context/FriendsContext';
 import { REALM_THEMES } from '@/lib/themes';
 
 interface SidebarProps {
@@ -46,7 +47,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout, openAuthModal } = useAuth();
+  const { user, logout, openAuthModal, openProfileModal } = useAuth();
+  const { openFriendsModal, friends } = useFriends();
   const {
     watchlist,
     continueWatching,
@@ -103,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (pathname !== '/watch') {
       router.push('/watch#myWatchlistSection');
     } else {
-      const el = document.getElementById('myWatchlistSection');
+      const el = document.getElementById('myWatchlistSection') || document.getElementById('contentRowsContainer');
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
   };
@@ -179,11 +181,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }}
             >
               <Tv size={18} className="sidebar-icon" />
-              <span className="sidebar-label">Watch / Catalog</span>
+              <span className="sidebar-label">Stream Browse</span>
+              <span className="sidebar-badge-pill gold">4K</span>
             </Link>
 
             <a
-              href="/watch#scheduleSection"
+              href="/watch#trendingSection"
               className="sidebar-nav-item"
               onClick={(e) => {
                 onClose();
@@ -216,12 +219,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="sidebar-nav-item clickable-badge-item"
               onClick={() => {
                 onClose();
-                if (pathname !== '/watch') router.push('/watch');
+                openFriendsModal('friends');
               }}
             >
               <Users size={18} className="sidebar-icon" />
-              <span className="sidebar-label">Watch Together</span>
-              <span className="sidebar-badge-pill gold">SOC</span>
+              <span className="sidebar-label">Friends &amp; Watch Together</span>
+              <span className="sidebar-badge-pill gold">{friends.length}</span>
             </div>
           </div>
 
@@ -233,12 +236,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="sidebar-nav-item"
               onClick={() => {
                 onClose();
-                if (!user?.loggedIn) openAuthModal();
+                if (!user?.loggedIn) {
+                  openAuthModal();
+                } else {
+                  openProfileModal();
+                }
               }}
             >
               <User size={18} className="sidebar-icon" />
               <span className="sidebar-label">
-                {user?.loggedIn ? user.name || 'Your Profile' : 'Your Profile'}
+                {user?.loggedIn ? user.name || 'Profile & Socials' : 'Your Profile'}
               </span>
               {user?.loggedIn && (
                 <span className="sidebar-badge-pill pro">PRO</span>

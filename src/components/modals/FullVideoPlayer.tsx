@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { usePlayback } from '@/context/PlaybackContext';
 import { ANIME_CATALOG } from '@/lib/catalog';
+import { CommentSection } from '@/components/comments/CommentSection';
 
 export const FullVideoPlayer: React.FC = () => {
   const { playingAnimeId, playingEpNum, isPlayerOpen, closePlayer, openPreview, playEpisode, saveProgress } =
@@ -25,6 +26,7 @@ export const FullVideoPlayer: React.FC = () => {
   const [showCenterSplash, setShowCenterSplash] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [showLiveDiscussion, setShowLiveDiscussion] = useState(false);
 
   const speeds = [1.0, 1.25, 1.5, 2.0];
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -426,6 +428,19 @@ export const FullVideoPlayer: React.FC = () => {
                 {speeds[speedIndex]}x
               </button>
 
+              {/* Live Chat / Discussion toggle */}
+              <button
+                type="button"
+                className={`player-btn ${showLiveDiscussion ? 'active-chat' : ''}`}
+                id="playerChatBtn"
+                title="Episode Discussion & Live Chat"
+                onClick={() => setShowLiveDiscussion(!showLiveDiscussion)}
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </button>
+
               {/* Fullscreen */}
               <button
                 type="button"
@@ -441,6 +456,34 @@ export const FullVideoPlayer: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Sliding Live Episode Discussion Drawer */}
+        {showLiveDiscussion && anime && (
+          <div className="player-chat-drawer-overlay">
+            <div className="player-chat-drawer">
+              <div className="player-chat-head">
+                <div className="player-chat-title">
+                  <span>💬 Live Chat · Episode {playingEpNum}</span>
+                </div>
+                <button
+                  type="button"
+                  className="player-chat-close-btn"
+                  onClick={() => setShowLiveDiscussion(false)}
+                >
+                  &times;
+                </button>
+              </div>
+              <div className="player-chat-scrollable">
+                <CommentSection
+                  animeId={anime.id}
+                  episodeNum={playingEpNum}
+                  currentPlaybackTime={currentTime}
+                  isSidebarLayout={true}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

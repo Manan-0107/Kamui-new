@@ -5,7 +5,7 @@ import { usePlayback } from '@/context/PlaybackContext';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
 
 export const ContinueWatchingShelf: React.FC = () => {
-  const { continueWatching, playEpisode, openPreview, clearContinueWatching, removeContinueItem } = usePlayback();
+  const { continueWatching, playEpisode, openPreview, clearContinueWatching, removeContinueItem, setHoveredCard } = usePlayback();
   const trackRef = useRef<HTMLDivElement | null>(null);
 
   if (continueWatching.length === 0) return null;
@@ -58,6 +58,16 @@ export const ContinueWatchingShelf: React.FC = () => {
               key={item.animeId}
               className="continue-card"
               onClick={() => openPreview(item.animeId)}
+              onMouseEnter={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                setHoveredCard(item.animeId, {
+                  top: rect.top,
+                  left: rect.left,
+                  width: rect.width,
+                  height: rect.height
+                });
+              }}
+              onMouseLeave={() => setHoveredCard(null)}
             >
               <div className="continue-thumb-wrap">
                 <AnimeArtSvg animeId={item.animeId} className="continue-art" />

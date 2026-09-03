@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { ContinueWatchingItem } from '@/lib/types';
 import { ANIME_CATALOG } from '@/lib/catalog';
 import { useToast } from './ToastContext';
@@ -55,6 +55,11 @@ interface PlaybackContextType {
   setSearchQuery: (q: string) => void;
   isSearchOpen: boolean;
   setIsSearchOpen: (open: boolean) => void;
+
+  // Global Hover Portal
+  hoveredAnimeId: string | null;
+  hoverRect: { top: number; left: number; width: number; height: number } | null;
+  setHoveredCard: (animeId: string | null, rect?: { top: number; left: number; width: number; height: number } | null) => void;
 }
 
 const PlaybackContext = createContext<PlaybackContextType | undefined>(undefined);
@@ -76,6 +81,27 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
+  // Global Hover Portal State
+  const [hoveredAnimeId, setHoveredAnimeIdState] = useState<string | null>(null);
+  const [hoverRect, setHoverRectState] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const setHoveredCard = useCallback((animeId: string | null, rect?: { top: number; left: number; width: number; height: number } | null) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+
+    if (animeId && rect) {
+      hoverTimeoutRef.current = setTimeout(() => {
+        setHoveredAnimeIdState(animeId);
+        setHoverRectState(rect);
+      }, 350);
+    } else {
+      hoverTimeoutRef.current = setTimeout(() => {
+        setHoveredAnimeIdState(null);
+        setHoverRectState(null);
+      }, 250);
+    }
+  }, []);
+
   const { showToast } = useToast();
 
   const openSidebar = useCallback(() => setIsSidebarOpen(true), []);
@@ -85,10 +111,43 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     try {
       const rawWatchlist = localStorage.getItem(WATCHLIST_STORAGE_KEY);
-      if (rawWatchlist) setWatchlist(JSON.parse(rawWatchlist));
+      if (rawWatchlist) {
+        setWatchlist(JSON.parse(rawWatchlist));
+      } else {
+        const defaultList = ['kamui', 'ashfall-district', 'paper-moon-society'];
+        setWatchlist(defaultList);
+        localStorage.setItem(WATCHLIST_STORAGE_KEY, JSON.stringify(defaultList));
+      }
 
       const rawContinue = localStorage.getItem(CONTINUE_STORAGE_KEY);
-      if (rawContinue) setContinueWatching(JSON.parse(rawContinue));
+      if (rawContinue) {
+        setContinueWatching(JSON.parse(rawContinue));
+      } else {
+        const defaultContinue: ContinueWatchingItem[] = [
+          {
+            animeId: 'kamui',
+            episodeNum: 1,
+            currentTime: 620,
+            duration: 1440,
+            percentage: 43,
+            title: 'Kamui',
+            episodeTitle: 'Ep. 1 · The Bell of Frozen Ash',
+            updatedAt: Date.now()
+          },
+          {
+            animeId: 'ashfall-district',
+            episodeNum: 2,
+            currentTime: 890,
+            duration: 1380,
+            percentage: 65,
+            title: 'Ashfall District',
+            episodeTitle: 'Ep. 2 · Sub-Level Zero',
+            updatedAt: Date.now() - 3600000
+          }
+        ];
+        setContinueWatching(defaultContinue);
+        localStorage.setItem(CONTINUE_STORAGE_KEY, JSON.stringify(defaultContinue));
+      }
 
       const rawLikes = localStorage.getItem(LIKED_STORAGE_KEY);
       if (rawLikes) setLikedTitles(JSON.parse(rawLikes));
@@ -284,7 +343,10 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setIsSidebarOpen,
         openSidebar,
         closeSidebar,
-        toggleSidebar
+        toggleSidebar,
+        hoveredAnimeId,
+        hoverRect,
+        setHoveredCard
       }}
     >
       {children}

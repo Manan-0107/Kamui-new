@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePlayback } from '@/context/PlaybackContext';
 import { ANIME_CATALOG, CATALOG_IDS } from '@/lib/catalog';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
@@ -8,15 +8,15 @@ import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
 export const BillboardHero: React.FC = () => {
   const { playEpisode, openPreview, toggleWatchlist, isInWatchlist } = usePlayback();
 
-  const [activeId, setActiveId] = useState<string>('kamui');
+  const [activeId, setActiveId] = useState('kamui');
   const [isMuted, setIsMuted] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const anime = ANIME_CATALOG[activeId] || ANIME_CATALOG['kamui'];
   const inList = isInWatchlist(anime.id);
 
-  const spotlightList = CATALOG_IDS.slice(0, 6);
-
+  // Play video on active anime change
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
@@ -31,26 +31,18 @@ export const BillboardHero: React.FC = () => {
     }
   };
 
-  const handlePrev = () => {
-    const currentIdx = spotlightList.indexOf(activeId);
-    const prevIdx = (currentIdx - 1 + spotlightList.length) % spotlightList.length;
-    setActiveId(spotlightList[prevIdx]);
-  };
-
-  const handleNext = () => {
-    const currentIdx = spotlightList.indexOf(activeId);
-    const nextIdx = (currentIdx + 1) % spotlightList.length;
-    setActiveId(spotlightList[nextIdx]);
-  };
-
   return (
-    <section className="billboard-hero" id="billboardHero" aria-label="Featured Spotlight">
-      {/* Background Video */}
-      <div className="billboard-video-wrap">
+    <section
+      className="billboard-hero"
+      id="billboardHero"
+      aria-label="Featured Anime Spotlight"
+    >
+      {/* Background Video Stream */}
+      <div className="billboard-media-wrap" id="billboardMediaWrap">
         <video
           ref={videoRef}
           className="billboard-video"
-          id="billboardVideo"
+          id="billboardVideoPlayer"
           autoPlay
           loop
           muted={isMuted}
@@ -58,20 +50,26 @@ export const BillboardHero: React.FC = () => {
           preload="auto"
           src={anime.trailerVideo}
         />
+        <div className="billboard-fallback-art">
+          <AnimeArtSvg animeId={anime.id} />
+        </div>
         <div className="billboard-vignette-left" />
         <div className="billboard-vignette-bottom" />
+        <div className="billboard-vignette-top" />
       </div>
 
       <div className="billboard-content-grid">
         {/* Left Hero Info */}
-        <div className="billboard-info" id="billboardInfo">
+        <div className={`billboard-info ${isTransitioning ? 'transitioning' : 'transitioning-in'}`} id="billboardInfo">
           <div className="billboard-badge-row">
             <span className="billboard-badge billboard-badge-rank" id="billboardBadge">
-              #1 in Anime Today · Newly Added
+              <span className="badge-flame-icon">🔥</span> #1 in Anime Today · Newly Added
             </span>
-            <span className="billboard-badge" id="billboardOriginBadge">
-              {anime.badge}
-            </span>
+            {anime.badge && (
+              <span className="billboard-badge" id="billboardOriginBadge">
+                {anime.badge}
+              </span>
+            )}
           </div>
 
           <h1 className="billboard-title" id="billboardTitle">
@@ -85,11 +83,11 @@ export const BillboardHero: React.FC = () => {
             <span className="badge-rating" id="billboardRating">
               {anime.rating}
             </span>
-            <span id="billboardYear">{anime.year}</span>
-            <span>•</span>
-            <span id="billboardSeasons">{anime.seasonsCount}</span>
-            <span>•</span>
-            <span className="badge-hd">4K HDR</span>
+            <span id="billboardYear" className="meta-year">{anime.year}</span>
+            <span className="meta-dot">•</span>
+            <span id="billboardSeasons" className="meta-seasons">{anime.seasonsCount}</span>
+            <span className="meta-dot">•</span>
+            <span className="badge-hd">4K Ultra HD</span>
             <span className="badge-spatial">Dolby Atmos</span>
           </div>
 
@@ -137,32 +135,17 @@ export const BillboardHero: React.FC = () => {
                 </svg>
               )}
             </button>
-
-            <button
-              type="button"
-              className="btn-billboard-more"
-              id="billboardInfoBtn"
-              title="Show Show Details"
-              onClick={() => openPreview(anime.id)}
-            >
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="16" x2="12" y2="12" />
-                <line x1="12" y1="8" x2="12.01" y2="8" />
-              </svg>
-              <span>More Info</span>
-            </button>
           </div>
         </div>
 
-        {/* Right Controls: Audio + Maturity + Spotlight Carousel */}
+        {/* Right Controls: Audio + Maturity */}
         <div className="billboard-side-ctrls">
           <div className="billboard-top-toggles">
             <button
               type="button"
               className="billboard-sound-btn"
               id="billboardMuteBtn"
-              title="Toggle audio"
+              title={isMuted ? 'Unmute' : 'Mute'}
               aria-label="Toggle audio"
               onClick={handleMuteToggle}
             >
@@ -179,46 +162,6 @@ export const BillboardHero: React.FC = () => {
             <span className="billboard-maturity-pill" id="billboardMaturity">
               {anime.rating}
             </span>
-          </div>
-
-          {/* Mini Spotlight Switcher Carousel */}
-          <div className="billboard-switcher-wrap" id="billboardSwitcherWrap" title="Switch Featured Spotlight">
-            <button
-              type="button"
-              className="switcher-nav-btn"
-              id="switcherPrevBtn"
-              aria-label="Previous featured"
-              onClick={handlePrev}
-            >
-              ‹
-            </button>
-            <div className="billboard-switcher-track" id="billboardSwitcherTrack">
-              {spotlightList.map((id) => {
-                const item = ANIME_CATALOG[id];
-                if (!item) return null;
-                const isActive = id === activeId;
-                return (
-                  <div
-                    key={id}
-                    className={`switcher-thumb-card ${isActive ? 'active' : ''}`}
-                    onClick={() => setActiveId(id)}
-                    title={item.title}
-                  >
-                    <AnimeArtSvg animeId={id} className="switcher-thumb-art" />
-                    <span className="switcher-thumb-title">{item.title}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <button
-              type="button"
-              className="switcher-nav-btn"
-              id="switcherNextBtn"
-              aria-label="Next featured"
-              onClick={handleNext}
-            >
-              ›
-            </button>
           </div>
         </div>
       </div>

@@ -4,10 +4,11 @@ import React, { useRef } from 'react';
 import { usePlayback } from '@/context/PlaybackContext';
 import { ANIME_CATALOG, CATALOG_IDS } from '@/lib/catalog';
 import { AnimePosterSvg } from '@/components/visual/AnimePosterSvg';
+import { AnimeHoverCard } from './AnimeHoverCard';
 
 export const Top10Track: React.FC = () => {
   const trackRef = useRef<HTMLDivElement | null>(null);
-  const { openPreview } = usePlayback();
+  const { openPreview, setHoveredCard } = usePlayback();
 
   const top10Ids = [...CATALOG_IDS, 'kamui', 'ashfall-district'].slice(0, 10);
 
@@ -24,7 +25,7 @@ export const Top10Track: React.FC = () => {
   };
 
   return (
-    <section className="content-row-section" id="top10Section" aria-label="Top 10">
+    <section className="content-row-section" id="top10Section" aria-label="Top 10 in Anime Today">
       <div className="row-header">
         <div className="row-title-wrap">
           <span className="row-kanji-glyph">十</span>
@@ -52,6 +53,19 @@ export const Top10Track: React.FC = () => {
                 key={`${id}-${rank}`}
                 className="top10-item"
                 onClick={() => openPreview(anime.id)}
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setHoveredCard(anime.id, {
+                    top: rect.top,
+                    left: rect.left,
+                    width: rect.width,
+                    height: rect.height
+                  });
+                }}
+                onMouseLeave={() => setHoveredCard(null)}
+                role="button"
+                tabIndex={0}
+                title={`#${rank} · ${anime.title}`}
               >
                 <div className="top10-rank-num">
                   <svg viewBox="0 0 100 140" className="top10-svg-num">
@@ -76,10 +90,6 @@ export const Top10Track: React.FC = () => {
 
                 <div className="top10-card-wrap">
                   <AnimePosterSvg animeId={anime.id} className="top10-poster-art" />
-                  <div className="top10-card-overlay">
-                    <span className="top10-card-title">{anime.title}</span>
-                    <span className="top10-card-genre">{anime.genre}</span>
-                  </div>
                 </div>
               </div>
             );
