@@ -218,56 +218,84 @@ export const ExtensionsModal: React.FC = () => {
               </button>
             </div>
 
-            <div className="installed-ext-list">
-              {extensions.map((ext) => {
-                const isActive = ext.id === activeExtensionId;
-                return (
-                  <div
-                    key={ext.id}
-                    className={`installed-ext-item ${isActive ? 'is-active-source' : ''} ${
-                      !ext.enabled ? 'is-disabled' : ''
-                    }`}
+            {extensions.length === 0 ? (
+              <div className="modal-empty-installed-card">
+                <div className="modal-empty-icon-ring">
+                  <Puzzle size={36} className="text-gold" />
+                </div>
+                <h3 className="modal-empty-title">No Extensions Installed</h3>
+                <p className="modal-empty-desc">
+                  Your streaming extensions library is currently empty. Add custom streaming sources, paste a repository URL, or 1-click install from the Extension Store.
+                </p>
+                <div className="modal-empty-actions">
+                  <button
+                    type="button"
+                    className="btn filled"
+                    onClick={() => openModal('add')}
                   >
-                    <div className="ext-item-main">
-                      <div className="ext-item-header">
-                        <div className="ext-item-title-group">
-                          <h4 className="ext-item-name">{ext.name}</h4>
-                          <span className="ext-item-version">{ext.version}</span>
-                          {ext.badge && (
-                            <span className={`ext-badge-tag ${ext.badgeType || 'community'}`}>
-                              {ext.badge}
-                            </span>
-                          )}
-                          {isActive && <span className="ext-active-pill">ACTIVE SOURCE</span>}
-                        </div>
-
-                        <div className="ext-item-controls">
-                          {/* Ping Meter */}
-                          <div className="ext-ping-indicator">
-                            <span className={`ping-dot ${ext.status}`} />
-                            <span className="ping-text">{ext.latencyMs}ms</span>
-                            <button
-                              type="button"
-                              className="btn-icon-ping"
-                              onClick={() => testPing(ext.id)}
-                              title="Test latency"
-                            >
-                              <RefreshCw size={12} />
-                            </button>
+                    <Plus size={15} />
+                    <span>+ Add Extension</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => openModal('store')}
+                  >
+                    <Sparkles size={15} />
+                    <span>Browse Store</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="installed-ext-list">
+                {extensions.map((ext) => {
+                  const isActive = ext.id === activeExtensionId;
+                  return (
+                    <div
+                      key={ext.id}
+                      className={`installed-ext-item ${isActive ? 'is-active-source' : ''} ${
+                        !ext.enabled ? 'is-disabled' : ''
+                      }`}
+                    >
+                      <div className="ext-item-main">
+                        <div className="ext-item-header">
+                          <div className="ext-item-title-group">
+                            <h4 className="ext-item-name">{ext.name}</h4>
+                            <span className="ext-item-version">{ext.version}</span>
+                            {ext.badge && (
+                              <span className={`ext-badge-tag ${ext.badgeType || 'community'}`}>
+                                {ext.badge}
+                              </span>
+                            )}
+                            {isActive && <span className="ext-active-pill">ACTIVE SOURCE</span>}
                           </div>
 
-                          {/* Enable / Disable toggle */}
-                          <label className="kamui-toggle-switch" title={ext.enabled ? 'Disable' : 'Enable'}>
-                            <input
-                              type="checkbox"
-                              checked={ext.enabled}
-                              onChange={() => toggleExtension(ext.id)}
-                            />
-                            <span className="toggle-slider" />
-                          </label>
+                          <div className="ext-item-controls">
+                            {/* Ping Meter */}
+                            <div className="ext-ping-indicator">
+                              <span className={`ping-dot ${ext.status}`} />
+                              <span className="ping-text">{ext.latencyMs}ms</span>
+                              <button
+                                type="button"
+                                className="btn-icon-ping"
+                                onClick={() => testPing(ext.id)}
+                                title="Test latency"
+                              >
+                                <RefreshCw size={12} />
+                              </button>
+                            </div>
 
-                          {/* Delete (if not official) */}
-                          {ext.badgeType !== 'official' && (
+                            {/* Enable / Disable toggle */}
+                            <label className="kamui-toggle-switch" title={ext.enabled ? 'Disable' : 'Enable'}>
+                              <input
+                                type="checkbox"
+                                checked={ext.enabled}
+                                onChange={() => toggleExtension(ext.id)}
+                              />
+                              <span className="toggle-slider" />
+                            </label>
+
+                            {/* Delete Button */}
                             <button
                               type="button"
                               className="btn-ext-delete"
@@ -276,43 +304,43 @@ export const ExtensionsModal: React.FC = () => {
                             >
                               <Trash2 size={14} />
                             </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <p className="ext-item-description">{ext.description}</p>
-
-                      <div className="ext-item-footer">
-                        <div className="ext-capabilities-row">
-                          <span className="cap-pill proto">{ext.streamType.toUpperCase()}</span>
-                          {ext.supportedResolutions.map((r) => (
-                            <span key={r} className="cap-pill res">
-                              {r}
-                            </span>
-                          ))}
-                          {ext.supportsDub && <span className="cap-pill dub">DUB</span>}
-                          {ext.supportsSub && <span className="cap-pill sub">SUB</span>}
-                          {ext.hasIntroSkip && <span className="cap-pill skip">AUTO-SKIP</span>}
+                          </div>
                         </div>
 
-                        <div className="ext-action-btns">
-                          {!isActive && ext.enabled && (
-                            <button
-                              type="button"
-                              className="btn-set-active"
-                              onClick={() => setActiveExtension(ext.id)}
-                            >
-                              <CheckCircle2 size={13} />
-                              <span>Make Active Source</span>
-                            </button>
-                          )}
+                        <p className="ext-item-description">{ext.description}</p>
+
+                        <div className="ext-item-footer">
+                          <div className="ext-capabilities-row">
+                            <span className="cap-pill proto">{ext.streamType.toUpperCase()}</span>
+                            {ext.supportedResolutions.map((r) => (
+                              <span key={r} className="cap-pill res">
+                                {r}
+                              </span>
+                            ))}
+                            {ext.supportsDub && <span className="cap-pill dub">DUB</span>}
+                            {ext.supportsSub && <span className="cap-pill sub">SUB</span>}
+                            {ext.hasIntroSkip && <span className="cap-pill skip">AUTO-SKIP</span>}
+                          </div>
+
+                          <div className="ext-action-btns">
+                            {!isActive && ext.enabled && (
+                              <button
+                                type="button"
+                                className="btn-set-active"
+                                onClick={() => setActiveExtension(ext.id)}
+                              >
+                                <CheckCircle2 size={13} />
+                                <span>Make Active Source</span>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 

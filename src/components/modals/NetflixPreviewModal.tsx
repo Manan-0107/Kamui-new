@@ -21,7 +21,7 @@ export const NetflixPreviewModal: React.FC = () => {
     openPreview
   } = usePlayback();
 
-  const { activeExtension, openModal: openExtensionsModal } = useExtensions();
+  const { extensions, activeExtension, openModal: openExtensionsModal } = useExtensions();
 
   const [activeTab, setActiveTab] = useState<'episodes' | 'more-like-this' | 'about' | 'discussion'>('episodes');
   const [isMuted, setIsMuted] = useState(true);
@@ -192,12 +192,12 @@ export const NetflixPreviewModal: React.FC = () => {
                 <button
                   type="button"
                   className="badge-source-ext"
-                  onClick={() => openExtensionsModal('installed')}
-                  title={`Streaming Engine: ${activeExtension?.name} (Click to switch source)`}
+                  onClick={() => openExtensionsModal(extensions.length === 0 ? 'store' : 'installed')}
+                  title={activeExtension ? `Streaming Engine: ${activeExtension.name} (Click to switch source)` : 'No extensions installed (Click to browse store)'}
                 >
                   <Puzzle size={12} />
-                  <span>Source: {activeExtension?.name || 'Kamui Origin'}</span>
-                  <span className="source-dot" />
+                  <span>Source: {activeExtension ? activeExtension.name : 'None (+ Add)'}</span>
+                  <span className={`source-dot ${activeExtension ? 'online' : 'empty'}`} />
                 </button>
                 <span className="badge-match">{anime.match}</span>
                 <span className="badge-rating">{anime.rating}</span>

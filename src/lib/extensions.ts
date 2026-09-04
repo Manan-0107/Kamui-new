@@ -41,7 +41,9 @@ export interface ExtensionManifest {
   badge?: string;
 }
 
-export const DEFAULT_EXTENSIONS: AnimeExtension[] = [
+export const DEFAULT_EXTENSIONS: AnimeExtension[] = [];
+
+export const EXTENSION_STORE_CATALOG: AnimeExtension[] = [
   {
     id: 'kamui-origin',
     name: 'Kamui Origin 4K',
@@ -52,8 +54,8 @@ export const DEFAULT_EXTENSIONS: AnimeExtension[] = [
     badgeType: 'official',
     streamType: 'hls',
     baseUrl: 'https://stream.kamui.internal/v3/origin/master.m3u8',
-    enabled: true,
-    isDefault: true,
+    enabled: false,
+    isDefault: false,
     latencyMs: 18,
     status: 'online',
     supportedResolutions: ['4K', '1080p', '720p'],
@@ -74,7 +76,7 @@ export const DEFAULT_EXTENSIONS: AnimeExtension[] = [
     streamType: 'hls',
     baseUrl: 'https://cdn.hianime-stream.org/api/v2/stream',
     repoUrl: 'https://github.com/kamui-extensions/hianime-provider',
-    enabled: true,
+    enabled: false,
     isDefault: false,
     latencyMs: 34,
     status: 'online',
@@ -96,7 +98,7 @@ export const DEFAULT_EXTENSIONS: AnimeExtension[] = [
     streamType: 'mp4',
     baseUrl: 'https://cloud.gogoanime-cdn.net/hls',
     repoUrl: 'https://github.com/kamui-extensions/gogo-mirror',
-    enabled: true,
+    enabled: false,
     isDefault: false,
     latencyMs: 42,
     status: 'online',
@@ -117,7 +119,7 @@ export const DEFAULT_EXTENSIONS: AnimeExtension[] = [
     badgeType: 'fast',
     streamType: 'hls',
     baseUrl: 'https://pahe.stream-node.io/hevc',
-    enabled: true,
+    enabled: false,
     isDefault: false,
     latencyMs: 29,
     status: 'online',
@@ -139,7 +141,7 @@ export const DEFAULT_EXTENSIONS: AnimeExtension[] = [
     streamType: 'consumet',
     baseUrl: 'https://api.consumet.org/anime',
     repoUrl: 'https://github.com/consumet/consumet.ts',
-    enabled: true,
+    enabled: false,
     isDefault: false,
     latencyMs: 58,
     status: 'online',
@@ -149,10 +151,7 @@ export const DEFAULT_EXTENSIONS: AnimeExtension[] = [
     hasIntroSkip: true,
     downloadsEnabled: false,
     lastUpdated: '2 days ago'
-  }
-];
-
-export const EXTENSION_STORE_CATALOG: AnimeExtension[] = [
+  },
   {
     id: 'zoro-cloud-hd',
     name: 'Zoro / Aniwatch HD',

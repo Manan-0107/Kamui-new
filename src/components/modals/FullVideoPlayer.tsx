@@ -264,12 +264,20 @@ export const FullVideoPlayer: React.FC = () => {
             <button
               type="button"
               className="player-server-switch-btn"
-              onClick={() => setServerMenuOpen(!serverMenuOpen)}
-              title="Switch Streaming Source Extension"
+              onClick={() => {
+                if (extensions.length === 0) {
+                  openExtensionsModal('store');
+                } else {
+                  setServerMenuOpen(!serverMenuOpen);
+                }
+              }}
+              title={activeExtension ? 'Switch Streaming Source Extension' : 'No extension installed (Click to browse store)'}
             >
               <Puzzle size={13} className="text-gold" />
-              <span className="player-server-name">{activeExtension?.name || 'Kamui Origin'}</span>
-              <span className="player-server-ping">({activeExtension?.latencyMs || 24}ms)</span>
+              <span className="player-server-name">{activeExtension ? activeExtension.name : 'No Source (+ Add)'}</span>
+              {activeExtension && (
+                <span className="player-server-ping">({activeExtension.latencyMs}ms)</span>
+              )}
               <ChevronDown size={12} />
             </button>
 
@@ -278,36 +286,42 @@ export const FullVideoPlayer: React.FC = () => {
                 <div className="player-server-dropdown-head">
                   <span>STREAMING SOURCE EXTENSION</span>
                 </div>
-                {extensions
-                  .filter((e) => e.enabled)
-                  .map((ext) => (
-                    <div
-                      key={ext.id}
-                      className={`player-server-item ${ext.id === activeExtensionId ? 'active' : ''}`}
-                      onClick={() => {
-                        setActiveExtension(ext.id);
-                        setServerMenuOpen(false);
-                      }}
-                    >
-                      <div className="server-item-left">
-                        <span className={`server-dot ${ext.status}`} />
-                        <span className="server-name">{ext.name}</span>
+                {extensions.filter((e) => e.enabled).length === 0 ? (
+                  <div className="player-server-empty">
+                    <span>No extensions installed</span>
+                  </div>
+                ) : (
+                  extensions
+                    .filter((e) => e.enabled)
+                    .map((ext) => (
+                      <div
+                        key={ext.id}
+                        className={`player-server-item ${ext.id === activeExtensionId ? 'active' : ''}`}
+                        onClick={() => {
+                          setActiveExtension(ext.id);
+                          setServerMenuOpen(false);
+                        }}
+                      >
+                        <div className="server-item-left">
+                          <span className={`server-dot ${ext.status}`} />
+                          <span className="server-name">{ext.name}</span>
+                        </div>
+                        <div className="server-item-right">
+                          <span className="server-proto">{ext.streamType.toUpperCase()}</span>
+                          <span className="server-ping">{ext.latencyMs}ms</span>
+                        </div>
                       </div>
-                      <div className="server-item-right">
-                        <span className="server-proto">{ext.streamType.toUpperCase()}</span>
-                        <span className="server-ping">{ext.latencyMs}ms</span>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                )}
                 <div
                   className="player-server-add-link"
                   onClick={() => {
                     setServerMenuOpen(false);
-                    openExtensionsModal('add');
+                    openExtensionsModal(extensions.length === 0 ? 'store' : 'add');
                   }}
                 >
                   <Plus size={13} />
-                  <span>+ Add More Extensions...</span>
+                  <span>{extensions.length === 0 ? '+ Install from Store' : '+ Add More Extensions...'}</span>
                 </div>
               </div>
             )}

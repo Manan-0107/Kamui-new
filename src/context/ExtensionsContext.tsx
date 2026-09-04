@@ -56,20 +56,31 @@ interface ExtensionsContextType {
 const ExtensionsContext = createContext<ExtensionsContextType | undefined>(undefined);
 
 export const ExtensionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [extensions, setExtensions] = useState<AnimeExtension[]>(DEFAULT_EXTENSIONS);
-  const [activeExtensionId, setActiveExtensionIdState] = useState<string>('kamui-origin');
+  const [extensions, setExtensions] = useState<AnimeExtension[]>([]);
+  const [activeExtensionId, setActiveExtensionIdState] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalTab, setModalTab] = useState<ExtensionsModalTab>('installed');
 
   const { showToast } = useToast();
 
-  // Load saved extensions from localStorage
+  // Load saved extensions from localStorage (empty by default)
   useEffect(() => {
     try {
+      const initialized = localStorage.getItem('kamui_ext_empty_init_v2');
+      if (!initialized) {
+        // Reset to empty by default
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+        localStorage.removeItem(ACTIVE_STORAGE_KEY);
+        localStorage.setItem('kamui_ext_empty_init_v2', 'true');
+        setExtensions([]);
+        setActiveExtensionIdState('');
+        return;
+      }
+
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           setExtensions(parsed);
         }
       }
@@ -126,14 +137,17 @@ export const ExtensionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       if (!ext) return;
 
       if (id === activeExtensionId && ext.enabled) {
-        // If disabling active extension, fallback to first enabled or default
+        // If disabling active extension, fallback to first enabled or empty
         const nextEnabled = extensions.find((e) => e.id !== id && e.enabled);
-        if (nextEnabled) {
-          setActiveExtensionIdState(nextEnabled.id);
-          try {
-            localStorage.setItem(ACTIVE_STORAGE_KEY, nextEnabled.id);
-          } catch (e) {}
-        }
+        const nextActiveId = nextEnabled ? nextEnabled.id : '';
+        setActiveExtensionIdState(nextActiveId);
+        try {
+          if (nextActiveId) {
+            localStorage.setItem(ACTIVE_STORAGE_KEY, nextActiveId);
+          } else {
+            localStorage.removeItem(ACTIVE_STORAGE_KEY);
+          }
+        } catch (e) {}
       }
 
       const updated = extensions.map((item) =>
@@ -149,20 +163,21 @@ export const ExtensionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     (id: string) => {
       const ext = extensions.find((e) => e.id === id);
       if (!ext) return;
-      if (ext.badgeType === 'official') {
-        showToast('Official core extension cannot be deleted', 'error');
-        return;
-      }
 
+      const remaining = extensions.filter((e) => e.id !== id);
       if (id === activeExtensionId) {
-        setActiveExtensionIdState('kamui-origin');
+        const nextActive = remaining.find((e) => e.enabled)?.id || (remaining[0]?.id ?? '');
+        setActiveExtensionIdState(nextActive);
         try {
-          localStorage.setItem(ACTIVE_STORAGE_KEY, 'kamui-origin');
+          if (nextActive) {
+            localStorage.setItem(ACTIVE_STORAGE_KEY, nextActive);
+          } else {
+            localStorage.removeItem(ACTIVE_STORAGE_KEY);
+          }
         } catch (e) {}
       }
 
-      const updated = extensions.filter((e) => e.id !== id);
-      persistExtensions(updated);
+      persistExtensions(remaining);
       showToast(`Removed extension "${ext.name}"`, 'info');
     },
     [extensions, activeExtensionId, persistExtensions, showToast]
@@ -178,6 +193,9 @@ export const ExtensionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         const updated = extensions.map((e) => (e.id === storeId ? { ...e, enabled: true } : e));
         persistExtensions(updated);
         setActiveExtensionIdState(storeId);
+        try {
+          localStorage.setItem(ACTIVE_STORAGE_KEY, storeId);
+        } catch (e) {}
         showToast(`Activated ${storeItem.name}`, 'success');
         return;
       }
@@ -193,9 +211,17 @@ export const ExtensionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       const updated = [...extensions, newExt];
       persistExtensions(updated);
+
+      if (!activeExtensionId || extensions.length === 0) {
+        setActiveExtensionIdState(newExt.id);
+        try {
+          localStorage.setItem(ACTIVE_STORAGE_KEY, newExt.id);
+        } catch (e) {}
+      }
+
       showToast(`Installed & enabled ${storeItem.name}!`, 'success');
     },
-    [extensions, persistExtensions, showToast]
+    [extensions, activeExtensionId, persistExtensions, showToast]
   );
 
   const addCustomExtension = useCallback(
@@ -384,15 +410,15 @@ export const ExtensionsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   );
 
   const resetToDefaults = useCallback(() => {
-    persistExtensions(DEFAULT_EXTENSIONS);
-    setActiveExtensionIdState('kamui-origin');
+    persistExtensions([]);
+    setActiveExtensionIdState('');
     try {
-      localStorage.setItem(ACTIVE_STORAGE_KEY, 'kamui-origin');
+      localStorage.removeItem(ACTIVE_STORAGE_KEY);
     } catch (e) {}
-    showToast('Extensions reset to factory defaults', 'info');
+    showToast('Installed extensions cleared (empty)', 'info');
   }, [persistExtensions, showToast]);
 
-  const activeExtension = extensions.find((e) => e.id === activeExtensionId) || extensions[0];
+  const activeExtension = extensions.find((e) => e.id === activeExtensionId) || (extensions.length > 0 ? extensions[0] : undefined);
   const installedCount = extensions.length;
   const activeCount = extensions.filter((e) => e.enabled).length;
 
