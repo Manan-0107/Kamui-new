@@ -28,12 +28,14 @@ import {
   LogIn,
   Tv,
   Film,
-  Zap
+  Zap,
+  Puzzle
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { usePlayback } from '@/context/PlaybackContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useFriends } from '@/context/FriendsContext';
+import { useExtensions } from '@/context/ExtensionsContext';
 import { REALM_THEMES } from '@/lib/themes';
 
 interface SidebarProps {
@@ -49,6 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const router = useRouter();
   const { user, logout, openAuthModal, openProfileModal } = useAuth();
   const { openFriendsModal, friends } = useFriends();
+  const { openModal: openExtensionsModal, installedCount } = useExtensions();
   const {
     watchlist,
     continueWatching,
@@ -251,6 +254,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <Users size={18} className="sidebar-icon" />
               <span className="sidebar-label">Friends &amp; Watch Together</span>
               <span className="sidebar-badge-pill gold">{friends.length}</span>
+            </div>
+
+            <div
+              className="sidebar-nav-item clickable-badge-item"
+              onClick={() => {
+                onClose();
+                openExtensionsModal('installed');
+              }}
+            >
+              <Puzzle size={18} className="sidebar-icon" />
+              <span className="sidebar-label">Extensions &amp; Sources</span>
+              <span className="sidebar-badge-pill gold">{installedCount}</span>
             </div>
           </div>
 

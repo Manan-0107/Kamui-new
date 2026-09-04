@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { usePlayback } from '@/context/PlaybackContext';
+import { useExtensions } from '@/context/ExtensionsContext';
 import { ANIME_CATALOG } from '@/lib/catalog';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
 import { CommentSection } from '@/components/comments/CommentSection';
+import { Puzzle } from 'lucide-react';
 
 export const NetflixPreviewModal: React.FC = () => {
   const {
@@ -18,6 +20,8 @@ export const NetflixPreviewModal: React.FC = () => {
     toggleLike,
     openPreview
   } = usePlayback();
+
+  const { activeExtension, openModal: openExtensionsModal } = useExtensions();
 
   const [activeTab, setActiveTab] = useState<'episodes' | 'more-like-this' | 'about' | 'discussion'>('episodes');
   const [isMuted, setIsMuted] = useState(true);
@@ -185,10 +189,20 @@ export const NetflixPreviewModal: React.FC = () => {
               </button>
 
               <div className="preview-quality-tags">
+                <button
+                  type="button"
+                  className="badge-source-ext"
+                  onClick={() => openExtensionsModal('installed')}
+                  title={`Streaming Engine: ${activeExtension?.name} (Click to switch source)`}
+                >
+                  <Puzzle size={12} />
+                  <span>Source: {activeExtension?.name || 'Kamui Origin'}</span>
+                  <span className="source-dot" />
+                </button>
                 <span className="badge-match">{anime.match}</span>
                 <span className="badge-rating">{anime.rating}</span>
                 <span className="badge-ep-count">{anime.seasonsCount}</span>
-                <span className="badge-hd">4K HDR</span>
+                <span className="badge-hd">{activeExtension?.supportedResolutions[0] || '4K HDR'}</span>
                 <span className="badge-spatial">Spatial Audio</span>
               </div>
             </div>

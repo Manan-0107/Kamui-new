@@ -7,7 +7,9 @@ import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { usePlayback } from '@/context/PlaybackContext';
 import { useFriends } from '@/context/FriendsContext';
+import { useExtensions } from '@/context/ExtensionsContext';
 import { DEFAULT_AVATARS } from '@/lib/avatars';
+import { Puzzle } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
@@ -23,6 +25,7 @@ export const Navbar: React.FC = () => {
   const { cycleTheme } = useTheme();
   const { user, logout, updateAvatar, openAuthModal, openProfileModal } = useAuth();
   const { friends, openFriendsModal } = useFriends();
+  const { openModal: openExtensionsModal, installedCount, activeCount } = useExtensions();
   const {
     searchQuery,
     setSearchQuery,
@@ -164,6 +167,16 @@ export const Navbar: React.FC = () => {
         >
           My List
         </a>
+        <button
+          type="button"
+          className="nav-link-btn"
+          onClick={() => {
+            setMobileMenuOpen(false);
+            openExtensionsModal('installed');
+          }}
+        >
+          Extensions
+        </button>
       </nav>
 
       {/* Actions */}
@@ -241,6 +254,19 @@ export const Navbar: React.FC = () => {
             <path d="M16 3.13a4 4 0 0 1 0 7.75" />
           </svg>
           <span className="friends-badge-count">{friends.length}</span>
+        </button>
+
+        {/* Anime Streaming Extensions */}
+        <button
+          type="button"
+          className="nav-extensions-btn"
+          id="navExtensionsBtn"
+          title={`Anime Streaming Extensions (${activeCount} Active)`}
+          aria-label="Anime Streaming Extensions"
+          onClick={() => openExtensionsModal('installed')}
+        >
+          <Puzzle size={18} />
+          <span className="extensions-badge-count">{installedCount}</span>
         </button>
 
         {/* Realm Theme Switcher */}

@@ -8,6 +8,7 @@ import { FilterChips } from '@/components/watch/FilterChips';
 import { ContentRow } from '@/components/watch/ContentRow';
 import { Top10Track } from '@/components/watch/Top10Track';
 import { ContinueWatchingShelf } from '@/components/watch/ContinueWatchingShelf';
+import { StreamingExtensionsShelf } from '@/components/extensions/StreamingExtensionsShelf';
 import { WatchCard } from '@/components/watch/WatchCard';
 import { usePlayback } from '@/context/PlaybackContext';
 import { ANIME_CATALOG, CATALOG_IDS } from '@/lib/catalog';
@@ -99,6 +100,9 @@ export default function WatchPage() {
           onClear={likedTitles.length > 0 ? clearLikedTitles : undefined}
           clearLabel="Clear All"
         />
+
+        {/* Anime Streaming Extensions & Sources Section */}
+        <StreamingExtensionsShelf />
 
         {/* Row 3: My Watchlist */}
         {watchlist.length > 0 && (

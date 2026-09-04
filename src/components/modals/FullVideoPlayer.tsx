@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { usePlayback } from '@/context/PlaybackContext';
+import { useExtensions } from '@/context/ExtensionsContext';
 import { ANIME_CATALOG } from '@/lib/catalog';
 import { CommentSection } from '@/components/comments/CommentSection';
+import { Puzzle, ChevronDown, Plus } from 'lucide-react';
 
 export const FullVideoPlayer: React.FC = () => {
   const { playingAnimeId, playingEpNum, isPlayerOpen, closePlayer, openPreview, playEpisode, saveProgress } =
@@ -27,6 +29,10 @@ export const FullVideoPlayer: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [showLiveDiscussion, setShowLiveDiscussion] = useState(false);
+  const [serverMenuOpen, setServerMenuOpen] = useState(false);
+
+  const { extensions, activeExtensionId, activeExtension, setActiveExtension, openModal: openExtensionsModal } =
+    useExtensions();
 
   const speeds = [1.0, 1.25, 1.5, 2.0];
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -252,7 +258,64 @@ export const FullVideoPlayer: React.FC = () => {
           <div className="player-anime-label" id="playerCurrentEpTitle">
             {anime.title} — Episode {currentEp?.num || playingEpNum}: {currentEp?.title || 'Simulcast'}
           </div>
-          <div className="player-quality-pill">4K HDR</div>
+
+          {/* Extension / Streaming Server Selector */}
+          <div className="player-source-selector-wrap">
+            <button
+              type="button"
+              className="player-server-switch-btn"
+              onClick={() => setServerMenuOpen(!serverMenuOpen)}
+              title="Switch Streaming Source Extension"
+            >
+              <Puzzle size={13} className="text-gold" />
+              <span className="player-server-name">{activeExtension?.name || 'Kamui Origin'}</span>
+              <span className="player-server-ping">({activeExtension?.latencyMs || 24}ms)</span>
+              <ChevronDown size={12} />
+            </button>
+
+            {serverMenuOpen && (
+              <div className="player-server-dropdown custom-scrollbar">
+                <div className="player-server-dropdown-head">
+                  <span>STREAMING SOURCE EXTENSION</span>
+                </div>
+                {extensions
+                  .filter((e) => e.enabled)
+                  .map((ext) => (
+                    <div
+                      key={ext.id}
+                      className={`player-server-item ${ext.id === activeExtensionId ? 'active' : ''}`}
+                      onClick={() => {
+                        setActiveExtension(ext.id);
+                        setServerMenuOpen(false);
+                      }}
+                    >
+                      <div className="server-item-left">
+                        <span className={`server-dot ${ext.status}`} />
+                        <span className="server-name">{ext.name}</span>
+                      </div>
+                      <div className="server-item-right">
+                        <span className="server-proto">{ext.streamType.toUpperCase()}</span>
+                        <span className="server-ping">{ext.latencyMs}ms</span>
+                      </div>
+                    </div>
+                  ))}
+                <div
+                  className="player-server-add-link"
+                  onClick={() => {
+                    setServerMenuOpen(false);
+                    openExtensionsModal('add');
+                  }}
+                >
+                  <Plus size={13} />
+                  <span>+ Add More Extensions...</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="player-quality-pill">
+            {activeExtension?.supportedResolutions[0] || '4K HDR'}
+          </div>
         </div>
 
         {/* Skip Intro Button */}
