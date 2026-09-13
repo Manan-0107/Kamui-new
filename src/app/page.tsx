@@ -8,13 +8,9 @@ import { EmberCanvas } from '@/components/EmberCanvas';
 import { HeroMoon } from '@/components/HeroMoon';
 import { FeatureCards } from '@/components/home/FeatureCards';
 import { PosterGrid } from '@/components/home/PosterGrid';
-import { usePlayback } from '@/context/PlaybackContext';
-import { ContentRow } from '@/components/watch/ContentRow';
-import { ContinueWatchingShelf } from '@/components/watch/ContinueWatchingShelf';
+import { HomePersonalHub } from '@/components/home/HomePersonalHub';
 
 export default function HomePage() {
-  const { watchlist, continueWatching, likedTitles } = usePlayback();
-
   return (
     <>
       <Navbar />
@@ -117,50 +113,15 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Personal Hub: Continue Watching, Watchlist & Liked Anime (Positioned right below Hero) */}
+      <HomePersonalHub />
+
       {/* Features */}
       <FeatureCards />
 
-      {/* Dynamic Continue Watching on Homepage */}
-      {continueWatching.length > 0 && (
-        <section className="home-shelf-section">
-          <div className="wrap">
-            <ContinueWatchingShelf />
-          </div>
-        </section>
-      )}
-
-      {/* Dynamic Liked Anime on Homepage */}
-      {likedTitles.length > 0 && (
-        <section className="home-shelf-section">
-          <div className="wrap">
-            <ContentRow
-              id="likedAnimeSection"
-              kanji="好"
-              title="Liked Anime"
-              countBadge={likedTitles.length}
-              animeIds={likedTitles}
-            />
-          </div>
-        </section>
-      )}
-
-      {/* Dynamic Watchlist on Homepage */}
-      {watchlist.length > 0 && (
-        <section className="home-shelf-section">
-          <div className="wrap">
-            <ContentRow
-              id="myWatchlistSection"
-              kanji="録"
-              title="My Watchlist"
-              countBadge={watchlist.length}
-              animeIds={watchlist}
-            />
-          </div>
-        </section>
-      )}
-
       {/* Poster Catalog Preview */}
       <PosterGrid />
+
 
       {/* Quote / World Section */}
       <section className="world" id="quote">

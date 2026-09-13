@@ -8,7 +8,6 @@ import { FilterChips } from '@/components/watch/FilterChips';
 import { ContentRow } from '@/components/watch/ContentRow';
 import { Top10Track } from '@/components/watch/Top10Track';
 import { ContinueWatchingShelf } from '@/components/watch/ContinueWatchingShelf';
-import { StreamingExtensionsShelf } from '@/components/extensions/StreamingExtensionsShelf';
 import { WatchCard } from '@/components/watch/WatchCard';
 import { usePlayback } from '@/context/PlaybackContext';
 import { ANIME_CATALOG, CATALOG_IDS } from '@/lib/catalog';
@@ -88,23 +87,7 @@ export default function WatchPage() {
         {/* Row 1: Continue Watching */}
         <ContinueWatchingShelf />
 
-        {/* Row 2: Liked Anime */}
-        <ContentRow
-          id="likedAnimeSection"
-          kanji="好"
-          title="Liked Anime"
-          countBadge={likedTitles.length}
-          animeIds={likedTitles}
-          emptyMessage="You haven't liked any anime yet. Click the 👍 thumbs up icon on any show to build your favorites collection!"
-          alwaysShow={true}
-          onClear={likedTitles.length > 0 ? clearLikedTitles : undefined}
-          clearLabel="Clear All"
-        />
-
-        {/* Anime Streaming Extensions & Sources Section */}
-        <StreamingExtensionsShelf />
-
-        {/* Row 3: My Watchlist */}
+        {/* Row 2: My Watchlist */}
         {watchlist.length > 0 && (
           <ContentRow
             id="myWatchlistSection"
@@ -112,6 +95,19 @@ export default function WatchPage() {
             title="My Watchlist"
             countBadge={watchlist.length}
             animeIds={watchlist}
+          />
+        )}
+
+        {/* Row 3: Liked Anime */}
+        {likedTitles.length > 0 && (
+          <ContentRow
+            id="likedAnimeSection"
+            kanji="好"
+            title="Liked Anime"
+            countBadge={likedTitles.length}
+            animeIds={likedTitles}
+            onClear={clearLikedTitles}
+            clearLabel="Clear All"
           />
         )}
 
