@@ -9,7 +9,7 @@ import { usePlayback } from '@/context/PlaybackContext';
 import { useFriends } from '@/context/FriendsContext';
 import { useExtensions } from '@/context/ExtensionsContext';
 import { DEFAULT_AVATARS } from '@/lib/avatars';
-import { Bell, CheckCheck, Trash2, Clock, Puzzle, Radio, Tv } from 'lucide-react';
+import { Bell, CheckCheck, Trash2, Clock } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
@@ -276,31 +276,6 @@ export const Navbar: React.FC = () => {
           <svg viewBox="0 0 24 24">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
           </svg>
-        </button>
-
-        {/* Tracker Mode Pill (Stremio / Mihon style indicator) */}
-        <button
-          type="button"
-          className="nav-tracker-mode-badge"
-          id="navTrackerModeBtn"
-          title={
-            activeExtension
-              ? `Active Streaming Source: ${activeExtension.name} (Click to manage)`
-              : 'Tracker & Discovery Mode Active · Install extension for video streaming'
-          }
-          onClick={() => openExtensionsModal(activeExtension ? 'installed' : 'store')}
-        >
-          {activeExtension ? (
-            <>
-              <Radio size={13} className="text-gold animate-pulse" />
-              <span className="tracker-badge-label">{activeExtension.name.split(' ')[0]}</span>
-            </>
-          ) : (
-            <>
-              <Tv size={13} />
-              <span className="tracker-badge-label">Tracker Mode</span>
-            </>
-          )}
         </button>
 
         {/* Notifications Bell */}

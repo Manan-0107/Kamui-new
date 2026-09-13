@@ -83,6 +83,28 @@ const GENERIC_DEFAULT_RATINGS: AnimeRatings = {
   tmdb: { score: 82, scoreFormatted: '82%', votes: '800', url: 'https://www.themoviedb.org' }
 };
 
+// Mapping connecting Kamui anime IDs to their exact search queries for AniList, MAL & Kitsu APIs
+export const ANIME_API_SEARCH_MAP: Record<string, string> = {
+  kamui: 'Golden Kamuy',
+  'ashfall-district': 'Cyberpunk: Edgerunners',
+  'paper-moon-society': 'Bungo Stray Dogs',
+  'iron-tide': 'Mobile Suit GUNDAM Iron Blooded Orphans',
+  'nine-crows-inn': 'Karas',
+  glasshouse: 'The Garden of Words',
+  'hollow-meridian': 'Made in Abyss',
+  'static-requiem': 'Serial Experiments Lain',
+  'long-thaw': 'Vinland Saga',
+  'kamui-movie': 'Demon Slayer -Kimetsu no Yaiba- The Movie: Mugen Train',
+  'ashfall-movie': 'Akira',
+  'papermoon-movie': 'A Silent Voice'
+};
+
+export function resolveAnimeSearchQuery(animeId: string, searchTitle?: string): string {
+  if (ANIME_API_SEARCH_MAP[animeId]) return ANIME_API_SEARCH_MAP[animeId];
+  if (searchTitle && searchTitle !== animeId) return searchTitle;
+  return animeId;
+}
+
 // In-memory runtime cache
 const memoryCache: Record<string, AnimeRatings> = { ...DEFAULT_CATALOG_RATINGS };
 
@@ -217,11 +239,47 @@ export async function fetchMyAnimeListRating(queryTitle: string): Promise<{ scor
 }
 
 /**
+ * Fetch live Kitsu metadata via Kitsu REST API
+ */
+export interface KitsuMediaResult {
+  canonicalTitle?: string;
+  posterImage?: string;
+  bannerImage?: string;
+  status?: string;
+  episodeCount?: number;
+  averageRating?: string;
+}
+
+export async function fetchKitsuMetadata(queryTitle: string): Promise<KitsuMediaResult | null> {
+  try {
+    const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(queryTitle)}&page[limit]=1`;
+    const res = await fetch(url, {
+      headers: { Accept: 'application/vnd.api+json', 'User-Agent': 'KamuiApp/1.0' },
+      signal: AbortSignal.timeout(4000)
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const attr = json?.data?.[0]?.attributes;
+    if (!attr) return null;
+    return {
+      canonicalTitle: attr.canonicalTitle,
+      posterImage: attr.posterImage?.large || attr.posterImage?.original,
+      bannerImage: attr.coverImage?.large || attr.coverImage?.original,
+      status: attr.status,
+      episodeCount: attr.episodeCount,
+      averageRating: attr.averageRating
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Fetch live ratings from AniList and MyAnimeList and return unified multi-platform ratings
  */
 export async function getLiveAnimeRatings(animeId: string, searchTitle?: string): Promise<AnimeRatings> {
   const cached = getCachedRatings(animeId);
-  const title = searchTitle || animeId;
+  const resolvedQuery = resolveAnimeSearchQuery(animeId, searchTitle);
 
   try {
     // Check localStorage cache if in browser
@@ -248,8 +306,8 @@ export async function getLiveAnimeRatings(animeId: string, searchTitle?: string)
     }
 
     const [anilistRes, malRes] = await Promise.allSettled([
-      fetchAniListRating(title),
-      fetchMyAnimeListRating(title)
+      fetchAniListRating(resolvedQuery),
+      fetchMyAnimeListRating(resolvedQuery)
     ]);
 
     const fallbackAnilist = cached?.anilist || GENERIC_DEFAULT_RATINGS.anilist;
@@ -263,7 +321,7 @@ export async function getLiveAnimeRatings(animeId: string, searchTitle?: string)
               scoreFormatted: anilistRes.value.scoreFormatted,
               rank: anilistRes.value.rank || fallbackAnilist.rank,
               votes: anilistRes.value.votes || fallbackAnilist.votes,
-              url: `https://anilist.co/search/anime?search=${encodeURIComponent(title)}`
+              url: `https://anilist.co/search/anime?search=${encodeURIComponent(resolvedQuery)}`
             }
           : fallbackAnilist,
       mal:
@@ -273,7 +331,7 @@ export async function getLiveAnimeRatings(animeId: string, searchTitle?: string)
               scoreFormatted: malRes.value.scoreFormatted,
               rank: malRes.value.rank || fallbackMal.rank,
               votes: malRes.value.votes || fallbackMal.votes,
-              url: `https://myanimelist.net/search/all?q=${encodeURIComponent(title)}`
+              url: `https://myanimelist.net/search/all?q=${encodeURIComponent(resolvedQuery)}`
             }
           : fallbackMal,
       imdb: cached?.imdb || GENERIC_DEFAULT_RATINGS.imdb,
@@ -309,21 +367,30 @@ export interface AnimeMetadataResponse {
     timeStr: string;
     airingAt?: number;
   };
+  canonicalTitle?: string;
+  status?: string;
+  totalEpisodes?: number;
 }
 
 export async function getLiveAnimeFullMetadata(
   animeId: string,
   searchTitle?: string
 ): Promise<AnimeMetadataResponse> {
-  const ratings = await getLiveAnimeRatings(animeId, searchTitle);
-  const title = searchTitle || animeId;
-  const anilistData = await fetchAniListRating(title).catch(() => null);
+  const resolvedQuery = resolveAnimeSearchQuery(animeId, searchTitle);
+  const [ratings, anilistData, kitsuData] = await Promise.all([
+    getLiveAnimeRatings(animeId, resolvedQuery),
+    fetchAniListRating(resolvedQuery).catch(() => null),
+    fetchKitsuMetadata(resolvedQuery).catch(() => null)
+  ]);
 
   return {
     ratings,
-    posterImage: anilistData?.posterImage,
-    bannerImage: anilistData?.bannerImage,
-    nextAiring: anilistData?.nextAiring
+    posterImage: anilistData?.posterImage || kitsuData?.posterImage,
+    bannerImage: anilistData?.bannerImage || kitsuData?.bannerImage,
+    nextAiring: anilistData?.nextAiring,
+    canonicalTitle: kitsuData?.canonicalTitle,
+    status: anilistData ? 'RELEASING' : kitsuData?.status,
+    totalEpisodes: kitsuData?.episodeCount
   };
 }
 

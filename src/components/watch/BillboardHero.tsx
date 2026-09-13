@@ -119,18 +119,6 @@ export const BillboardHero: React.FC = () => {
                 Episode {anime.nextAiring.episode} · {anime.nextAiring.timeStr}
               </span>
             )}
-            {/* Tracker Mode indicator when no extension is enabled */}
-            {!hasActiveExtension && (
-              <span
-                className="billboard-badge billboard-badge-tracker-notice"
-                onClick={() => openExtensionsModal('store')}
-                style={{ cursor: 'pointer' }}
-                title="Kamui operates in Tracker Mode until a streaming extension is added (like Stremio or Mihon)."
-              >
-                <Puzzle size={12} style={{ marginRight: 4 }} />
-                Tracker Mode (Add Extension to Stream)
-              </span>
-            )}
           </div>
 
           <h1 className="billboard-title" id="billboardTitle">

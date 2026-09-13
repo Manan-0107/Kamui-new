@@ -368,67 +368,67 @@ const RAW_CATALOG: Record<string, AnimeData> = {
   }
 };
 
-// High-Definition authentic anime key visual & backdrop image previews
+// Authentic official anime key visuals & landscape backdrop image previews from AniList CDN
 export const ANIME_IMAGE_MAP: Record<
   string,
   { poster: string; banner: string; nextAiring?: { episode: number; timeStr: string } }
 > = {
   kamui: {
-    poster: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1600&auto=format&fit=crop&q=80',
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx99699-mBCjpoWpAVGX.jpg',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/99699-95D2XWA6eWAH.jpg',
     nextAiring: { episode: 9, timeStr: 'Tonight 23:00 JST' }
   },
   'ashfall-district': {
-    poster: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=1600&auto=format&fit=crop&q=80',
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx120377-ayZPoxiWt4Li.jpg',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/120377-c15oLS8CA31s.jpg',
     nextAiring: { episode: 8, timeStr: 'Tomorrow 18:30 JST' }
   },
   'paper-moon-society': {
-    poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&auto=format&fit=crop&q=80',
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx21311-hAXyT8Yoh6G9.jpg',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/21311-oVJYXoU38Lm5.jpg',
     nextAiring: { episode: 11, timeStr: 'Friday 22:00 JST' }
   },
   'iron-tide': {
-    poster: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=1600&auto=format&fit=crop&q=80',
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/nx21268-6dKrz26PPUvk.jpg',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/21268-mCEvAuBxsu7N.jpg',
     nextAiring: { episode: 14, timeStr: 'Saturday 00:30 JST' }
   },
   'nine-crows-inn': {
-    poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&auto=format&fit=crop&q=80',
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/389.jpg',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/389-z6fmdtqkjitx.jpg',
     nextAiring: { episode: 7, timeStr: 'Sunday 21:00 JST' }
   },
   glasshouse: {
-    poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1600&auto=format&fit=crop&q=80',
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx16782-qpFGk18UqaHn.jpg',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/16782.jpg',
     nextAiring: { episode: 6, timeStr: 'Monday 20:00 JST' }
   },
   'hollow-meridian': {
-    poster: 'https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?w=1600&auto=format&fit=crop&q=80',
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx97986-TQ7dCgbS3y5s.jpg',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/97986-C55UnbJKB7ZF.jpg',
     nextAiring: { episode: 10, timeStr: 'Tuesday 23:30 JST' }
   },
   'static-requiem': {
-    poster: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1600&auto=format&fit=crop&q=80',
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx339-xF2wp1NQuQ4r.png',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/339-Lh0tuuwRLRgI.jpg',
     nextAiring: { episode: 5, timeStr: 'Wednesday 22:30 JST' }
   },
   'long-thaw': {
-    poster: 'https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?w=1600&auto=format&fit=crop&q=80',
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx101348-2fhDFPCuMNiz.jpg',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/101348-pivKKffCAwAY.jpg',
     nextAiring: { episode: 12, timeStr: 'Thursday 21:00 JST' }
   },
   'kamui-movie': {
-    poster: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1600&auto=format&fit=crop&q=80'
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx112151-1qlQwPB1RrJe.png',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/112151-eHCBz19nf2yC.jpg'
   },
   'ashfall-movie': {
-    poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&auto=format&fit=crop&q=80'
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx47-4CR68arv452h.jpg',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/47-fof8HqtNDtvx.jpg'
   },
   'papermoon-movie': {
-    poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=700&auto=format&fit=crop&q=80',
-    banner: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&auto=format&fit=crop&q=80'
+    poster: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx20954-sYRfE5jQRtSB.jpg',
+    banner: 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/20954-f30bHMXa5Qoe.jpg'
   }
 };
 
