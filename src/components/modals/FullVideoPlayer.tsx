@@ -381,7 +381,7 @@ export const FullVideoPlayer: React.FC = () => {
           </div>
 
           <div className="player-quality-pill">
-            {activeExtension?.supportedResolutions[0] || '4K HDR'}
+            {activeExtension?.supportedResolutions?.[0] || '4K HDR'}
           </div>
         </div>
 

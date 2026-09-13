@@ -113,7 +113,7 @@ export const StreamingExtensionsShelf: React.FC = () => {
               <div className="stat-pill">
                 <span className="stat-label">Max Quality:</span>
                 <span className="stat-val text-gold">
-                  {activeExt.supportedResolutions[0] || '1080p'}
+                  {activeExt.supportedResolutions?.[0] || '1080p'}
                 </span>
               </div>
 
@@ -189,7 +189,7 @@ export const StreamingExtensionsShelf: React.FC = () => {
 
                   <div className="shelf-card-features">
                     <span className="shelf-feature-pill proto">{ext.streamType.toUpperCase()}</span>
-                    {ext.supportedResolutions.slice(0, 2).map((r) => (
+                    {ext.supportedResolutions?.slice(0, 2).map((r) => (
                       <span key={r} className="shelf-feature-pill">
                         {r}
                       </span>

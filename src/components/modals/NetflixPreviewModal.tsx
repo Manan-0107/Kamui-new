@@ -234,7 +234,7 @@ export const NetflixPreviewModal: React.FC = () => {
                 <span className="badge-match">{anime.match}</span>
                 <span className="badge-rating">{anime.rating}</span>
                 <span className="badge-ep-count">{anime.seasonsCount}</span>
-                <span className="badge-hd">{activeExtension?.supportedResolutions[0] || '4K HDR'}</span>
+                <span className="badge-hd">{activeExtension?.supportedResolutions?.[0] || '4K HDR'}</span>
                 <span className="badge-spatial">Spatial Audio</span>
               </div>
             </div>

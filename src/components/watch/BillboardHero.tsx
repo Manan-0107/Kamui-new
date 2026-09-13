@@ -105,7 +105,7 @@ export const BillboardHero: React.FC = () => {
             <span className="meta-dot">•</span>
             <span id="billboardSeasons" className="meta-seasons">{anime.seasonsCount}</span>
             <span className="meta-dot">•</span>
-            <span className="badge-hd">{activeExtension?.supportedResolutions[0] || '4K Ultra HD'}</span>
+            <span className="badge-hd">{activeExtension?.supportedResolutions?.[0] || '4K Ultra HD'}</span>
             <span className="badge-spatial">Dolby Atmos</span>
           </div>
 

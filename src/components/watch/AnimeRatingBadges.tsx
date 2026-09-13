@@ -19,17 +19,19 @@ export const AnimeRatingBadges: React.FC<AnimeRatingBadgesProps> = ({
   compact = false,
   className = ''
 }) => {
-  const [ratings, setRatings] = useState<AnimeRatings>(
-    initialRatings || getCachedRatings(animeId)
-  );
+  const [ratings, setRatings] = useState<AnimeRatings>(() => {
+    return initialRatings || getCachedRatings(animeId);
+  });
 
   useEffect(() => {
     let isMounted = true;
-    getLiveAnimeRatings(animeId, title).then((updated) => {
-      if (isMounted && updated) {
-        setRatings(updated);
-      }
-    });
+    getLiveAnimeRatings(animeId, title)
+      .then((updated) => {
+        if (isMounted && updated) {
+          setRatings(updated);
+        }
+      })
+      .catch(() => {});
     return () => {
       isMounted = false;
     };
@@ -37,59 +39,72 @@ export const AnimeRatingBadges: React.FC<AnimeRatingBadgesProps> = ({
 
   if (!ratings) return null;
 
+  const al = ratings.anilist;
+  const mal = ratings.mal;
+  const imdb = ratings.imdb;
+  const tmdb = ratings.tmdb;
+
   return (
     <div className={`anime-ratings-cluster ${compact ? 'compact' : ''} ${className}`}>
       {/* AniList Badge */}
-      <a
-        href={ratings.anilist.url || 'https://anilist.co'}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rating-pill rating-pill-anilist"
-        title={`AniList Community Score: ${ratings.anilist.scoreFormatted}${ratings.anilist.rank ? ` · Rank ${ratings.anilist.rank}` : ''}${ratings.anilist.votes ? ` (${ratings.anilist.votes} ratings)` : ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <span className="rating-brand-label al-brand">AL</span>
-        <span className="rating-score-val">{ratings.anilist.scoreFormatted}</span>
-      </a>
+      {al && (
+        <a
+          href={al.url || 'https://anilist.co'}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rating-pill rating-pill-anilist"
+          title={`AniList Community Score: ${al.scoreFormatted || al.score || 'N/A'}${al.rank ? ` · Rank ${al.rank}` : ''}${al.votes ? ` (${al.votes} ratings)` : ''}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="rating-brand-label al-brand">AL</span>
+          <span className="rating-score-val">{al.scoreFormatted || (al.score ? `${al.score}%` : 'N/A')}</span>
+        </a>
+      )}
 
       {/* MyAnimeList (MAL) Badge */}
-      <a
-        href={ratings.mal.url || 'https://myanimelist.net'}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rating-pill rating-pill-mal"
-        title={`MyAnimeList Score: ${ratings.mal.scoreFormatted} / 10${ratings.mal.rank ? ` · Rank ${ratings.mal.rank}` : ''}${ratings.mal.votes ? ` (${ratings.mal.votes} members)` : ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <span className="rating-brand-label mal-brand">MAL</span>
-        <span className="rating-score-val">{ratings.mal.scoreFormatted}</span>
-      </a>
+      {mal && (
+        <a
+          href={mal.url || 'https://myanimelist.net'}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rating-pill rating-pill-mal"
+          title={`MyAnimeList Score: ${mal.scoreFormatted || mal.score || 'N/A'} / 10${mal.rank ? ` · Rank ${mal.rank}` : ''}${mal.votes ? ` (${mal.votes} members)` : ''}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="rating-brand-label mal-brand">MAL</span>
+          <span className="rating-score-val">{mal.scoreFormatted || (mal.score ? Number(mal.score).toFixed(2) : 'N/A')}</span>
+        </a>
+      )}
 
       {/* IMDb Badge */}
-      <a
-        href={ratings.imdb.url || 'https://www.imdb.com'}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rating-pill rating-pill-imdb"
-        title={`IMDb Score: ${ratings.imdb.scoreFormatted} / 10${ratings.imdb.votes ? ` (${ratings.imdb.votes} reviews)` : ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <span className="rating-brand-label imdb-brand">IMDb</span>
-        <span className="rating-score-val">{ratings.imdb.scoreFormatted}</span>
-      </a>
+      {imdb && (
+        <a
+          href={imdb.url || 'https://www.imdb.com'}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rating-pill rating-pill-imdb"
+          title={`IMDb Score: ${imdb.scoreFormatted || imdb.score || 'N/A'} / 10${imdb.votes ? ` (${imdb.votes} reviews)` : ''}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="rating-brand-label imdb-brand">IMDb</span>
+          <span className="rating-score-val">{imdb.scoreFormatted || (imdb.score ? Number(imdb.score).toFixed(1) : 'N/A')}</span>
+        </a>
+      )}
 
       {/* TMDB Badge */}
-      <a
-        href={ratings.tmdb.url || 'https://www.themoviedb.org'}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rating-pill rating-pill-tmdb"
-        title={`TMDB User Score: ${ratings.tmdb.scoreFormatted}${ratings.tmdb.votes ? ` (${ratings.tmdb.votes} votes)` : ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <span className="rating-brand-label tmdb-brand">TMDB</span>
-        <span className="rating-score-val">{ratings.tmdb.scoreFormatted}</span>
-      </a>
+      {tmdb && (
+        <a
+          href={tmdb.url || 'https://www.themoviedb.org'}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rating-pill rating-pill-tmdb"
+          title={`TMDB User Score: ${tmdb.scoreFormatted || tmdb.score || 'N/A'}${tmdb.votes ? ` (${tmdb.votes} votes)` : ''}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="rating-brand-label tmdb-brand">TMDB</span>
+          <span className="rating-score-val">{tmdb.scoreFormatted || (tmdb.score ? `${tmdb.score}%` : 'N/A')}</span>
+        </a>
+      )}
     </div>
   );
 };

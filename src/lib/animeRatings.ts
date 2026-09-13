@@ -189,10 +189,21 @@ export async function getLiveAnimeRatings(animeId: string, searchTitle?: string)
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(`kamui_ratings_${animeId}`);
       if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && parsed.timestamp && Date.now() - parsed.timestamp < 3600000) {
-          memoryCache[animeId] = parsed.ratings;
-          return parsed.ratings;
+        try {
+          const parsed = JSON.parse(stored);
+          if (
+            parsed &&
+            parsed.timestamp &&
+            parsed.ratings &&
+            parsed.ratings.anilist &&
+            parsed.ratings.mal &&
+            Date.now() - parsed.timestamp < 3600000
+          ) {
+            memoryCache[animeId] = parsed.ratings;
+            return parsed.ratings;
+          }
+        } catch {
+          // ignore corrupted local storage
         }
       }
     }
@@ -202,36 +213,46 @@ export async function getLiveAnimeRatings(animeId: string, searchTitle?: string)
       fetchMyAnimeListRating(title)
     ]);
 
+    const fallbackAnilist = cached?.anilist || GENERIC_DEFAULT_RATINGS.anilist;
+    const fallbackMal = cached?.mal || GENERIC_DEFAULT_RATINGS.mal;
+
     const updated: AnimeRatings = {
-      anilist: anilistRes.status === 'fulfilled' && anilistRes.value
-        ? {
-            score: anilistRes.value.score,
-            scoreFormatted: anilistRes.value.scoreFormatted,
-            rank: anilistRes.value.rank || cached.anilist.rank,
-            votes: anilistRes.value.votes || cached.anilist.votes,
-            url: `https://anilist.co/search/anime?search=${encodeURIComponent(title)}`
-          }
-        : cached.anilist,
-      mal: malRes.status === 'fulfilled' && malRes.value
-        ? {
-            score: malRes.value.score,
-            scoreFormatted: malRes.value.scoreFormatted,
-            rank: malRes.value.rank || cached.mal.rank,
-            votes: malRes.value.votes || cached.mal.votes,
-            url: `https://myanimelist.net/search/all?q=${encodeURIComponent(title)}`
-          }
-        : cached.mal,
-      imdb: cached.imdb,
-      tmdb: cached.tmdb
+      anilist:
+        anilistRes.status === 'fulfilled' && anilistRes.value
+          ? {
+              score: anilistRes.value.score,
+              scoreFormatted: anilistRes.value.scoreFormatted,
+              rank: anilistRes.value.rank || fallbackAnilist.rank,
+              votes: anilistRes.value.votes || fallbackAnilist.votes,
+              url: `https://anilist.co/search/anime?search=${encodeURIComponent(title)}`
+            }
+          : fallbackAnilist,
+      mal:
+        malRes.status === 'fulfilled' && malRes.value
+          ? {
+              score: malRes.value.score,
+              scoreFormatted: malRes.value.scoreFormatted,
+              rank: malRes.value.rank || fallbackMal.rank,
+              votes: malRes.value.votes || fallbackMal.votes,
+              url: `https://myanimelist.net/search/all?q=${encodeURIComponent(title)}`
+            }
+          : fallbackMal,
+      imdb: cached?.imdb || GENERIC_DEFAULT_RATINGS.imdb,
+      tmdb: cached?.tmdb || GENERIC_DEFAULT_RATINGS.tmdb
     };
 
     memoryCache[animeId] = updated;
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem(`kamui_ratings_${animeId}`, JSON.stringify({
-        ratings: updated,
-        timestamp: Date.now()
-      }));
+      try {
+        localStorage.setItem(
+          `kamui_ratings_${animeId}`,
+          JSON.stringify({
+            ratings: updated,
+            timestamp: Date.now()
+          })
+        );
+      } catch {}
     }
 
     return updated;
