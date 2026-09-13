@@ -257,28 +257,56 @@ nav.links {
   gap: 34px;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, gap 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 header.nav.search-open nav.links,
 nav.links.search-open {
-  transform: translateX(calc(-50% - 95px));
+  transform: translateX(calc(-50% - 190px));
+  gap: 22px;
 }
 
-@media (max-width: 1200px) {
-  header.nav.search-open nav.links,
-  nav.links.search-open {
-    transform: translateX(calc(-50% - 115px));
-    gap: 24px;
-  }
+header.nav.search-open .nav-actions {
+  gap: 16px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1360px) {
   header.nav.search-open nav.links,
   nav.links.search-open {
-    transform: translateX(calc(-50% - 130px));
+    transform: translateX(calc(-50% - 170px));
     gap: 20px;
   }
+
+  header.nav.search-open .nav-actions {
+    gap: 14px;
+  }
 }
+
+@media (max-width: 1180px) {
+  header.nav.search-open nav.links,
+  nav.links.search-open {
+    transform: translateX(calc(-50% - 145px));
+    gap: 16px;
+  }
+
+  header.nav.search-open .nav-actions {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 1000px) {
+  header.nav.search-open nav.links,
+  nav.links.search-open {
+    transform: translateX(calc(-50% - 125px));
+    gap: 14px;
+  }
+
+  header.nav.search-open .nav-actions {
+    gap: 10px;
+  }
+}
+
 
 nav.links a,
 nav.links button,
@@ -4843,8 +4871,8 @@ footer {
 }
 
 .browse-search-wrap.open .browse-search-input {
-  width: 260px;
-  max-width: 260px;
+  width: 220px;
+  max-width: 220px;
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -4854,6 +4882,21 @@ footer {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(232, 185, 79, 0.25);
   margin-left: 2px;
 }
+
+@media (max-width: 1200px) {
+  .browse-search-wrap.open .browse-search-input {
+    width: 190px;
+    max-width: 190px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .browse-search-wrap.open .browse-search-input {
+    width: 165px;
+    max-width: 165px;
+  }
+}
+
 
 .browse-search-close {
   position: absolute;
