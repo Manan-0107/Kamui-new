@@ -9,6 +9,7 @@ import { ContentRow } from '@/components/watch/ContentRow';
 import { Top10Track } from '@/components/watch/Top10Track';
 import { ContinueWatchingShelf } from '@/components/watch/ContinueWatchingShelf';
 import { WatchCard } from '@/components/watch/WatchCard';
+import { LiveAiringTrackerShelf } from '@/components/watch/LiveAiringTrackerShelf';
 import { usePlayback } from '@/context/PlaybackContext';
 import { ANIME_CATALOG, CATALOG_IDS } from '@/lib/catalog';
 
@@ -126,6 +127,9 @@ export default function WatchPage() {
       <div className="netflix-browse-container" id="contentRowsContainer">
         {/* Row 1: Continue Watching */}
         <ContinueWatchingShelf />
+
+        {/* Real-Time Live Simulcast Airing Tracker Shelf (AniList API) */}
+        <LiveAiringTrackerShelf />
 
         {/* Row 2: Recommended / Because You Liked */}
         <ContentRow

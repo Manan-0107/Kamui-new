@@ -48,8 +48,9 @@ const DEFAULT_NOTIFICATIONS: AnimeNotification[] = [
 interface PlaybackContextType {
   // Preview Modal
   previewAnimeId: string | null;
+  customPreviewData: any | null;
   isPreviewOpen: boolean;
-  openPreview: (animeId: string) => void;
+  openPreview: (animeId: string, customData?: any) => void;
   closePreview: () => void;
 
   // Full Video Player
@@ -118,6 +119,7 @@ const PlaybackContext = createContext<PlaybackContextType | undefined>(undefined
 
 export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [previewAnimeId, setPreviewAnimeId] = useState<string | null>(null);
+  const [customPreviewData, setCustomPreviewData] = useState<any | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const [playingAnimeId, setPlayingAnimeId] = useState<string | null>(null);
@@ -250,14 +252,21 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   // Open / Close Preview Modal
-  const openPreview = useCallback((animeId: string) => {
-    if (!ANIME_CATALOG[animeId]) return;
+  const openPreview = useCallback((animeId: string, customData?: any) => {
+    if (customData) {
+      setCustomPreviewData(customData);
+      setPreviewAnimeId(animeId);
+      setIsPreviewOpen(true);
+      return;
+    }
+    setCustomPreviewData(null);
     setPreviewAnimeId(animeId);
     setIsPreviewOpen(true);
   }, []);
 
   const closePreview = useCallback(() => {
     setIsPreviewOpen(false);
+    setCustomPreviewData(null);
   }, []);
 
   // Full Screen Video Player
@@ -533,6 +542,7 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     <PlaybackContext.Provider
       value={{
         previewAnimeId,
+        customPreviewData,
         isPreviewOpen,
         openPreview,
         closePreview,

@@ -1,8 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
-import { AnimePosterSvg } from './AnimePosterSvg';
-import { AnimeArtSvg } from './AnimeArtSvg';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface AnimeImagePreviewProps {
   animeId: string;
@@ -23,46 +21,45 @@ export const AnimeImagePreview: React.FC<AnimeImagePreviewProps> = ({
 }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement | null>(null);
 
-  // If no image src or if image failed to load, fallback to SVG artwork
-  if (!src || hasError) {
-    if (type === 'banner') {
-      return (
-        <div className={`anime-img-preview-fallback banner ${className}`}>
-          <AnimeArtSvg animeId={animeId} className="w-full h-full" />
-        </div>
-      );
+  useEffect(() => {
+    setHasError(false);
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+      setIsLoaded(true);
     }
-    return (
-      <div className={`anime-img-preview-fallback poster ${className}`}>
-        <AnimePosterSvg animeId={animeId} className="w-full h-full" />
-      </div>
-    );
-  }
+  }, [src]);
 
   return (
     <div className={`anime-img-preview-container ${type} ${className}`}>
-      {/* Background SVG fallback while image is loading */}
-      {!isLoaded && (
-        <div className="anime-img-preview-placeholder">
-          {type === 'banner' ? (
-            <AnimeArtSvg animeId={animeId} />
-          ) : (
-            <AnimePosterSvg animeId={animeId} />
-          )}
-        </div>
+      {/* Background dark glass shimmer placeholder (Stremio style) */}
+      {!isLoaded && !hasError && (
+        <div className="anime-img-preview-shimmer" />
       )}
 
-      {/* Real High-Definition Anime Image */}
-      <img
-        src={src}
-        alt={alt}
-        loading={priority ? 'eager' : 'lazy'}
-        decoding="async"
-        className={`anime-img-preview-real ${isLoaded ? 'loaded' : 'loading'}`}
-        onLoad={() => setIsLoaded(true)}
-        onError={() => setHasError(true)}
-      />
+      {/* Real High-Definition Anime Image from AniList / Kitsu CDN */}
+      {src && !hasError ? (
+        <img
+          ref={imgRef}
+          src={src}
+          alt={alt}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          referrerPolicy="no-referrer"
+          className={`anime-img-preview-real ${isLoaded ? 'loaded' : ''}`}
+          onLoad={() => setIsLoaded(true)}
+          onError={() => {
+            // Only set error if image really failed to load and naturalWidth is 0
+            if (!imgRef.current || imgRef.current.naturalWidth === 0) {
+              setHasError(true);
+            }
+          }}
+        />
+      ) : (
+        <div className="anime-img-preview-error-fallback">
+          <span className="error-fallback-title">{alt}</span>
+        </div>
+      )}
     </div>
   );
 };

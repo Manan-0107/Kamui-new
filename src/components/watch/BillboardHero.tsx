@@ -8,6 +8,7 @@ import { AnimeImagePreview } from '@/components/visual/AnimeImagePreview';
 import { AnimeRatingBadges } from '@/components/watch/AnimeRatingBadges';
 import { Puzzle, Flame, Bell, Clock, Bookmark, Check } from 'lucide-react';
 import { TrackerStatus } from '@/lib/types';
+import { useAnimeTracker } from '@/hooks/useAnimeTracker';
 
 export const BillboardHero: React.FC = () => {
   const {
@@ -30,7 +31,10 @@ export const BillboardHero: React.FC = () => {
   const [isTrackerMenuOpen, setIsTrackerMenuOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
+  const trackerInfo = useAnimeTracker(activeId);
   const anime = ANIME_CATALOG[activeId] || ANIME_CATALOG['kamui'];
+  const bannerImage = trackerInfo.bannerImage || anime.bannerImage;
+  const nextAiring = trackerInfo.nextAiring || anime.nextAiring;
   const inList = isInWatchlist(anime.id);
   const liked = isLiked(anime.id);
   const hasActiveExtension = Boolean(activeExtension && activeExtension.enabled);
@@ -83,10 +87,10 @@ export const BillboardHero: React.FC = () => {
             src={anime.trailerVideo}
           />
         ) : null}
-        <div className="billboard-fallback-art" style={{ opacity: hasActiveExtension ? undefined : 1 }}>
+        <div className="billboard-fallback-art" style={{ opacity: hasActiveExtension ? 0 : 1 }}>
           <AnimeImagePreview
             animeId={anime.id}
-            src={anime.bannerImage}
+            src={bannerImage}
             alt={anime.title}
             type="banner"
             priority
@@ -113,10 +117,10 @@ export const BillboardHero: React.FC = () => {
               </span>
             )}
             {/* Airing countdown tag if simulcasting */}
-            {anime.nextAiring && (
+            {nextAiring && (
               <span className="billboard-badge billboard-badge-airing">
                 <Clock size={12} style={{ marginRight: 4 }} />
-                Episode {anime.nextAiring.episode} · {anime.nextAiring.timeStr}
+                Episode {nextAiring.episode} · {nextAiring.timeStr}
               </span>
             )}
           </div>

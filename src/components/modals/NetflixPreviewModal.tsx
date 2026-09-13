@@ -8,20 +8,22 @@ import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
 import { AnimeImagePreview } from '@/components/visual/AnimeImagePreview';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { AnimeRatingBadges } from '@/components/watch/AnimeRatingBadges';
-import { Puzzle, MessageSquare, Bell, Bookmark, Check, Clock } from 'lucide-react';
+import { Puzzle, MessageSquare, Bell, Bookmark, Check, Clock, Radio } from 'lucide-react';
 import { TrackerStatus } from '@/lib/types';
+import { useAnimeTracker } from '@/hooks/useAnimeTracker';
 
 export const NetflixPreviewModal: React.FC = () => {
   const {
     previewAnimeId,
+    customPreviewData,
     isPreviewOpen,
     closePreview,
     playEpisode,
+    openPreview,
     isInWatchlist,
     toggleWatchlist,
     isLiked,
     toggleLike,
-    openPreview,
     getAnimeTrackerStatus,
     setAnimeTrackerStatus,
     isNotificationSubscribed,
@@ -33,9 +35,14 @@ export const NetflixPreviewModal: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'episodes' | 'more-like-this' | 'about' | 'discussion'>('episodes');
   const [isMuted, setIsMuted] = useState(true);
   const [isTrackerOpen, setIsTrackerOpen] = useState(false);
+  const [selectedEpNum, setSelectedEpNum] = useState<number>(1);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const anime = previewAnimeId ? ANIME_CATALOG[previewAnimeId] : null;
+  const trackerInfo = useAnimeTracker(previewAnimeId || 'kamui');
+  const catalogAnime = previewAnimeId ? ANIME_CATALOG[previewAnimeId] : null;
+  const anime = customPreviewData || catalogAnime;
+  const bannerImage = customPreviewData?.bannerImage || trackerInfo.bannerImage || anime?.bannerImage;
+  const nextAiring = customPreviewData?.nextAiring || trackerInfo.nextAiring || anime?.nextAiring;
   const hasActiveExtension = Boolean(activeExtension && activeExtension.enabled);
   const currentTracker = anime ? getAnimeTrackerStatus(anime.id) : undefined;
   const isSubbed = anime ? isNotificationSubscribed(anime.id) : false;
@@ -135,7 +142,7 @@ export const NetflixPreviewModal: React.FC = () => {
               <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
                 <AnimeImagePreview
                   animeId={anime.id}
-                  src={anime.bannerImage || anime.posterImage}
+                  src={bannerImage || anime.posterImage}
                   alt={anime.title}
                   type="banner"
                   priority
@@ -330,6 +337,12 @@ export const NetflixPreviewModal: React.FC = () => {
                 <span className="badge-match">{anime.match}</span>
                 <span className="badge-rating">{anime.rating}</span>
                 <span className="badge-ep-count">{anime.seasonsCount}</span>
+                {nextAiring && (
+                  <span className="badge-airing-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(59, 130, 246, 0.2)', border: '1px solid rgba(59, 130, 246, 0.4)', color: '#93c5fd', padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700 }}>
+                    <Clock size={11} />
+                    Ep. {nextAiring.episode} · {nextAiring.timeStr}
+                  </span>
+                )}
                 <span className="badge-hd">{activeExtension?.supportedResolutions?.[0] || '4K HDR'}</span>
                 <span className="badge-spatial">Spatial Audio</span>
               </div>
@@ -442,14 +455,13 @@ export const NetflixPreviewModal: React.FC = () => {
                 <span className="episodes-country-sub">Subbed &amp; Dubbed &bull; Same-Day Simulcast in 4K HDR</span>
               </div>
               <div className="episodes-list">
-                {anime.episodes.map((ep) => (
+                {(anime.episodes || []).map((ep: any) => (
                   <div
                     key={ep.num}
-                    className="episode-item"
+                    className={`episode-item ${selectedEpNum === ep.num ? 'selected-episode' : ''}`}
                     onClick={() => {
-                      if (!hasActiveExtension) {
-                        openExtensionsModal('store');
-                      } else {
+                      setSelectedEpNum(ep.num);
+                      if (hasActiveExtension) {
                         playEpisode(anime.id, ep.num);
                       }
                     }}
@@ -483,6 +495,79 @@ export const NetflixPreviewModal: React.FC = () => {
                   </div>
                 ))}
               </div>
+
+              {/* Stremio Streams Panel */}
+              <div className="stremio-streams-panel" id="stremioStreamsPanel">
+                <div className="stremio-streams-header">
+                  <span className="stremio-streams-title">
+                    <Radio size={14} style={{ color: '#e8b94f' }} />
+                    Streams · Episode {selectedEpNum}
+                  </span>
+                  <span className={`stremio-streams-badge ${hasActiveExtension ? 'online' : 'empty'}`}>
+                    {hasActiveExtension ? `${activeExtension?.name} Connected` : 'No Addons Installed'}
+                  </span>
+                </div>
+
+                {!hasActiveExtension ? (
+                  <div className="stremio-streams-empty-box">
+                    <div className="stremio-empty-icon">
+                      <Puzzle size={22} />
+                    </div>
+                    <h4 className="stremio-empty-heading">No Streams Available</h4>
+                    <p className="stremio-empty-desc">
+                      Kamui currently operates as an <strong>Anime Tracker</strong> (Stremio architecture).
+                      Install community streaming extensions to play Episode {selectedEpNum} of {anime.title}.
+                    </p>
+                    <button
+                      type="button"
+                      className="btn-stremio-install-addon"
+                      onClick={() => openExtensionsModal('store')}
+                    >
+                      <Puzzle size={15} />
+                      <span>Install Streaming Extension</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="stremio-streams-list">
+                    <div
+                      className="stremio-stream-card"
+                      onClick={() => playEpisode(anime.id, selectedEpNum)}
+                    >
+                      <div className="stream-card-left">
+                        <span className="stream-source-tag">{activeExtension?.name || 'Community Addon'}</span>
+                        <div className="stream-server-info">
+                          <span className="stream-name">High-Speed CDN Mirror · 1080p Ultra</span>
+                          <span className="stream-meta">Dual Audio (Japanese / English) · Multi-Sub CC</span>
+                        </div>
+                      </div>
+                      <div className="stream-card-right">
+                        <span className="stream-quality-badge">{activeExtension?.supportedResolutions?.[0] || '1080p'}</span>
+                        <button type="button" className="btn-stream-play-action">
+                          Stream &rarr;
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      className="stremio-stream-card"
+                      onClick={() => playEpisode(anime.id, selectedEpNum)}
+                    >
+                      <div className="stream-card-left">
+                        <span className="stream-source-tag">{activeExtension?.name || 'Community Addon'}</span>
+                        <div className="stream-server-info">
+                          <span className="stream-name">Direct Stream Feed · 720p HD</span>
+                          <span className="stream-meta">Japanese Original · English Subtitles</span>
+                        </div>
+                      </div>
+                      <div className="stream-card-right">
+                        <span className="stream-quality-badge">720p</span>
+                        <button type="button" className="btn-stream-play-action">
+                          Stream &rarr;
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -490,7 +575,7 @@ export const NetflixPreviewModal: React.FC = () => {
           {activeTab === 'more-like-this' && (
             <div className="preview-tab-pane active" id="tabPaneMoreLikeThis">
               <div className="more-like-grid">
-                {anime.relatedIds.map((relId) => {
+                {(anime.relatedIds || []).map((relId: string) => {
                   const rel = ANIME_CATALOG[relId];
                   if (!rel) return null;
                   const relInList = isInWatchlist(rel.id);
