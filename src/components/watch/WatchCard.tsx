@@ -28,7 +28,9 @@ export const WatchCard: React.FC<WatchCardProps> = ({ anime }) => {
       {anime.badge && <span className="watch-badge">{anime.badge}</span>}
       <span className="watch-card-meta">
         <span className="watch-card-title">{anime.title}</span>
-        <span className="watch-card-genre">{anime.genre}</span>
+        <span className="watch-card-genre">
+          {anime.genre} {anime.ratings?.anilist ? `· AL ${anime.ratings.anilist.scoreFormatted}` : ''}
+        </span>
       </span>
     </button>
   );

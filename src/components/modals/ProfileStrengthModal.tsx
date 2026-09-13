@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { usePlayback } from '@/context/PlaybackContext';
 import { DEFAULT_AVATARS } from '@/lib/avatars';
+import { Zap } from 'lucide-react';
 
 interface BadgeDefinition {
   id: string;
@@ -28,6 +29,7 @@ export const ProfileStrengthModal: React.FC = () => {
   const [bio, setBio] = useState('');
   const [activeTab, setActiveTab] = useState<'profile' | 'badges' | 'avatars'>('profile');
 
+  // Load user socials on modal open
   useEffect(() => {
     if (user?.socials) {
       setInstagram(user.socials.instagram || '');
@@ -37,7 +39,7 @@ export const ProfileStrengthModal: React.FC = () => {
       setDiscord(user.socials.discord || '');
       setBio(user.socials.bio || '');
     }
-  }, [user]);
+  }, [user, isProfileModalOpen]);
 
   // Handle ESC key
   useEffect(() => {
@@ -52,23 +54,27 @@ export const ProfileStrengthModal: React.FC = () => {
 
   if (!isProfileModalOpen) return null;
 
-  // Calculate Profile Strength (0 - 100%)
-  let strengthScore = 20; // Base account
-  if (user?.avatar) strengthScore += 15;
-  if (instagram.trim()) strengthScore += 15;
-  if (snapchat.trim()) strengthScore += 15;
-  if (myanimelist.trim() || anilist.trim()) strengthScore += 20;
-  if (discord.trim()) strengthScore += 5;
-  if (bio.trim()) strengthScore += 5;
-  if (watchlist.length > 0) strengthScore += 5;
-  const strength = Math.min(100, strengthScore);
+  // Calculate Profile Strength Percentage (0 - 100%)
+  const calculateStrength = () => {
+    let score = 20; // Base score for registration
+    if (user?.avatar && !user.avatar.includes('chibi-1')) score += 10;
+    if (instagram.trim()) score += 15;
+    if (snapchat.trim()) score += 15;
+    if (myanimelist.trim()) score += 15;
+    if (anilist.trim()) score += 15;
+    if (discord.trim()) score += 10;
+    if (bio.trim()) score += 10;
+    return Math.min(100, score);
+  };
+
+  const strength = calculateStrength();
 
   // Define Anime Tags & Badges
   const badges: BadgeDefinition[] = [
     {
       id: 'shonen',
       name: 'Shonen Vanguard',
-      glyph: '🗡️',
+      glyph: '刃',
       category: 'Combat & Action',
       desc: 'Added or watched fast-paced action & mecha series.',
       color: '#f97316',
@@ -78,7 +84,7 @@ export const ProfileStrengthModal: React.FC = () => {
     {
       id: 'dark-realm',
       name: 'Dark Fantasy Sorcerer',
-      glyph: '🌙',
+      glyph: '冥',
       category: 'Dark Fantasy',
       desc: 'Explored supernatural lore and mythological realms.',
       color: '#c084fc',
@@ -88,7 +94,7 @@ export const ProfileStrengthModal: React.FC = () => {
     {
       id: 'mal-anilist',
       name: 'Otaku Scholar',
-      glyph: '📜',
+      glyph: '書',
       category: 'Anime Tracking',
       desc: 'Connected official MyAnimeList or AniList profile.',
       color: '#38bdf8',
@@ -98,7 +104,7 @@ export const ProfileStrengthModal: React.FC = () => {
     {
       id: 'socialite',
       name: 'Community Pioneer',
-      glyph: '📸',
+      glyph: '縁',
       category: 'Social Connect',
       desc: 'Connected Instagram or Snapchat account.',
       color: '#f43f5e',
@@ -108,7 +114,7 @@ export const ProfileStrengthModal: React.FC = () => {
     {
       id: 'binge-master',
       name: 'Binge Conqueror',
-      glyph: '⚡',
+      glyph: '走',
       category: 'Watch Activity',
       desc: 'Actively streaming episodes on Kamui.',
       color: '#fbbf24',
@@ -118,7 +124,7 @@ export const ProfileStrengthModal: React.FC = () => {
     {
       id: 'collector',
       name: 'Grand Archivist',
-      glyph: '📚',
+      glyph: '蔵',
       category: 'Library',
       desc: 'Curated 3 or more shows in your personal Watchlist.',
       color: '#34d399',
@@ -202,8 +208,8 @@ export const ProfileStrengthModal: React.FC = () => {
         {/* Profile Strength Meter Bar */}
         <div className="profile-strength-box">
           <div className="strength-header-row">
-            <span className="strength-label">
-              <span className="strength-icon">⚡</span> Profile Strength
+            <span className="strength-label" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Zap size={14} className="text-gold" /> Profile Strength
             </span>
             <span className="strength-percentage" style={{ color: 'var(--gold, #e8b94f)' }}>
               {strength}% Complete
@@ -223,7 +229,7 @@ export const ProfileStrengthModal: React.FC = () => {
           <p className="strength-tip">
             {strength < 100
               ? 'Connect your Instagram, Snapchat, MyAnimeList, and AniList accounts to boost your profile strength.'
-              : '🌟 Profile fully completed! All social links & badges are synced.'}
+              : 'Profile fully completed. All social links & badges are synced.'}
           </p>
         </div>
 
@@ -259,7 +265,7 @@ export const ProfileStrengthModal: React.FC = () => {
               {/* Instagram */}
               <div className="profile-field">
                 <label htmlFor="inputInstagram">
-                  <span className="field-icon icon-insta">📸</span> Instagram Handle
+                  <span className="field-icon icon-insta">IG</span> Instagram Handle
                 </label>
                 <div className="field-input-wrap">
                   <span className="input-prefix">@</span>
@@ -276,7 +282,7 @@ export const ProfileStrengthModal: React.FC = () => {
               {/* Snapchat */}
               <div className="profile-field">
                 <label htmlFor="inputSnapchat">
-                  <span className="field-icon icon-snap">👻</span> Snapchat Username
+                  <span className="field-icon icon-snap">SC</span> Snapchat Username
                 </label>
                 <div className="field-input-wrap">
                   <span className="input-prefix">@</span>
@@ -293,7 +299,7 @@ export const ProfileStrengthModal: React.FC = () => {
               {/* MyAnimeList */}
               <div className="profile-field">
                 <label htmlFor="inputMAL">
-                  <span className="field-icon icon-mal">🔵</span> MyAnimeList (MAL)
+                  <span className="field-icon icon-mal">MAL</span> MyAnimeList (MAL)
                 </label>
                 <div className="field-input-wrap">
                   <span className="input-prefix">mal/</span>
@@ -310,7 +316,7 @@ export const ProfileStrengthModal: React.FC = () => {
               {/* AniList */}
               <div className="profile-field">
                 <label htmlFor="inputAniList">
-                  <span className="field-icon icon-ani">🔷</span> AniList Profile
+                  <span className="field-icon icon-ani">AL</span> AniList Profile
                 </label>
                 <div className="field-input-wrap">
                   <span className="input-prefix">ani/</span>
@@ -327,7 +333,7 @@ export const ProfileStrengthModal: React.FC = () => {
               {/* Discord */}
               <div className="profile-field">
                 <label htmlFor="inputDiscord">
-                  <span className="field-icon icon-discord">💬</span> Discord Tag
+                  <span className="field-icon icon-discord">DC</span> Discord Tag
                 </label>
                 <div className="field-input-wrap">
                   <input
@@ -343,7 +349,7 @@ export const ProfileStrengthModal: React.FC = () => {
               {/* Custom Bio */}
               <div className="profile-field full-width">
                 <label htmlFor="inputBio">
-                  <span className="field-icon">✍️</span> Anime Bio / Favorite Quote
+                  <span className="field-icon">BIO</span> Anime Bio / Favorite Quote
                 </label>
                 <input
                   type="text"
@@ -388,7 +394,7 @@ export const ProfileStrengthModal: React.FC = () => {
                   <p className="badge-desc">{b.desc}</p>
                   <div className="badge-status-row">
                     <span className={`badge-status-pill ${b.unlocked ? 'status-unlocked' : 'status-locked'}`}>
-                      {b.unlocked ? '✓ Unlocked' : '🔒 Locked'}
+                      {b.unlocked ? '✓ Unlocked' : 'Locked'}
                     </span>
                     <span className="badge-progress-note">{b.progressText}</span>
                   </div>

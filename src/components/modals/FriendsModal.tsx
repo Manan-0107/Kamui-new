@@ -88,7 +88,7 @@ export const FriendsModal: React.FC = () => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(`kamui.stream/add/${myFriendCode}`);
       setCopiedCode(true);
-      showToast('Friend invite link copied to clipboard! 📋', 'success');
+      showToast('Friend invite link copied to clipboard.', 'success');
       setTimeout(() => setCopiedCode(false), 2500);
     }
   };

@@ -5,6 +5,21 @@ export interface Episode {
   desc: string;
 }
 
+export interface RatingSource {
+  score: number;
+  scoreFormatted: string;
+  rank?: number | string;
+  votes?: number | string;
+  url?: string;
+}
+
+export interface AnimeRatings {
+  anilist: RatingSource;
+  mal: RatingSource;
+  imdb: RatingSource;
+  tmdb: RatingSource;
+}
+
 export interface AnimeData {
   id: string;
   title: string;
@@ -16,6 +31,7 @@ export interface AnimeData {
   year: string;
   rating: string;
   match: string;
+  ratings?: AnimeRatings;
   contentType?: 'series' | 'movie';
   duration?: string;
   seasonsCount: string;

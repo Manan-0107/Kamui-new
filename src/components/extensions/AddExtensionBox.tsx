@@ -497,7 +497,7 @@ export const AddExtensionBox: React.FC<AddExtensionBoxProps> = ({
                     {item.supportsDub && <span className="store-tag dub">DUB</span>}
                     {item.supportsSub && <span className="store-tag sub">SUB</span>}
                     {item.hasIntroSkip && <span className="store-tag skip">SKIP INTRO</span>}
-                    <span className="store-tag ping">⚡ {item.latencyMs}ms</span>
+                    <span className="store-tag ping">{item.latencyMs}ms</span>
                   </div>
                 </div>
               );

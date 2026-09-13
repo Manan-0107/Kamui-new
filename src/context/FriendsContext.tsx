@@ -106,7 +106,7 @@ const INITIAL_REQUESTS: FriendRequest[] = [
       status: 'watching',
       currentAnime: 'Glasshouse',
       currentEp: 3,
-      bio: 'Cosplayer & Anime enthusiast! Let’s watch together ✨',
+      bio: 'Cosplayer & Anime enthusiast. Let’s watch together.',
       mutualFriends: 11
     }
   }
@@ -268,7 +268,7 @@ export const FriendsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setSuggestedFriends((prev) => prev.filter((s) => s.id !== matchSugg.id));
     }
 
-    showToast(`Friend request sent & connected with ${newFriend.displayName}! 🎉`, 'success');
+    showToast(`Friend request sent & connected with ${newFriend.displayName}!`, 'success');
     return { success: true, message: `Added ${newFriend.displayName}` };
   };
 
@@ -276,7 +276,7 @@ export const FriendsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const updated = [sugg, ...friends];
     saveFriendsToStorage(updated);
     setSuggestedFriends((prev) => prev.filter((s) => s.id !== sugg.id));
-    showToast(`Added ${sugg.displayName} to your friends! ✨`, 'success');
+    showToast(`Added ${sugg.displayName} to your friends!`, 'success');
   };
 
   const removeFriend = (friendId: string) => {
@@ -301,7 +301,7 @@ export const FriendsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const updatedRequests = requests.filter((r) => r.id !== requestId);
     saveRequestsToStorage(updatedRequests);
 
-    showToast(`Accepted friend request from ${req.from.displayName}! 🎊`, 'success');
+    showToast(`Accepted friend request from ${req.from.displayName}!`, 'success');
   };
 
   const declineRequest = (requestId: string) => {
@@ -313,7 +313,7 @@ export const FriendsProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const sendWatchPartyInvite = (friendId: string, animeTitle: string) => {
     const friend = friends.find((f) => f.id === friendId);
-    showToast(`Watch Party invitation sent to ${friend?.displayName || 'Friend'} for ${animeTitle}! 🍿`, 'success');
+    showToast(`Watch Party invitation sent to ${friend?.displayName || 'Friend'} for ${animeTitle}!`, 'success');
   };
 
   return (

@@ -29,27 +29,27 @@ interface CommentSectionProps {
   isSidebarLayout?: boolean;
 }
 
-// Preset Anime Emojis
+// Preset Anime Expressions & Reaction Tags (Clean, No Emojis)
 const EMOJI_CATEGORIES = {
-  Expressions: ['🤩', '👺', '🥺', '😤', '💀', '🤯', '🤤', '😈', '😎', '🤣', '😭', '😱'],
-  Reactions: ['🔥', '💥', '⚡', '💯', '👑', '🏆', '👏', '🙌', '🚀', '✨', '🍙', '🍜'],
-  AnimeVibes: ['🌸', '💖', '🌙', '🏮', '🎐', '🍵', '⚔️', '🥷', '🎌', '🍿', '🦊', '🐺']
+  Expressions: ['(>_<)', '(・_・)', '(^_^)', '(*_*)', '(¬_¬)', '(T_T)', '(o_O)', '(OwO)', '(^o^)', '(;_;)', '(!_!)', '(x_x)'],
+  Reactions: ['[HYPE]', '[PEAK]', '[10/10]', '[SAKUGA]', '[CHILLS]', '[CINEMA]', '[GOAT]', '[BASED]', '[MASTERPIECE]', '[LORE]', '[PLOT TWIST]', '[PERFECTION]'],
+  AnimeVibes: ['✦', '★', '◆', '▲', '●', '■', '▼', '◀', '▶', '◈', '◇', '○']
 };
 
-const QUICK_EMOJIS = ['🔥', '❤️', '😭', '😱', '👏', '⚔️', '🌸', '⚡', '🍙', '💯', '✨', '🍿'];
+const QUICK_EMOJIS = ['[HYPE]', '[PEAK]', '[10/10]', '[SAKUGA]', '[CHILLS]', '[CINEMA]', '[GOAT]', '[MASTERPIECE]', '[LORE]', '[PLOT TWIST]'];
 
-// Curated Anime Stickers
+// Curated Anime Stickers with authentic Kanji stamps
 const ANIME_STICKERS: { id: string; name: string; visual: string; tag: string }[] = [
-  { id: 'stk-flame', name: 'Flame Hype', visual: '🔥', tag: 'EPIC BATTLE' },
-  { id: 'stk-anya', name: 'Anya Smug Heh', visual: '😏', tag: 'SMUG' },
-  { id: 'stk-gojo', name: 'Hollow Purple', visual: '🟣', tag: 'DOMAIN EXPANSION' },
-  { id: 'stk-nezuko', name: 'Nezuko Chibi', visual: '🌸', tag: 'KAWAII' },
-  { id: 'stk-luffy', name: 'Gear 5 Joy', visual: '🏴‍☠️', tag: 'PEAK FICTION' },
-  { id: 'stk-eren', name: 'Titan Roar', visual: '⚔️', tag: 'TATAKAE' },
-  { id: 'stk-popcorn', name: 'Binge Watching', visual: '🍿', tag: 'NO ADS' },
-  { id: 'stk-shock', name: 'Plot Twist Shock', visual: '🤯', tag: 'PLOT TWIST' },
-  { id: 'stk-sparkle', name: 'Sakuga Tears', visual: '😭', tag: '10/10 MASTERPIECE' },
-  { id: 'stk-speed', name: 'Lightning Slash', visual: '⚡', tag: 'SPEED BLITZ' }
+  { id: 'stk-flame', name: 'Flame Hype', visual: '炎', tag: 'EPIC BATTLE' },
+  { id: 'stk-anya', name: 'Anya Heh', visual: '愉', tag: 'SMUG' },
+  { id: 'stk-gojo', name: 'Hollow Purple', visual: '虚', tag: 'DOMAIN EXPANSION' },
+  { id: 'stk-nezuko', name: 'Nezuko Chibi', visual: '鬼', tag: 'KAWAII' },
+  { id: 'stk-luffy', name: 'Gear 5 Joy', visual: '覇', tag: 'PEAK FICTION' },
+  { id: 'stk-eren', name: 'Titan Roar', visual: '戦', tag: 'TATAKAE' },
+  { id: 'stk-popcorn', name: 'Binge Watching', visual: '観', tag: 'NO ADS' },
+  { id: 'stk-shock', name: 'Plot Twist Shock', visual: '驚', tag: 'PLOT TWIST' },
+  { id: 'stk-sparkle', name: 'Sakuga Tears', visual: '涙', tag: '10/10 MASTERPIECE' },
+  { id: 'stk-speed', name: 'Lightning Slash', visual: '雷', tag: 'SPEED BLITZ' }
 ];
 
 export const CommentSection: React.FC<CommentSectionProps> = ({
@@ -133,7 +133,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         });
         setShowEmojiPicker(false);
         setShowStickerPicker(false);
-        showToast(`Uploaded image "${file.name}" ready to post! 🖼️`, 'success');
+        showToast(`Uploaded image "${file.name}" ready to post.`, 'success');
       }
     };
     reader.readAsDataURL(file);
@@ -146,7 +146,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
       name: `${sticker.name} (${sticker.tag})`
     });
     setShowStickerPicker(false);
-    showToast(`Sticker "${sticker.name}" attached! ✨`, 'info');
+    showToast(`Sticker "${sticker.name}" attached.`, 'info');
   };
 
   const handleInsertEmoji = (emoji: string) => {
@@ -237,21 +237,21 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             className={`filter-pill ${activeFilter === 'top' ? 'active' : ''}`}
             onClick={() => setActiveFilter('top')}
           >
-            🔥 Top
+            Top
           </button>
           <button
             type="button"
             className={`filter-pill ${activeFilter === 'newest' ? 'active' : ''}`}
             onClick={() => setActiveFilter('newest')}
           >
-            ⚡ Newest
+            Newest
           </button>
           <button
             type="button"
             className={`filter-pill ${activeFilter === 'media' ? 'active' : ''}`}
             onClick={() => setActiveFilter('media')}
           >
-            🖼️ Media/Stickers
+            Media &amp; Art
           </button>
         </div>
       </div>
@@ -519,7 +519,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                           tabIndex={0}
                         >
                           <AlertTriangle size={15} className="spoiler-icon" />
-                          <span>⚠️ Spoiler Alert — Click to Reveal</span>
+                          <span>Spoiler Alert — Click to Reveal</span>
                         </div>
                       ) : (
                         <p className={`comment-text ${comment.isSpoiler ? 'spoiler-revealed' : ''}`}>
@@ -541,7 +541,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                                 alt={comment.media.name || 'Uploaded content'}
                                 className="comment-media-image"
                               />
-                              <div className="image-zoom-cue">🔍 Click to zoom</div>
+                              <div className="image-zoom-cue">Click to zoom</div>
                             </div>
                           ) : (
                             <div className="comment-sticker-display">

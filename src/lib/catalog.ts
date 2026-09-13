@@ -1,6 +1,7 @@
 import { AnimeData } from './types';
+import { DEFAULT_CATALOG_RATINGS } from './animeRatings';
 
-export const ANIME_CATALOG: Record<string, AnimeData> = {
+const RAW_CATALOG: Record<string, AnimeData> = {
   'kamui': {
     id: 'kamui',
     title: 'Kamui',
@@ -366,5 +367,20 @@ export const ANIME_CATALOG: Record<string, AnimeData> = {
     relatedIds: ['paper-moon-society', 'glasshouse', 'kamui-movie']
   }
 };
+
+export const ANIME_CATALOG: Record<string, AnimeData> = Object.fromEntries(
+  Object.entries(RAW_CATALOG).map(([key, anime]) => [
+    key,
+    {
+      ...anime,
+      ratings: DEFAULT_CATALOG_RATINGS[key] || {
+        anilist: { score: 85, scoreFormatted: '85%', url: 'https://anilist.co' },
+        mal: { score: 8.45, scoreFormatted: '8.45', url: 'https://myanimelist.net' },
+        imdb: { score: 8.3, scoreFormatted: '8.3', url: 'https://www.imdb.com' },
+        tmdb: { score: 82, scoreFormatted: '82%', url: 'https://www.themoviedb.org' }
+      }
+    }
+  ])
+);
 
 export const CATALOG_IDS = Object.keys(ANIME_CATALOG);

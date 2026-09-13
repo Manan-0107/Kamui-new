@@ -72,17 +72,34 @@ export const PosterGrid: React.FC = () => {
                   >
                     {anime.title}
                   </span>
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      color: 'var(--gold, #e8b94f)',
-                      fontWeight: 600,
-                      marginTop: '4px',
-                      letterSpacing: '0.04em'
-                    }}
-                  >
-                    {anime.genre} · {anime.match} Match
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '5px', flexWrap: 'wrap' }}>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        color: 'var(--gold, #e8b94f)',
+                        fontWeight: 600,
+                        letterSpacing: '0.04em'
+                      }}
+                    >
+                      {anime.genre}
+                    </span>
+                    {anime.ratings?.anilist && (
+                      <span
+                        style={{
+                          fontSize: '10px',
+                          color: '#70d4ff',
+                          background: 'rgba(2, 169, 255, 0.15)',
+                          border: '1px solid rgba(2, 169, 255, 0.35)',
+                          borderRadius: '4px',
+                          padding: '1px 5px',
+                          fontWeight: 700,
+                          lineHeight: 1.2
+                        }}
+                      >
+                        AL {anime.ratings.anilist.scoreFormatted}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             );

@@ -6,7 +6,8 @@ import { useExtensions } from '@/context/ExtensionsContext';
 import { ANIME_CATALOG } from '@/lib/catalog';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
 import { CommentSection } from '@/components/comments/CommentSection';
-import { Puzzle } from 'lucide-react';
+import { AnimeRatingBadges } from '@/components/watch/AnimeRatingBadges';
+import { Puzzle, MessageSquare } from 'lucide-react';
 
 export const NetflixPreviewModal: React.FC = () => {
   const {
@@ -28,6 +29,7 @@ export const NetflixPreviewModal: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const anime = previewAnimeId ? ANIME_CATALOG[previewAnimeId] : null;
+  const hasActiveExtension = Boolean(activeExtension && activeExtension.enabled);
 
   // Handle ESC key
   useEffect(() => {
@@ -52,21 +54,23 @@ export const NetflixPreviewModal: React.FC = () => {
     };
   }, [isPreviewOpen]);
 
-  // Autoplay trailer video when opened
+  // Play video only when active extension is installed and enabled
   useEffect(() => {
-    if (isPreviewOpen && videoRef.current) {
+    if (isPreviewOpen && videoRef.current && hasActiveExtension) {
       videoRef.current.currentTime = 0;
       videoRef.current.play().catch(() => {});
+    } else if (videoRef.current) {
+      videoRef.current.pause();
     }
-  }, [isPreviewOpen, previewAnimeId]);
+  }, [isPreviewOpen, previewAnimeId, hasActiveExtension]);
 
-  if (!anime) return null;
+  if (!anime || !isPreviewOpen) return null;
 
   const inList = isInWatchlist(anime.id);
   const liked = isLiked(anime.id);
 
-  const handleMuteToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleMuteToggle = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (videoRef.current) {
       videoRef.current.muted = !videoRef.current.muted;
       setIsMuted(videoRef.current.muted);
@@ -75,8 +79,8 @@ export const NetflixPreviewModal: React.FC = () => {
 
   return (
     <div
-      className={`netflix-preview-overlay ${isPreviewOpen ? 'open' : ''}`}
-      id="netflixPreviewOverlay"
+      className={`netflix-preview-backdrop ${isPreviewOpen ? 'open' : ''}`}
+      id="netflixPreviewBackdrop"
       role="dialog"
       aria-modal="true"
       aria-hidden={!isPreviewOpen}
@@ -99,40 +103,48 @@ export const NetflixPreviewModal: React.FC = () => {
         {/* Hero / Backdrop Video Banner Section */}
         <div className="preview-hero-banner" id="previewHeroBanner">
           <div className="preview-video-wrap">
-            <video
-              ref={videoRef}
-              className="preview-video"
-              id="previewVideoPlayer"
-              loop
-              playsInline
-              muted={isMuted}
-              preload="auto"
-              src={anime.trailerVideo}
-            />
+            {hasActiveExtension ? (
+              <video
+                ref={videoRef}
+                className="preview-video"
+                id="previewVideoPlayer"
+                loop
+                playsInline
+                muted={isMuted}
+                preload="auto"
+                src={anime.trailerVideo}
+              />
+            ) : (
+              <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+                <AnimeArtSvg animeId={anime.id} />
+              </div>
+            )}
             <div className="preview-hero-gradient-overlay" />
           </div>
 
           {/* Video Audio Toggle */}
-          <div className="preview-hero-controls">
-            <button
-              type="button"
-              className="preview-circle-btn preview-mute-btn"
-              id="previewMuteBtn"
-              title="Toggle audio"
-              aria-label="Toggle audio"
-              onClick={handleMuteToggle}
-            >
-              {isMuted ? (
-                <svg className="icon-volume-off" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                  <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.73 4.73H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
-                </svg>
-              ) : (
-                <svg className="icon-volume-on" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-                </svg>
-              )}
-            </button>
-          </div>
+          {hasActiveExtension && (
+            <div className="preview-hero-controls">
+              <button
+                type="button"
+                className="preview-circle-btn preview-mute-btn"
+                id="previewMuteBtn"
+                title="Toggle audio"
+                aria-label="Toggle audio"
+                onClick={handleMuteToggle}
+              >
+                {isMuted ? (
+                  <svg className="icon-volume-off" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.73 4.73H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+                  </svg>
+                ) : (
+                  <svg className="icon-volume-on" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Floating Info & CTAs */}
           <div className="preview-hero-info">
@@ -143,17 +155,37 @@ export const NetflixPreviewModal: React.FC = () => {
               {anime.title}
             </h2>
 
+            {/* Multi-Platform Ratings (AniList, MAL, IMDb, TMDB) */}
+            <div style={{ margin: '8px 0 16px' }}>
+              <AnimeRatingBadges animeId={anime.id} title={anime.title} />
+            </div>
+
             <div className="preview-action-row">
               <button
                 type="button"
                 className="btn-netflix-play"
                 id="previewMainPlayBtn"
-                onClick={() => playEpisode(anime.id, 1)}
+                onClick={() => {
+                  if (!hasActiveExtension) {
+                    openExtensionsModal('store');
+                  } else {
+                    playEpisode(anime.id, 1);
+                  }
+                }}
               >
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-                <span id="previewPlayBtnText">Play Episode 1</span>
+                {hasActiveExtension ? (
+                  <>
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                    <span id="previewPlayBtnText">Play Episode 1</span>
+                  </>
+                ) : (
+                  <>
+                    <Puzzle size={18} />
+                    <span id="previewPlayBtnText">Add Extension to Watch</span>
+                  </>
+                )}
               </button>
 
               <button
@@ -206,6 +238,25 @@ export const NetflixPreviewModal: React.FC = () => {
                 <span className="badge-spatial">Spatial Audio</span>
               </div>
             </div>
+
+            {/* Extension notice banner when no extension is enabled */}
+            {!hasActiveExtension && (
+              <div className="preview-ext-notice-bar">
+                <div className="preview-ext-notice-icon">
+                  <Puzzle size={16} />
+                </div>
+                <p className="preview-ext-notice-text">
+                  <strong>Streaming Extension Required:</strong> Kamui streams through decentralized community source extensions. Add or enable a streaming provider to watch episodes of {anime.title}.
+                </p>
+                <button
+                  type="button"
+                  className="btn-add-extension-prompt"
+                  onClick={() => openExtensionsModal('store')}
+                >
+                  Install Extension &rarr;
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -273,7 +324,10 @@ export const NetflixPreviewModal: React.FC = () => {
               className={`preview-tab-btn ${activeTab === 'discussion' ? 'active' : ''}`}
               onClick={() => setActiveTab('discussion')}
             >
-              💬 Discussion &amp; Chat
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <MessageSquare size={14} />
+                Discussion &amp; Chat
+              </span>
             </button>
             <button
               type="button"
@@ -296,15 +350,25 @@ export const NetflixPreviewModal: React.FC = () => {
                   <div
                     key={ep.num}
                     className="episode-item"
-                    onClick={() => playEpisode(anime.id, ep.num)}
+                    onClick={() => {
+                      if (!hasActiveExtension) {
+                        openExtensionsModal('store');
+                      } else {
+                        playEpisode(anime.id, ep.num);
+                      }
+                    }}
                   >
                     <div className="episode-num-col">{ep.num}</div>
                     <div className="episode-thumb-col">
                       <AnimeArtSvg animeId={anime.id} className="w-full h-full object-cover" />
                       <div className="episode-play-hover">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
+                        {hasActiveExtension ? (
+                          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        ) : (
+                          <Puzzle size={20} className="text-gold" />
+                        )}
                       </div>
                     </div>
                     <div className="episode-details-col">

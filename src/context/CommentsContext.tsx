@@ -20,10 +20,10 @@ const DEFAULT_COMMENTS: Record<string, AnimeComment[]> = {
         avatar: '/avatars/nami.svg',
         badge: 'TOP FAN'
       },
-      content: 'The sakuga in the opening snow battle scene was pure cinema! ufotable level animation here 🔥✨',
+      content: 'The sakuga in the opening snow battle scene was pure cinema! ufotable level animation here [SAKUGA]',
       media: {
         type: 'sticker',
-        url: '🔥',
+        url: '炎',
         name: 'Flame Hype'
       },
       createdAt: '15m ago',
@@ -92,10 +92,10 @@ const DEFAULT_COMMENTS: Record<string, AnimeComment[]> = {
         avatar: '/avatars/luffy.svg',
         badge: 'VIP'
       },
-      content: 'The cyberpunk world building with the neon ash rain is ten billion percent aesthetic ⚡🏙️',
+      content: 'The cyberpunk world building with the neon ash rain is ten billion percent aesthetic [PEAK]',
       media: {
         type: 'sticker',
-        url: '⚡',
+        url: '雷',
         name: 'Cyber Shock'
       },
       createdAt: '45m ago',
@@ -113,7 +113,7 @@ const DEFAULT_COMMENTS: Record<string, AnimeComment[]> = {
         avatar: '/avatars/nami.svg',
         badge: 'TOP FAN'
       },
-      content: 'The cozy slice-of-life vibes and the origami magic academy are so soothing to watch before sleep 🌸☕',
+      content: 'The cozy slice-of-life vibes and the origami magic academy are so soothing to watch before sleep [COZY]',
       createdAt: '2h ago',
       likes: 27,
       isLiked: false
@@ -246,7 +246,7 @@ export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return updated;
       });
 
-      showToast('Comment posted to community thread! 💬', 'success');
+      showToast('Comment posted to community thread.', 'success');
     },
     [user, showToast]
   );

@@ -4041,7 +4041,7 @@ footer {
   inset: 0;
   width: 100%;
   height: 100%;
-  display: none;
+  display: block;
   background: #0a0f18;
 }
 
@@ -6052,11 +6052,6 @@ nextjs-portal,
    FILTER CHIPS SECTION & GENEROUS BROWSE CONTAINER SPACING
    ========================================================================== */
 
-.filter-chips-section {
-  padding: 24px 48px 18px;
-  background: linear-gradient(180deg, rgba(8, 12, 20, 0.7) 0%, rgba(10, 15, 24, 0.95) 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 36px;
 .filter-chips-section {
   position: relative;
   z-index: 15;
@@ -11180,5 +11175,322 @@ nextjs-portal,
   text-align: center;
   font-style: italic;
 }
+
+/* ==========================================================================
+   ANIME MULTI-PLATFORM RATINGS CLUSTER (AniList, MAL, IMDb, TMDB)
+   ========================================================================== */
+
+.anime-ratings-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.anime-ratings-cluster.compact {
+  gap: 6px;
+}
+
+.rating-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 3px 5px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  line-height: 1;
+}
+
+.rating-pill:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.rating-brand-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 2px 5px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.rating-score-val {
+  font-family: var(--sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+}
+
+/* AniList */
+.rating-pill-anilist {
+  background: rgba(2, 169, 255, 0.08);
+  border-color: rgba(2, 169, 255, 0.3);
+}
+.rating-pill-anilist:hover {
+  border-color: rgba(2, 169, 255, 0.7);
+  box-shadow: 0 4px 18px rgba(2, 169, 255, 0.25);
+}
+.rating-brand-label.al-brand {
+  background: #02a9ff;
+  color: #060b13;
+}
+.rating-pill-anilist .rating-score-val {
+  color: #70d4ff;
+}
+
+/* MyAnimeList (MAL) */
+.rating-pill-mal {
+  background: rgba(46, 81, 162, 0.12);
+  border-color: rgba(46, 81, 162, 0.35);
+}
+.rating-pill-mal:hover {
+  border-color: rgba(46, 81, 162, 0.8);
+  box-shadow: 0 4px 18px rgba(46, 81, 162, 0.3);
+}
+.rating-brand-label.mal-brand {
+  background: #2e51a2;
+  color: #ffffff;
+}
+.rating-pill-mal .rating-score-val {
+  color: #93b4ff;
+}
+
+/* IMDb */
+.rating-pill-imdb {
+  background: rgba(245, 197, 24, 0.08);
+  border-color: rgba(245, 197, 24, 0.3);
+}
+.rating-pill-imdb:hover {
+  border-color: rgba(245, 197, 24, 0.8);
+  box-shadow: 0 4px 18px rgba(245, 197, 24, 0.28);
+}
+.rating-brand-label.imdb-brand {
+  background: #f5c518;
+  color: #000000;
+}
+.rating-pill-imdb .rating-score-val {
+  color: #fce881;
+}
+
+/* TMDB */
+.rating-pill-tmdb {
+  background: rgba(1, 180, 228, 0.08);
+  border-color: rgba(1, 180, 228, 0.3);
+}
+.rating-pill-tmdb:hover {
+  border-color: rgba(1, 210, 119, 0.7);
+  box-shadow: 0 4px 18px rgba(1, 180, 228, 0.25);
+}
+.rating-brand-label.tmdb-brand {
+  background: linear-gradient(135deg, #01b4e4 0%, #01d277 100%);
+  color: #04141f;
+}
+.rating-pill-tmdb .rating-score-val {
+  color: #5fe0b0;
+}
+
+/* Compact version for rows and cards */
+.anime-ratings-cluster.compact .rating-pill {
+  padding: 2px 6px 2px 4px;
+  font-size: 10px;
+}
+.anime-ratings-cluster.compact .rating-brand-label {
+  font-size: 8.5px;
+  padding: 1.5px 3.5px;
+}
+.anime-ratings-cluster.compact .rating-score-val {
+  font-size: 10px;
+}
+
+/* ==========================================================================
+   EXTENSION-LOCKED PLAYBACK UI & OVERLAYS
+   ========================================================================== */
+
+.preview-ext-notice-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: linear-gradient(90deg, rgba(232, 185, 79, 0.12) 0%, rgba(15, 23, 42, 0.85) 100%);
+  border: 1px solid rgba(232, 185, 79, 0.35);
+  border-radius: 8px;
+  margin: 16px 0 6px;
+  backdrop-filter: blur(10px);
+}
+
+.preview-ext-notice-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e8b94f;
+  flex-shrink: 0;
+}
+
+.preview-ext-notice-text {
+  font-size: 12.5px;
+  color: #e2e8f0;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.preview-ext-notice-text strong {
+  color: #f6edd9;
+}
+
+.btn-add-extension-prompt {
+  background: none;
+  border: none;
+  color: #e8b94f;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0 4px;
+  font-weight: 600;
+  font-size: 12.5px;
+  transition: color 0.15s;
+}
+.btn-add-extension-prompt:hover {
+  color: #ffffff;
+}
+
+.player-ext-locked-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(13, 22, 34, 0.9) 0%, rgba(5, 8, 14, 0.98) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 24px;
+}
+
+.player-ext-locked-card {
+  max-width: 580px;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(232, 185, 79, 0.35);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 40px rgba(232, 185, 79, 0.1);
+  border-radius: 16px;
+  padding: 36px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.player-ext-locked-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e8b94f, transparent);
+}
+
+.player-ext-locked-icon-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(232, 185, 79, 0.12);
+  border: 1px solid rgba(232, 185, 79, 0.4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #e8b94f;
+  margin-bottom: 20px;
+  box-shadow: 0 0 28px rgba(232, 185, 79, 0.2);
+}
+
+.player-ext-locked-title {
+  font-family: var(--serif-heading, var(--serif));
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px;
+  letter-spacing: 0.02em;
+}
+
+.player-ext-locked-anime-name {
+  font-size: 14px;
+  color: #e8b94f;
+  font-weight: 600;
+  margin: 0 0 16px;
+  letter-spacing: 0.04em;
+}
+
+.player-ext-locked-desc {
+  font-size: 13.5px;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+
+.player-ext-locked-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn-open-store-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 26px;
+  background: linear-gradient(135deg, #e8b94f 0%, #c4932a 100%);
+  color: #080c13;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(232, 185, 79, 0.35);
+}
+
+.btn-open-store-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 26px rgba(232, 185, 79, 0.55);
+  filter: brightness(1.08);
+}
+
+.btn-player-back-sec {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-player-back-sec:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
 
 
