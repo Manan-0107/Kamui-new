@@ -394,7 +394,7 @@ export const Navbar: React.FC = () => {
                       }}
                       title="View & Edit Profile Strength, Social Accounts, and Badges"
                     >
-                      ⚡ Profile Strength &amp; Socials →
+                      Profile Strength &amp; Socials →
                     </button>
                   </div>
                 </div>

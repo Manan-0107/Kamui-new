@@ -6067,43 +6067,102 @@ nextjs-portal,
   padding: 0;
 }
 
+.filter-chips-section {
+  position: relative;
+  z-index: 15;
+  padding: 10px 0 20px;
+}
+
 .filter-chips-section .filter-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
   margin-top: 0;
+  padding: 4px 0;
 }
 
 .filter-chips-section .filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--sans);
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 8px 18px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  color: #cbd5e1;
+  border-radius: 100px;
+  border: 1px solid rgba(232, 185, 79, 0.18);
+  background: linear-gradient(145deg, rgba(16, 23, 34, 0.75) 0%, rgba(9, 13, 20, 0.9) 100%);
+  color: #b5c2d3;
   cursor: pointer;
-  transition: all .2s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.filter-chips-section .filter-chip .chip-icon {
+  color: var(--gold, #e8b94f);
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .filter-chips-section .filter-chip:hover {
-  border-color: var(--gold, #e8b94f);
+  border-color: rgba(232, 185, 79, 0.6);
   color: #ffffff;
-  background: rgba(232, 185, 79, 0.12);
-  transform: translateY(-1px);
+  background: linear-gradient(145deg, rgba(26, 36, 52, 0.85) 0%, rgba(15, 21, 32, 0.95) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 14px rgba(232, 185, 79, 0.25);
+}
+
+.filter-chips-section .filter-chip:hover .chip-icon {
+  transform: scale(1.15);
 }
 
 .filter-chips-section .filter-chip.active {
-  background: var(--gold, #e8b94f);
-  border-color: var(--gold, #e8b94f);
-  color: #0a0f18;
+  background: linear-gradient(135deg, #f5c862 0%, #e8b94f 45%, #c49533 100%);
+  border-color: #ffe494;
+  color: #080c14;
   font-weight: 800;
-  box-shadow: 0 0 16px rgba(232, 185, 79, 0.35);
+  box-shadow: 0 4px 22px rgba(232, 185, 79, 0.45), 0 0 24px rgba(232, 185, 79, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
+
+.filter-chips-section .filter-chip.active .chip-icon {
+  stroke: #080c14;
+  color: #080c14;
+}
+
+.filter-chips-section .filter-chip.chip-special {
+  border-color: rgba(232, 185, 79, 0.32);
+  background: linear-gradient(145deg, rgba(232, 185, 79, 0.08) 0%, rgba(13, 19, 29, 0.9) 100%);
+}
+
+.filter-chips-section .chip-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(232, 185, 79, 0.2);
+  color: var(--gold, #e8b94f);
+  border: 1px solid rgba(232, 185, 79, 0.35);
+}
+
+.filter-chips-section .filter-chip.active .chip-count-badge {
+  background: rgba(8, 12, 20, 0.25);
+  color: #080c14;
+  border-color: rgba(8, 12, 20, 0.3);
+}
+
 
 .netflix-browse-container {
   padding: 10px 0 90px;

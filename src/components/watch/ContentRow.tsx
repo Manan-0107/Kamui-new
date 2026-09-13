@@ -56,8 +56,9 @@ export const ContentRow: React.FC<ContentRowProps> = ({
           <div className="row-empty-text-wrap">
             <h4 className="row-empty-heading">No titles in {title.toLowerCase()} yet</h4>
             <p className="row-empty-desc">
-              {emptyMessage || 'Click the 👍 like icon or add button on any anime card or modal to curate your list.'}
+              {emptyMessage || 'Click the like icon or add button on any anime card or modal to curate your list.'}
             </p>
+
           </div>
           <button
             type="button"
