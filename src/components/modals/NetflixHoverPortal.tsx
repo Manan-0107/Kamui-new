@@ -5,6 +5,7 @@ import { usePlayback } from '@/context/PlaybackContext';
 import { useExtensions } from '@/context/ExtensionsContext';
 import { ANIME_CATALOG } from '@/lib/catalog';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
+import { AnimeImagePreview } from '@/components/visual/AnimeImagePreview';
 import { AnimeRatingBadges } from '@/components/watch/AnimeRatingBadges';
 import { Puzzle } from 'lucide-react';
 
@@ -100,7 +101,12 @@ export const NetflixHoverPortal: React.FC = () => {
           />
         ) : null}
         <div className="hover-popout-art-fallback" style={{ opacity: hasActiveExtension ? undefined : 1 }}>
-          <AnimeArtSvg animeId={anime.id} />
+          <AnimeImagePreview
+            animeId={anime.id}
+            src={anime.bannerImage || anime.posterImage}
+            alt={anime.title}
+            type="banner"
+          />
         </div>
         <div className="hover-popout-gradient" />
 

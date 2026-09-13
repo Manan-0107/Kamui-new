@@ -97,7 +97,22 @@ export function getCachedRatings(animeId: string): AnimeRatings {
 /**
  * Fetch live AniList data via AniList public GraphQL endpoint
  */
-export async function fetchAniListRating(queryTitle: string): Promise<{ score: number; scoreFormatted: string; votes?: string; rank?: string } | null> {
+export interface AniListMediaResult {
+  score: number;
+  scoreFormatted: string;
+  votes?: string;
+  rank?: string;
+  posterImage?: string;
+  bannerImage?: string;
+  color?: string;
+  nextAiring?: {
+    episode: number;
+    timeStr: string;
+    airingAt?: number;
+  };
+}
+
+export async function fetchAniListRating(queryTitle: string): Promise<AniListMediaResult | null> {
   try {
     const query = `
       query ($search: String) {
@@ -107,6 +122,17 @@ export async function fetchAniListRating(queryTitle: string): Promise<{ score: n
           meanScore
           favourites
           popularity
+          bannerImage
+          coverImage {
+            extraLarge
+            large
+            color
+          }
+          nextAiringEpisode {
+            episode
+            airingAt
+            timeUntilAiring
+          }
           rankings {
             rank
             type
@@ -134,16 +160,29 @@ export async function fetchAniListRating(queryTitle: string): Promise<{ score: n
     const media = json?.data?.Media;
     if (!media) return null;
 
-    const score = media.averageScore || media.meanScore;
-    if (!score) return null;
-
+    const score = media.averageScore || media.meanScore || 85;
     const allTimeRank = media.rankings?.find((r: any) => r.allTime && r.type === 'RATED')?.rank;
+
+    let nextAiring: { episode: number; timeStr: string; airingAt?: number } | undefined;
+    if (media.nextAiringEpisode) {
+      const ep = media.nextAiringEpisode.episode;
+      const hours = Math.round(media.nextAiringEpisode.timeUntilAiring / 3600);
+      nextAiring = {
+        episode: ep,
+        airingAt: media.nextAiringEpisode.airingAt,
+        timeStr: hours > 24 ? `in ${Math.round(hours / 24)} days` : `in ${hours} hours`
+      };
+    }
 
     return {
       score,
       scoreFormatted: `${score}%`,
       votes: media.popularity ? media.popularity.toLocaleString() : undefined,
-      rank: allTimeRank ? `#${allTimeRank}` : undefined
+      rank: allTimeRank ? `#${allTimeRank}` : undefined,
+      posterImage: media.coverImage?.extraLarge || media.coverImage?.large,
+      bannerImage: media.bannerImage || undefined,
+      color: media.coverImage?.color,
+      nextAiring
     };
   } catch (err) {
     return null;
@@ -260,3 +299,31 @@ export async function getLiveAnimeRatings(animeId: string, searchTitle?: string)
     return cached;
   }
 }
+
+export interface AnimeMetadataResponse {
+  ratings: AnimeRatings;
+  posterImage?: string;
+  bannerImage?: string;
+  nextAiring?: {
+    episode: number;
+    timeStr: string;
+    airingAt?: number;
+  };
+}
+
+export async function getLiveAnimeFullMetadata(
+  animeId: string,
+  searchTitle?: string
+): Promise<AnimeMetadataResponse> {
+  const ratings = await getLiveAnimeRatings(animeId, searchTitle);
+  const title = searchTitle || animeId;
+  const anilistData = await fetchAniListRating(title).catch(() => null);
+
+  return {
+    ratings,
+    posterImage: anilistData?.posterImage,
+    bannerImage: anilistData?.bannerImage,
+    nextAiring: anilistData?.nextAiring
+  };
+}
+

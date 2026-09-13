@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { AnimeData } from '@/lib/types';
-import { AnimePosterSvg } from '@/components/visual/AnimePosterSvg';
+import { AnimeImagePreview } from '@/components/visual/AnimeImagePreview';
 import { usePlayback } from '@/context/PlaybackContext';
 
 interface WatchCardProps {
@@ -10,7 +10,16 @@ interface WatchCardProps {
 }
 
 export const WatchCard: React.FC<WatchCardProps> = ({ anime }) => {
-  const { openPreview } = usePlayback();
+  const { openPreview, getAnimeTrackerStatus } = usePlayback();
+  const trackerStatus = getAnimeTrackerStatus(anime.id);
+
+  const trackerLabelMap: Record<string, string> = {
+    watching: 'Watching',
+    planning: 'Plan to Watch',
+    completed: 'Completed',
+    on_hold: 'On Hold',
+    dropped: 'Dropped'
+  };
 
   return (
     <button
@@ -24,7 +33,21 @@ export const WatchCard: React.FC<WatchCardProps> = ({ anime }) => {
       data-synopsis={anime.synopsis}
       onClick={() => openPreview(anime.id)}
     >
-      <AnimePosterSvg animeId={anime.id} className="art" />
+      <div className="watch-card-art-wrap">
+        <AnimeImagePreview
+          animeId={anime.id}
+          src={anime.posterImage}
+          alt={anime.title}
+          type="poster"
+          className="art"
+        />
+        {trackerStatus && (
+          <span className={`watch-card-tracker-tag tag-${trackerStatus}`}>
+            {trackerLabelMap[trackerStatus]}
+          </span>
+        )}
+      </div>
+
       {anime.badge && <span className="watch-badge">{anime.badge}</span>}
       <span className="watch-card-meta">
         <span className="watch-card-title">{anime.title}</span>

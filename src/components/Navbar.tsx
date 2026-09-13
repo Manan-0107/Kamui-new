@@ -9,6 +9,7 @@ import { usePlayback } from '@/context/PlaybackContext';
 import { useFriends } from '@/context/FriendsContext';
 import { useExtensions } from '@/context/ExtensionsContext';
 import { DEFAULT_AVATARS } from '@/lib/avatars';
+import { Bell, CheckCheck, Trash2, Clock, Puzzle, Radio, Tv } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
@@ -24,14 +25,19 @@ export const Navbar: React.FC = () => {
   const { cycleTheme } = useTheme();
   const { user, logout, updateAvatar, openAuthModal, openProfileModal } = useAuth();
   const { friends, openFriendsModal } = useFriends();
-  const { openModal: openExtensionsModal } = useExtensions();
+  const { activeExtension, openModal: openExtensionsModal } = useExtensions();
   const {
     searchQuery,
     setSearchQuery,
     isSearchOpen,
     setIsSearchOpen,
     openPreview,
-    toggleSidebar
+    toggleSidebar,
+    notifications,
+    unreadNotificationCount,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    clearNotifications
   } = usePlayback();
 
   const profileRef = useRef<HTMLDivElement | null>(null);
@@ -272,68 +278,118 @@ export const Navbar: React.FC = () => {
           </svg>
         </button>
 
-        {/* Notifications Bell on Watch page */}
-        {isWatchPage && (
-          <div className="nav-notify-wrap" id="navNotifyWrap" ref={notifyRef}>
-            <button
-              type="button"
-              className="nav-notify-btn"
-              id="navNotifyBtn"
-              title="Notifications"
-              aria-label="Notifications"
-              onClick={(e) => {
-                e.stopPropagation();
-                setNotifyDropdownOpen(!notifyDropdownOpen);
-              }}
-            >
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
-              </svg>
-              <span className="notify-badge" />
-            </button>
+        {/* Tracker Mode Pill (Stremio / Mihon style indicator) */}
+        <button
+          type="button"
+          className="nav-tracker-mode-badge"
+          id="navTrackerModeBtn"
+          title={
+            activeExtension
+              ? `Active Streaming Source: ${activeExtension.name} (Click to manage)`
+              : 'Tracker & Discovery Mode Active · Install extension for video streaming'
+          }
+          onClick={() => openExtensionsModal(activeExtension ? 'installed' : 'store')}
+        >
+          {activeExtension ? (
+            <>
+              <Radio size={13} className="text-gold animate-pulse" />
+              <span className="tracker-badge-label">{activeExtension.name.split(' ')[0]}</span>
+            </>
+          ) : (
+            <>
+              <Tv size={13} />
+              <span className="tracker-badge-label">Tracker Mode</span>
+            </>
+          )}
+        </button>
 
-            {notifyDropdownOpen && (
-              <div className="nav-notify-dropdown" id="navNotifyDropdown" style={{ display: 'flex' }}>
-                <div
-                  className="notify-item"
-                  onClick={() => {
-                    openPreview('kamui');
-                    setNotifyDropdownOpen(false);
-                  }}
-                >
-                  <div className="notify-thumb">
-                    <svg viewBox="0 0 44 28">
-                      <rect width="44" height="28" fill="#12131a" />
-                      <circle cx="22" cy="14" r="8" fill="#e8b94f" />
-                    </svg>
-                  </div>
-                  <div className="notify-text">
-                    <span className="notify-title">Kamui Ep. 4 Now Streaming!</span>
-                    <span className="notify-sub">Simulcast in 4K HDR · 2h ago</span>
-                  </div>
-                </div>
-                <div
-                  className="notify-item"
-                  onClick={() => {
-                    openPreview('ashfall-district');
-                    setNotifyDropdownOpen(false);
-                  }}
-                >
-                  <div className="notify-thumb">
-                    <svg viewBox="0 0 44 28">
-                      <rect width="44" height="28" fill="#0d1a1e" />
-                      <circle cx="22" cy="14" r="8" fill="#6fa8b5" />
-                    </svg>
-                  </div>
-                  <div className="notify-text">
-                    <span className="notify-title">Ashfall District Trending #1</span>
-                    <span className="notify-sub">New episode drops tonight</span>
-                  </div>
+        {/* Notifications Bell */}
+        <div className="nav-notify-wrap" id="navNotifyWrap" ref={notifyRef}>
+          <button
+            type="button"
+            className="nav-notify-btn"
+            id="navNotifyBtn"
+            title="Simulcast Episode Drops & Alerts"
+            aria-label="Notifications"
+            onClick={(e) => {
+              e.stopPropagation();
+              setNotifyDropdownOpen(!notifyDropdownOpen);
+            }}
+          >
+            <Bell size={18} />
+            {unreadNotificationCount > 0 && (
+              <span className="notify-badge-count">{unreadNotificationCount}</span>
+            )}
+          </button>
+
+          {notifyDropdownOpen && (
+            <div className="nav-notify-dropdown" id="navNotifyDropdown" style={{ display: 'flex' }}>
+              <div className="notify-dropdown-header">
+                <span className="notify-dropdown-title">Simulcast Alerts</span>
+                <div className="notify-dropdown-actions">
+                  {unreadNotificationCount > 0 && (
+                    <button
+                      type="button"
+                      className="notify-action-link"
+                      title="Mark all as read"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        markAllNotificationsAsRead();
+                      }}
+                    >
+                      <CheckCheck size={14} />
+                      <span>Read All</span>
+                    </button>
+                  )}
+                  {notifications.length > 0 && (
+                    <button
+                      type="button"
+                      className="notify-action-link"
+                      title="Clear notifications"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearNotifications();
+                      }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
-        )}
+
+              <div className="notify-list">
+                {notifications.length === 0 ? (
+                  <div className="notify-empty-state">
+                    <Clock size={20} className="text-dim" style={{ marginBottom: 4 }} />
+                    <p>No new simulcast alerts</p>
+                    <span>Subscribe to any anime to receive drop notifications</span>
+                  </div>
+                ) : (
+                  notifications.map((n) => (
+                    <div
+                      key={n.id}
+                      className={`notify-item ${n.read ? 'read' : 'unread'}`}
+                      onClick={() => {
+                        markNotificationAsRead(n.id);
+                        openPreview(n.animeId);
+                        setNotifyDropdownOpen(false);
+                      }}
+                    >
+                      <div className="notify-status-dot" />
+                      <div className="notify-text">
+                        <span className="notify-title">
+                          {n.animeTitle} · Episode {n.episodeNum}
+                        </span>
+                        <p className="notify-msg">{n.message}</p>
+                        <span className="notify-sub">{n.timeAgo}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* User Profile / Auth State */}
         {user?.loggedIn ? (

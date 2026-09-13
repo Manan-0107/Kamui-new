@@ -13,7 +13,7 @@ import { usePlayback } from '@/context/PlaybackContext';
 import { ANIME_CATALOG, CATALOG_IDS } from '@/lib/catalog';
 
 export default function WatchPage() {
-  const { filterGenre, searchQuery, watchlist, likedTitles, clearLikedTitles } = usePlayback();
+  const { filterGenre, searchQuery, watchlist, likedTitles, clearLikedTitles, trackerStatus } = usePlayback();
 
   // Handle hash scrolling on page load
   useEffect(() => {
@@ -46,11 +46,51 @@ export default function WatchPage() {
     });
   }, [searchQuery]);
 
+  // Personalized suggestions based on what the user liked
+  const recommendedData = useMemo(() => {
+    if (likedTitles.length > 0) {
+      const lastLikedId = likedTitles[likedTitles.length - 1];
+      const sourceAnime = ANIME_CATALOG[lastLikedId];
+      if (sourceAnime) {
+        const recs = CATALOG_IDS.filter(
+          (id) =>
+            id !== sourceAnime.id &&
+            (sourceAnime.relatedIds.includes(id) ||
+              ANIME_CATALOG[id].genres.some((g) => sourceAnime.genres.includes(g)))
+        );
+        return {
+          title: `Because You Liked "${sourceAnime.title}"`,
+          kanji: '推',
+          animeIds: recs.length > 0 ? recs : ['kamui', 'iron-tide', 'ashfall-district']
+        };
+      }
+    }
+    return {
+      title: 'Recommended For You',
+      kanji: '推',
+      animeIds: ['kamui', 'ashfall-district', 'paper-moon-society', 'nine-crows-inn']
+    };
+  }, [likedTitles]);
+
+  // Simulcast Airing Schedule & What's New
+  const simulcastScheduleIds = useMemo(() => {
+    return CATALOG_IDS.filter((id) => Boolean(ANIME_CATALOG[id]?.nextAiring));
+  }, []);
+
   // Catalog Grid filtering
   const filteredCatalogIds = useMemo(() => {
     if (filterGenre === 'all') return CATALOG_IDS;
     if (filterGenre === 'watchlist') return watchlist;
     if (filterGenre === 'liked') return likedTitles;
+    if (filterGenre === 'tracking-watching') {
+      return CATALOG_IDS.filter((id) => trackerStatus[id] === 'watching');
+    }
+    if (filterGenre === 'tracking-planning') {
+      return CATALOG_IDS.filter((id) => trackerStatus[id] === 'planning');
+    }
+    if (filterGenre === 'tracking-completed') {
+      return CATALOG_IDS.filter((id) => trackerStatus[id] === 'completed');
+    }
     return CATALOG_IDS.filter((id) => {
       const anime = ANIME_CATALOG[id];
       if (!anime) return false;
@@ -59,7 +99,7 @@ export default function WatchPage() {
         anime.genres.some((g) => g.toLowerCase() === filterGenre.toLowerCase())
       );
     });
-  }, [filterGenre, watchlist, likedTitles]);
+  }, [filterGenre, watchlist, likedTitles, trackerStatus]);
 
   return (
     <>
@@ -87,7 +127,24 @@ export default function WatchPage() {
         {/* Row 1: Continue Watching */}
         <ContinueWatchingShelf />
 
-        {/* Row 2: My Watchlist */}
+        {/* Row 2: Recommended / Because You Liked */}
+        <ContentRow
+          id="recommendedSection"
+          kanji={recommendedData.kanji}
+          title={recommendedData.title}
+          animeIds={recommendedData.animeIds}
+        />
+
+        {/* Row 3: Simulcast Drops & Airing Schedule */}
+        <ContentRow
+          id="simulcastScheduleSection"
+          kanji="放"
+          title="Simulcast Drops & Airing Schedule"
+          countBadge={simulcastScheduleIds.length}
+          animeIds={simulcastScheduleIds}
+        />
+
+        {/* Row 4: My Watchlist */}
         {watchlist.length > 0 && (
           <ContentRow
             id="myWatchlistSection"
@@ -98,7 +155,7 @@ export default function WatchPage() {
           />
         )}
 
-        {/* Row 3: Liked Anime */}
+        {/* Row 5: Liked Anime */}
         {likedTitles.length > 0 && (
           <ContentRow
             id="likedAnimeSection"
@@ -111,10 +168,10 @@ export default function WatchPage() {
           />
         )}
 
-        {/* Row 4: Top 10 in Anime Today */}
+        {/* Row 6: Top 10 in Anime Today */}
         <Top10Track />
 
-        {/* Row 5: Trending Now & Simulcasts */}
+        {/* Row 7: Trending Now & Simulcasts */}
         <ContentRow
           id="trendingSection"
           kanji="熱"

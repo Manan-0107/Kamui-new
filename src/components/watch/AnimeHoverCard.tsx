@@ -5,6 +5,7 @@ import { AnimeData } from '@/lib/types';
 import { usePlayback } from '@/context/PlaybackContext';
 import { useExtensions } from '@/context/ExtensionsContext';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
+import { AnimeImagePreview } from '@/components/visual/AnimeImagePreview';
 import { AnimeRatingBadges } from '@/components/watch/AnimeRatingBadges';
 import { Puzzle } from 'lucide-react';
 
@@ -66,7 +67,12 @@ export const AnimeHoverCard: React.FC<AnimeHoverCardProps> = ({ anime }) => {
           />
         ) : null}
         <div className="hover-popout-art-fallback" style={{ opacity: hasActiveExtension ? undefined : 1 }}>
-          <AnimeArtSvg animeId={anime.id} />
+          <AnimeImagePreview
+            animeId={anime.id}
+            src={anime.bannerImage || anime.posterImage}
+            alt={anime.title}
+            type="banner"
+          />
         </div>
         <div className="hover-popout-gradient" />
 

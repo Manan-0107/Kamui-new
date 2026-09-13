@@ -11,6 +11,9 @@ interface GenreChip {
 
 const GENRES: GenreChip[] = [
   { id: 'all', label: 'All', sectionId: 'contentRowsContainer' },
+  { id: 'tracking-watching', label: 'Watching', sectionId: 'fullCatalogSection' },
+  { id: 'tracking-planning', label: 'Plan to Watch', sectionId: 'fullCatalogSection' },
+  { id: 'tracking-completed', label: 'Completed', sectionId: 'fullCatalogSection' },
   { id: 'liked', label: 'Liked', sectionId: 'likedAnimeSection' },
   { id: 'watchlist', label: 'My List', sectionId: 'myWatchlistSection' },
   { id: 'Dark fantasy', label: 'Dark Fantasy', sectionId: 'darkFantasySection' },

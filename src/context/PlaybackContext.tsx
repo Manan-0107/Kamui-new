@@ -1,13 +1,49 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { ContinueWatchingItem } from '@/lib/types';
+import { ContinueWatchingItem, TrackerStatus, AnimeNotification } from '@/lib/types';
 import { ANIME_CATALOG } from '@/lib/catalog';
 import { useToast } from './ToastContext';
 
 const WATCHLIST_STORAGE_KEY = 'kamui_watchlist';
 const CONTINUE_STORAGE_KEY = 'kamui_continue_watching';
 const LIKED_STORAGE_KEY = 'kamui_liked_titles';
+const TRACKER_STORAGE_KEY = 'kamui_anime_tracker';
+const NOTIF_SUBS_KEY = 'kamui_subscribed_notifs';
+const NOTIFS_LIST_KEY = 'kamui_anime_notifications';
+
+const DEFAULT_NOTIFICATIONS: AnimeNotification[] = [
+  {
+    id: 'notif-1',
+    animeId: 'kamui',
+    animeTitle: 'Blade of Kamui',
+    episodeNum: 9,
+    message: 'Episode 9 airs tonight at 23:00 JST. Simulcast ready.',
+    timeAgo: '2h ago',
+    read: false,
+    timestamp: Date.now() - 7200000
+  },
+  {
+    id: 'notif-2',
+    animeId: 'ashfall-district',
+    animeTitle: 'Ashfall District',
+    episodeNum: 8,
+    message: 'Episode 8 simulcast broadcast scheduled for tomorrow 18:30 JST.',
+    timeAgo: '5h ago',
+    read: false,
+    timestamp: Date.now() - 18000000
+  },
+  {
+    id: 'notif-3',
+    animeId: 'iron-tide',
+    animeTitle: 'Iron Tide',
+    episodeNum: 14,
+    message: 'Added to your Plan to Watch tracker list. New episode drops Saturday.',
+    timeAgo: '1d ago',
+    read: true,
+    timestamp: Date.now() - 86400000
+  }
+];
 
 interface PlaybackContextType {
   // Preview Modal
@@ -57,6 +93,21 @@ interface PlaybackContextType {
   isSearchOpen: boolean;
   setIsSearchOpen: (open: boolean) => void;
 
+  // Anime Tracker System
+  trackerStatus: Record<string, TrackerStatus>;
+  setAnimeTrackerStatus: (animeId: string, status: TrackerStatus | null) => void;
+  getAnimeTrackerStatus: (animeId: string) => TrackerStatus | undefined;
+
+  // Simulcast Notifications
+  subscribedAnimeIds: string[];
+  toggleNotificationSubscription: (animeId: string) => void;
+  isNotificationSubscribed: (animeId: string) => boolean;
+  notifications: AnimeNotification[];
+  unreadNotificationCount: number;
+  markNotificationAsRead: (id: string) => void;
+  markAllNotificationsAsRead: () => void;
+  clearNotifications: () => void;
+
   // Global Hover Portal
   hoveredAnimeId: string | null;
   hoverRect: { top: number; left: number; width: number; height: number } | null;
@@ -76,6 +127,13 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [watchlist, setWatchlist] = useState<string[]>([]);
   const [continueWatching, setContinueWatching] = useState<ContinueWatchingItem[]>([]);
   const [likedTitles, setLikedTitles] = useState<string[]>([]);
+
+  // Anime Tracker System State
+  const [trackerStatus, setTrackerStatus] = useState<Record<string, TrackerStatus>>({});
+
+  // Simulcast Notifications State
+  const [subscribedAnimeIds, setSubscribedAnimeIds] = useState<string[]>([]);
+  const [notifications, setNotifications] = useState<AnimeNotification[]>([]);
 
   const [filterGenre, setFilterGenre] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -157,6 +215,36 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const defaultLikes = ['kamui', 'nine-crows-inn'];
         setLikedTitles(defaultLikes);
         localStorage.setItem(LIKED_STORAGE_KEY, JSON.stringify(defaultLikes));
+      }
+
+      const rawTracker = localStorage.getItem(TRACKER_STORAGE_KEY);
+      if (rawTracker) {
+        setTrackerStatus(JSON.parse(rawTracker));
+      } else {
+        const defaultTracker: Record<string, TrackerStatus> = {
+          kamui: 'watching',
+          'ashfall-district': 'watching',
+          'iron-tide': 'planning'
+        };
+        setTrackerStatus(defaultTracker);
+        localStorage.setItem(TRACKER_STORAGE_KEY, JSON.stringify(defaultTracker));
+      }
+
+      const rawSubbed = localStorage.getItem(NOTIF_SUBS_KEY);
+      if (rawSubbed) {
+        setSubscribedAnimeIds(JSON.parse(rawSubbed));
+      } else {
+        const defaultSubbed = ['kamui', 'ashfall-district'];
+        setSubscribedAnimeIds(defaultSubbed);
+        localStorage.setItem(NOTIF_SUBS_KEY, JSON.stringify(defaultSubbed));
+      }
+
+      const rawNotifs = localStorage.getItem(NOTIFS_LIST_KEY);
+      if (rawNotifs) {
+        setNotifications(JSON.parse(rawNotifs));
+      } else {
+        setNotifications(DEFAULT_NOTIFICATIONS);
+        localStorage.setItem(NOTIFS_LIST_KEY, JSON.stringify(DEFAULT_NOTIFICATIONS));
       }
     } catch (e) {}
   }, []);
@@ -324,6 +412,123 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     showToast('Liked anime list cleared', 'info');
   }, [showToast]);
 
+  // Anime Tracker Handlers
+  const setAnimeTrackerStatus = useCallback(
+    (animeId: string, status: TrackerStatus | null) => {
+      const anime = ANIME_CATALOG[animeId];
+      setTrackerStatus((prev) => {
+        const next = { ...prev };
+        if (!status) {
+          delete next[animeId];
+          try {
+            localStorage.setItem(TRACKER_STORAGE_KEY, JSON.stringify(next));
+          } catch (e) {}
+          if (anime) showToast(`Removed "${anime.title}" from your Tracker`, 'info');
+        } else {
+          next[animeId] = status;
+          try {
+            localStorage.setItem(TRACKER_STORAGE_KEY, JSON.stringify(next));
+          } catch (e) {}
+          const labels: Record<TrackerStatus, string> = {
+            watching: 'Watching',
+            planning: 'Plan to Watch',
+            completed: 'Completed',
+            on_hold: 'On Hold',
+            dropped: 'Dropped'
+          };
+          if (anime) showToast(`Marked "${anime.title}" as ${labels[status]}`, 'success');
+        }
+        return next;
+      });
+    },
+    [showToast]
+  );
+
+  const getAnimeTrackerStatus = useCallback(
+    (animeId: string): TrackerStatus | undefined => {
+      return trackerStatus[animeId];
+    },
+    [trackerStatus]
+  );
+
+  // Simulcast Notifications Handlers
+  const toggleNotificationSubscription = useCallback(
+    (animeId: string) => {
+      const anime = ANIME_CATALOG[animeId];
+      setSubscribedAnimeIds((prev) => {
+        const isSubbed = prev.includes(animeId);
+        const next = isSubbed ? prev.filter((id) => id !== animeId) : [...prev, animeId];
+        try {
+          localStorage.setItem(NOTIF_SUBS_KEY, JSON.stringify(next));
+        } catch (e) {}
+
+        if (!isSubbed && anime) {
+          showToast(`Simulcast alerts enabled for "${anime.title}"`, 'success');
+          const newNotif: AnimeNotification = {
+            id: `sub-${animeId}-${Date.now()}`,
+            animeId,
+            animeTitle: anime.title,
+            episodeNum: anime.nextAiring?.episode || 1,
+            message: `Simulcast alerts active: Episode ${anime.nextAiring?.episode || 2} drops ${anime.nextAiring?.timeStr || 'soon'}.`,
+            timeAgo: 'Just now',
+            read: false,
+            timestamp: Date.now()
+          };
+          setNotifications((n) => {
+            const updated = [newNotif, ...n.filter((item) => item.id !== newNotif.id)].slice(0, 20);
+            try {
+              localStorage.setItem(NOTIFS_LIST_KEY, JSON.stringify(updated));
+            } catch (e) {}
+            return updated;
+          });
+        } else if (anime) {
+          showToast(`Alerts disabled for "${anime.title}"`, 'info');
+        }
+        return next;
+      });
+    },
+    [showToast]
+  );
+
+  const isNotificationSubscribed = useCallback(
+    (animeId: string): boolean => {
+      return subscribedAnimeIds.includes(animeId);
+    },
+    [subscribedAnimeIds]
+  );
+
+  const markNotificationAsRead = useCallback((id: string) => {
+    setNotifications((prev) => {
+      const next = prev.map((n) => (n.id === id ? { ...n, read: true } : n));
+      try {
+        localStorage.setItem(NOTIFS_LIST_KEY, JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  }, []);
+
+  const markAllNotificationsAsRead = useCallback(() => {
+    setNotifications((prev) => {
+      const next = prev.map((n) => ({ ...n, read: true }));
+      try {
+        localStorage.setItem(NOTIFS_LIST_KEY, JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+    showToast('All notifications marked as read', 'info');
+  }, [showToast]);
+
+  const clearNotifications = useCallback(() => {
+    setNotifications([]);
+    try {
+      localStorage.removeItem(NOTIFS_LIST_KEY);
+    } catch (e) {}
+    showToast('Notifications cleared', 'info');
+  }, [showToast]);
+
+  const unreadNotificationCount = notifications.filter((n) => !n.read).length;
+
+
   return (
     <PlaybackContext.Provider
       value={{
@@ -362,7 +567,18 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         toggleSidebar,
         hoveredAnimeId,
         hoverRect,
-        setHoveredCard
+        setHoveredCard,
+        trackerStatus,
+        setAnimeTrackerStatus,
+        getAnimeTrackerStatus,
+        subscribedAnimeIds,
+        toggleNotificationSubscription,
+        isNotificationSubscribed,
+        notifications,
+        unreadNotificationCount,
+        markNotificationAsRead,
+        markAllNotificationsAsRead,
+        clearNotifications
       }}
     >
       {children}

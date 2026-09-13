@@ -5,9 +5,11 @@ import { usePlayback } from '@/context/PlaybackContext';
 import { useExtensions } from '@/context/ExtensionsContext';
 import { ANIME_CATALOG } from '@/lib/catalog';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
+import { AnimeImagePreview } from '@/components/visual/AnimeImagePreview';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { AnimeRatingBadges } from '@/components/watch/AnimeRatingBadges';
-import { Puzzle, MessageSquare } from 'lucide-react';
+import { Puzzle, MessageSquare, Bell, Bookmark, Check, Clock } from 'lucide-react';
+import { TrackerStatus } from '@/lib/types';
 
 export const NetflixPreviewModal: React.FC = () => {
   const {
@@ -19,17 +21,32 @@ export const NetflixPreviewModal: React.FC = () => {
     toggleWatchlist,
     isLiked,
     toggleLike,
-    openPreview
+    openPreview,
+    getAnimeTrackerStatus,
+    setAnimeTrackerStatus,
+    isNotificationSubscribed,
+    toggleNotificationSubscription
   } = usePlayback();
 
   const { extensions, activeExtension, openModal: openExtensionsModal } = useExtensions();
 
   const [activeTab, setActiveTab] = useState<'episodes' | 'more-like-this' | 'about' | 'discussion'>('episodes');
   const [isMuted, setIsMuted] = useState(true);
+  const [isTrackerOpen, setIsTrackerOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const anime = previewAnimeId ? ANIME_CATALOG[previewAnimeId] : null;
   const hasActiveExtension = Boolean(activeExtension && activeExtension.enabled);
+  const currentTracker = anime ? getAnimeTrackerStatus(anime.id) : undefined;
+  const isSubbed = anime ? isNotificationSubscribed(anime.id) : false;
+
+  const trackerOptions: { value: TrackerStatus; label: string }[] = [
+    { value: 'watching', label: 'Watching' },
+    { value: 'planning', label: 'Plan to Watch' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'on_hold', label: 'On Hold' },
+    { value: 'dropped', label: 'Dropped' }
+  ];
 
   // Handle ESC key
   useEffect(() => {
@@ -116,7 +133,13 @@ export const NetflixPreviewModal: React.FC = () => {
               />
             ) : (
               <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-                <AnimeArtSvg animeId={anime.id} />
+                <AnimeImagePreview
+                  animeId={anime.id}
+                  src={anime.bannerImage || anime.posterImage}
+                  alt={anime.title}
+                  type="banner"
+                  priority
+                />
               </div>
             )}
             <div className="preview-hero-gradient-overlay" />
@@ -218,6 +241,79 @@ export const NetflixPreviewModal: React.FC = () => {
                 <svg viewBox="0 0 24 24" width="20" height="20" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
                   <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
                 </svg>
+              </button>
+
+              {/* Anime Tracker Status Dropdown */}
+              <div className="tracker-dropdown-wrap" style={{ position: 'relative', display: 'inline-block' }}>
+                <button
+                  type="button"
+                  className={`btn-netflix-tracker ${currentTracker ? 'active' : ''}`}
+                  id="previewTrackerBtn"
+                  title="Update Anime Tracking Status (Mihon / AniList style)"
+                  onClick={() => setIsTrackerOpen(!isTrackerOpen)}
+                >
+                  <Bookmark size={16} style={{ marginRight: 6 }} />
+                  <span>
+                    {currentTracker
+                      ? trackerOptions.find((o) => o.value === currentTracker)?.label
+                      : 'Track'}
+                  </span>
+                </button>
+
+                {isTrackerOpen && (
+                  <div
+                    className="tracker-dropdown-menu"
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 8px)',
+                      left: 0,
+                      zIndex: 150
+                    }}
+                  >
+                    {trackerOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        className={`tracker-menu-opt ${currentTracker === opt.value ? 'selected' : ''}`}
+                        onClick={() => {
+                          setAnimeTrackerStatus(anime.id, opt.value);
+                          setIsTrackerOpen(false);
+                        }}
+                      >
+                        {currentTracker === opt.value && <Check size={14} style={{ marginRight: 6 }} />}
+                        <span>{opt.label}</span>
+                      </button>
+                    ))}
+                    {currentTracker && (
+                      <button
+                        type="button"
+                        className="tracker-menu-opt opt-remove"
+                        onClick={() => {
+                          setAnimeTrackerStatus(anime.id, null);
+                          setIsTrackerOpen(false);
+                        }}
+                      >
+                        <span>Remove from Tracker</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Notify Me When Next Episode Drops Button */}
+              <button
+                type="button"
+                className={`btn-netflix-icon ${isSubbed ? 'active' : ''}`}
+                id="previewNotifyBtn"
+                title={
+                  isSubbed
+                    ? 'Simulcast alerts active (Click to disable)'
+                    : 'Notify me when next episode airs'
+                }
+                aria-label="Toggle simulcast alerts"
+                onClick={() => toggleNotificationSubscription(anime.id)}
+              >
+                <Bell size={18} fill={isSubbed ? 'currentColor' : 'none'} />
               </button>
 
               <div className="preview-quality-tags">
@@ -360,7 +456,13 @@ export const NetflixPreviewModal: React.FC = () => {
                   >
                     <div className="episode-num-col">{ep.num}</div>
                     <div className="episode-thumb-col">
-                      <AnimeArtSvg animeId={anime.id} className="w-full h-full object-cover" />
+                      <AnimeImagePreview
+                        animeId={anime.id}
+                        src={anime.bannerImage || anime.posterImage}
+                        alt={`${anime.title} Episode ${ep.num}`}
+                        type="banner"
+                        className="w-full h-full object-cover"
+                      />
                       <div className="episode-play-hover">
                         {hasActiveExtension ? (
                           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
@@ -399,7 +501,13 @@ export const NetflixPreviewModal: React.FC = () => {
                       onClick={() => openPreview(rel.id)}
                     >
                       <div className="more-like-thumb">
-                        <AnimeArtSvg animeId={rel.id} className="w-full h-full object-cover" />
+                        <AnimeImagePreview
+                          animeId={rel.id}
+                          src={rel.posterImage || rel.bannerImage}
+                          alt={rel.title}
+                          type="poster"
+                          className="w-full h-full object-cover"
+                        />
                         <span className="more-like-duration">{rel.seasonsCount}</span>
                       </div>
                       <div className="more-like-body">

@@ -11492,5 +11492,420 @@ nextjs-portal,
   border-color: rgba(255, 255, 255, 0.28);
 }
 
+/* ==========================================================================
+   ANIME IMAGE PREVIEWS & FALLBACK TRANSITIONS
+   ========================================================================== */
+.anime-img-preview-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #080c14;
+}
+
+.anime-img-preview-placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.anime-img-preview-real {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.anime-img-preview-real.loaded {
+  opacity: 1;
+}
+
+.anime-img-preview-fallback {
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================================================================
+   WATCH CARD ART & TRACKER STATUS BADGES
+   ========================================================================== */
+.watch-card-art-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.watch-card-tracker-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.watch-card-tracker-tag.tag-watching {
+  background: rgba(46, 160, 67, 0.85);
+  color: #ffffff;
+  border-color: rgba(63, 185, 80, 0.4);
+}
+
+.watch-card-tracker-tag.tag-planning {
+  background: rgba(232, 185, 79, 0.85);
+  color: #080c14;
+  border-color: rgba(232, 185, 79, 0.5);
+}
+
+.watch-card-tracker-tag.tag-completed {
+  background: rgba(56, 139, 253, 0.85);
+  color: #ffffff;
+  border-color: rgba(88, 166, 255, 0.4);
+}
+
+.watch-card-tracker-tag.tag-on_hold {
+  background: rgba(210, 153, 34, 0.85);
+  color: #ffffff;
+}
+
+.watch-card-tracker-tag.tag-dropped {
+  background: rgba(248, 81, 73, 0.85);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   NAVBAR TRACKER MODE BADGE & SIMULCAST NOTIFICATIONS
+   ========================================================================== */
+.nav-tracker-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 100px;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-tracker-mode-badge:hover {
+  background: rgba(232, 185, 79, 0.12);
+  border-color: rgba(232, 185, 79, 0.35);
+  color: #e8b94f;
+}
+
+.nav-tracker-mode-badge .tracker-badge-label {
+  font-family: var(--sans);
+}
+
+.nav-notify-wrap {
+  position: relative;
+}
+
+.nav-notify-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-notify-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.notify-badge-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 10px;
+  background: #e8b94f;
+  color: #080c14;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(232, 185, 79, 0.5);
+}
+
+.nav-notify-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 340px;
+  max-width: 90vw;
+  background: rgba(13, 17, 26, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(232, 185, 79, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1000;
+  flex-direction: column;
+  overflow: hidden;
+  animation: notifyDropFade 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes notifyDropFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.notify-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.notify-dropdown-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #e2e8f0;
+}
+
+.notify-dropdown-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notify-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.notify-action-link:hover {
+  color: #e8b94f;
+}
+
+.notify-list {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.notify-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 20px;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.notify-empty-state p {
+  font-weight: 600;
+  color: #94a3b8;
+  margin: 4px 0 2px;
+}
+
+.notify-empty-state span {
+  font-size: 11px;
+}
+
+.notify-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.18s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.notify-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.notify-item.unread {
+  background: rgba(232, 185, 79, 0.04);
+}
+
+.notify-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e8b94f;
+  margin-top: 5px;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(232, 185, 79, 0.8);
+}
+
+.notify-item.read .notify-status-dot {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: none;
+}
+
+.notify-item .notify-text {
+  flex: 1;
+}
+
+.notify-item .notify-title {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.35;
+}
+
+.notify-item .notify-msg {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin: 3px 0 4px;
+}
+
+.notify-item .notify-sub {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   TRACKER STATUS CONTROLS (BILLBOARD & MODAL)
+   ========================================================================== */
+.btn-billboard-tracker,
+.btn-netflix-tracker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-billboard-tracker:hover,
+.btn-netflix-tracker:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+}
+
+.btn-billboard-tracker.active,
+.btn-netflix-tracker.active {
+  background: rgba(232, 185, 79, 0.18);
+  border-color: rgba(232, 185, 79, 0.6);
+  color: #e8b94f;
+}
+
+.tracker-dropdown-menu {
+  width: 180px;
+  background: rgba(13, 18, 28, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.tracker-menu-opt {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tracker-menu-opt:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.tracker-menu-opt.selected {
+  background: rgba(232, 185, 79, 0.15);
+  color: #e8b94f;
+  font-weight: 700;
+}
+
+.tracker-menu-opt.opt-remove {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 4px;
+  color: #f87171;
+}
+
+.tracker-menu-opt.opt-remove:hover {
+  background: rgba(248, 113, 113, 0.12);
+  color: #fca5a5;
+}
+
+.billboard-badge-airing {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
+}
+
+.billboard-badge-tracker-notice {
+  background: rgba(232, 185, 79, 0.15);
+  border-color: rgba(232, 185, 79, 0.4);
+  color: #e8b94f;
+}
+
+
 
 

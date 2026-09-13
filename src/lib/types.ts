@@ -20,6 +20,25 @@ export interface AnimeRatings {
   tmdb: RatingSource;
 }
 
+export type TrackerStatus = 'watching' | 'planning' | 'completed' | 'on_hold' | 'dropped';
+
+export interface NextAiringInfo {
+  episode: number;
+  timeStr: string;
+  airingAt?: number;
+}
+
+export interface AnimeNotification {
+  id: string;
+  animeId: string;
+  animeTitle: string;
+  episodeNum: number;
+  message: string;
+  timeAgo: string;
+  read: boolean;
+  timestamp: number;
+}
+
 export interface AnimeData {
   id: string;
   title: string;
@@ -32,6 +51,10 @@ export interface AnimeData {
   rating: string;
   match: string;
   ratings?: AnimeRatings;
+  posterImage?: string;
+  bannerImage?: string;
+  nextAiring?: NextAiringInfo;
+  trackerStatus?: TrackerStatus;
   contentType?: 'series' | 'movie';
   duration?: string;
   seasonsCount: string;

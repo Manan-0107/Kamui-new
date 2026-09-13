@@ -368,19 +368,89 @@ const RAW_CATALOG: Record<string, AnimeData> = {
   }
 };
 
+// High-Definition authentic anime key visual & backdrop image previews
+export const ANIME_IMAGE_MAP: Record<
+  string,
+  { poster: string; banner: string; nextAiring?: { episode: number; timeStr: string } }
+> = {
+  kamui: {
+    poster: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1600&auto=format&fit=crop&q=80',
+    nextAiring: { episode: 9, timeStr: 'Tonight 23:00 JST' }
+  },
+  'ashfall-district': {
+    poster: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=1600&auto=format&fit=crop&q=80',
+    nextAiring: { episode: 8, timeStr: 'Tomorrow 18:30 JST' }
+  },
+  'paper-moon-society': {
+    poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&auto=format&fit=crop&q=80',
+    nextAiring: { episode: 11, timeStr: 'Friday 22:00 JST' }
+  },
+  'iron-tide': {
+    poster: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=1600&auto=format&fit=crop&q=80',
+    nextAiring: { episode: 14, timeStr: 'Saturday 00:30 JST' }
+  },
+  'nine-crows-inn': {
+    poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&auto=format&fit=crop&q=80',
+    nextAiring: { episode: 7, timeStr: 'Sunday 21:00 JST' }
+  },
+  glasshouse: {
+    poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1600&auto=format&fit=crop&q=80',
+    nextAiring: { episode: 6, timeStr: 'Monday 20:00 JST' }
+  },
+  'hollow-meridian': {
+    poster: 'https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?w=1600&auto=format&fit=crop&q=80',
+    nextAiring: { episode: 10, timeStr: 'Tuesday 23:30 JST' }
+  },
+  'static-requiem': {
+    poster: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1600&auto=format&fit=crop&q=80',
+    nextAiring: { episode: 5, timeStr: 'Wednesday 22:30 JST' }
+  },
+  'long-thaw': {
+    poster: 'https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?w=1600&auto=format&fit=crop&q=80',
+    nextAiring: { episode: 12, timeStr: 'Thursday 21:00 JST' }
+  },
+  'kamui-movie': {
+    poster: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1600&auto=format&fit=crop&q=80'
+  },
+  'ashfall-movie': {
+    poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&auto=format&fit=crop&q=80'
+  },
+  'papermoon-movie': {
+    poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=700&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1600&auto=format&fit=crop&q=80'
+  }
+};
+
 export const ANIME_CATALOG: Record<string, AnimeData> = Object.fromEntries(
-  Object.entries(RAW_CATALOG).map(([key, anime]) => [
-    key,
-    {
-      ...anime,
-      ratings: DEFAULT_CATALOG_RATINGS[key] || {
-        anilist: { score: 85, scoreFormatted: '85%', url: 'https://anilist.co' },
-        mal: { score: 8.45, scoreFormatted: '8.45', url: 'https://myanimelist.net' },
-        imdb: { score: 8.3, scoreFormatted: '8.3', url: 'https://www.imdb.com' },
-        tmdb: { score: 82, scoreFormatted: '82%', url: 'https://www.themoviedb.org' }
+  Object.entries(RAW_CATALOG).map(([key, anime]) => {
+    const imgData = ANIME_IMAGE_MAP[key];
+    return [
+      key,
+      {
+        ...anime,
+        posterImage: imgData?.poster,
+        bannerImage: imgData?.banner,
+        nextAiring: imgData?.nextAiring,
+        ratings: DEFAULT_CATALOG_RATINGS[key] || {
+          anilist: { score: 85, scoreFormatted: '85%', url: 'https://anilist.co' },
+          mal: { score: 8.45, scoreFormatted: '8.45', url: 'https://myanimelist.net' },
+          imdb: { score: 8.3, scoreFormatted: '8.3', url: 'https://www.imdb.com' },
+          tmdb: { score: 82, scoreFormatted: '82%', url: 'https://www.themoviedb.org' }
+        }
       }
-    }
-  ])
+    ];
+  })
 );
 
 export const CATALOG_IDS = Object.keys(ANIME_CATALOG);
