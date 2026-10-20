@@ -10,6 +10,8 @@ import {
   fetchStreams,
   setCustomExtensionFetcher
 } from '@/lib/extensions/client';
+import { nativeExtensionFetch } from '@/lib/extensions/nativeHttp';
+import { CapacitorHttp } from '@capacitor/core';
 import {
   getStoredExtensions,
   installExtension,
@@ -18,6 +20,25 @@ import {
 } from '@/lib/extensions/storage';
 import { InstalledExtension, ExtensionManifest } from '@/lib/extensions/types';
 import { clearStreamCache, getStreamCacheSize } from '@/hooks/useStreams';
+
+vi.mock('@capacitor/core', async () => {
+  const actual = await vi.importActual<any>('@capacitor/core');
+  return {
+    ...actual,
+    Capacitor: {
+      ...actual.Capacitor,
+      isNativePlatform: () => true
+    },
+    CapacitorHttp: {
+      request: vi.fn(),
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn()
+    }
+  };
+});
 
 // In-memory mock localStorage for storage tests
 class MockLocalStorage {
@@ -527,5 +548,185 @@ describe('14. Playback Progress Validation & Boundaries', () => {
     expect(calcPercentage(700, 1400)).toBe(50);
     expect(calcPercentage(1400, 1400)).toBe(100);
     expect(calcPercentage(1600, 1400)).toBe(100); // capped at 100%
+  });
+});
+
+describe('15. Native Extension HTTP Adapter & Per-Hop Redirect Security', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    setCustomExtensionFetcher(null);
+  });
+
+  it('successfully fetches and decodes direct JSON responses via native transport', async () => {
+    const mockResponse = {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: JSON.stringify({
+        schema: 1,
+        id: 'com.native.provider',
+        name: 'Native Provider',
+        version: '1.0.0',
+        description: 'Testing native fetch',
+        resources: ['stream']
+      }),
+      url: 'https://example.com/manifest.json'
+    };
+
+    const spy = vi.spyOn(CapacitorHttp, 'request').mockResolvedValue(mockResponse as any);
+
+    const res = await nativeExtensionFetch('https://example.com/manifest.json');
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.id).toBe('com.native.provider');
+
+    // Verify security options passed to CapacitorHttp: Accept json, no cookies, redirects disabled
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: 'https://example.com/manifest.json',
+        disableRedirects: true,
+        headers: { Accept: 'application/json' },
+        responseType: 'text'
+      })
+    );
+  });
+
+  it('rejects initial insecure URLs before dispatching native requests', async () => {
+    const spy = vi.spyOn(CapacitorHttp, 'request');
+    await expect(nativeExtensionFetch('javascript:alert(1)')).rejects.toThrow(
+      /Insecure or invalid URL rejected/i
+    );
+    await expect(nativeExtensionFetch('http://insecure-domain.com')).rejects.toThrow(
+      /Insecure or invalid URL rejected/i
+    );
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('enforces 8-second timeout on slow native requests', async () => {
+    vi.spyOn(CapacitorHttp, 'request').mockRejectedValue(new Error('Connection timeout occurred'));
+    await expect(nativeExtensionFetch('https://example.com')).rejects.toThrow(
+      /Request timed out after 8 seconds/i
+    );
+  });
+
+  it('handles request cancellation via AbortSignal', async () => {
+    const controller = new AbortController();
+    controller.abort();
+    await expect(
+      nativeExtensionFetch('https://example.com', { signal: controller.signal })
+    ).rejects.toThrow(/Request was cancelled/i);
+  });
+
+  it('strictly rejects responses exceeding 1 MiB', async () => {
+    const oversizedBody = 'X'.repeat(1024 * 1024 + 50); // > 1MB
+    vi.spyOn(CapacitorHttp, 'request').mockResolvedValue({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: oversizedBody,
+      url: 'https://example.com'
+    } as any);
+
+    await expect(nativeExtensionFetch('https://example.com')).rejects.toThrow(
+      /Response exceeds maximum size limit of 1MB/i
+    );
+  });
+
+  it('rejects non-JSON content types returned from native transport', async () => {
+    vi.spyOn(CapacitorHttp, 'request').mockResolvedValue({
+      status: 200,
+      headers: { 'content-type': 'text/html; charset=utf-8' },
+      data: '<html>Error</html>',
+      url: 'https://example.com'
+    } as any);
+
+    await expect(nativeExtensionFetch('https://example.com')).rejects.toThrow(
+      /Expected application\/json/i
+    );
+  });
+
+  it('safely follows relative and absolute redirects after re-validating destination URLs', async () => {
+    const spy = vi.spyOn(CapacitorHttp, 'request');
+
+    // First hop returns 302 with relative Location
+    spy.mockResolvedValueOnce({
+      status: 302,
+      headers: { location: '/v1/manifest.json' },
+      data: '',
+      url: 'https://example.com/manifest.json'
+    } as any);
+
+    // Second hop returns 200 OK
+    spy.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: JSON.stringify({
+        schema: 1,
+        id: 'com.redirected.provider',
+        name: 'Redirected Provider',
+        version: '1.0.0',
+        description: 'Works with relative redirects',
+        resources: ['stream']
+      }),
+      url: 'https://example.com/v1/manifest.json'
+    } as any);
+
+    const res = await nativeExtensionFetch('https://example.com/manifest.json');
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.id).toBe('com.redirected.provider');
+
+    // Second hop must have resolved relative redirect against parent URL
+    expect(spy).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        url: 'https://example.com/v1/manifest.json'
+      })
+    );
+  });
+
+  it('rejects prohibited or insecure destinations at each redirect hop (SSRF prevention)', async () => {
+    vi.spyOn(CapacitorHttp, 'request').mockResolvedValueOnce({
+      status: 302,
+      headers: { location: 'http://malicious-public-domain.com/evil' }, // Insecure public HTTP
+      data: '',
+      url: 'https://example.com'
+    } as any);
+
+    await expect(nativeExtensionFetch('https://example.com')).rejects.toThrow(
+      /Insecure or prohibited redirect destination rejected/i
+    );
+  });
+
+  it('rejects when server exceeds maximum redirect hop limit (3 hops)', async () => {
+    vi.spyOn(CapacitorHttp, 'request').mockResolvedValue({
+      status: 302,
+      headers: { location: 'https://example.com/loop' },
+      data: '',
+      url: 'https://example.com'
+    } as any);
+
+    await expect(nativeExtensionFetch('https://example.com')).rejects.toThrow(
+      /Exceeded maximum redirect limit of 3 hops/i
+    );
+  });
+
+  it('integrates cleanly with fetchManifest via setCustomExtensionFetcher', async () => {
+    vi.spyOn(CapacitorHttp, 'request').mockResolvedValue({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      data: JSON.stringify({
+        schema: 1,
+        id: 'com.integrated.ext',
+        name: 'Integrated Extension',
+        version: '2.0.0',
+        description: 'End-to-end native adapter test',
+        resources: ['stream']
+      }),
+      url: 'https://cdn.provider.org/manifest.json'
+    } as any);
+
+    setCustomExtensionFetcher(nativeExtensionFetch);
+    const manifest = await fetchManifest('https://cdn.provider.org');
+    expect(manifest.id).toBe('com.integrated.ext');
+    expect(manifest.version).toBe('2.0.0');
   });
 });

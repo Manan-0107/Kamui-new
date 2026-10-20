@@ -2,3 +2,4 @@ export * from './types';
 export * from './validate';
 export * from './storage';
 export * from './client';
+export * from './nativeHttp';

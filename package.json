@@ -7,9 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "cap:sync": "next build && cap sync android",
+    "cap:android": "cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/status-bar": "^8.0.4",
     "clsx": "^2.1.1",
     "hls.js": "^1.7.3",
     "lucide-react": "^0.475.0",
@@ -19,6 +25,7 @@
     "tailwind-merge": "^3.0.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.3",
     "@eslint/eslintrc": "^3",
     "@types/node": "^22.13.4",
     "@types/react": "^19.0.10",

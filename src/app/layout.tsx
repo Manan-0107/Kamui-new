@@ -14,6 +14,7 @@ import { AuthPromptModal } from '@/components/modals/AuthPromptModal';
 import { ProfileStrengthModal } from '@/components/modals/ProfileStrengthModal';
 import { FriendsModal } from '@/components/modals/FriendsModal';
 import { Sidebar } from '@/components/Sidebar';
+import { AndroidBridge } from '@/components/AndroidBridge';
 
 export const metadata: Metadata = {
   title: 'Kamui — Stream anime the night it airs',
@@ -57,6 +58,7 @@ export default function RootLayout({
                     <AuthPromptModal />
                     <ProfileStrengthModal />
                     <Sidebar />
+                    <AndroidBridge />
                   </PlaybackProvider>
                 </CommentsProvider>
               </FriendsProvider>
