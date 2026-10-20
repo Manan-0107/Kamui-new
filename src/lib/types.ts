@@ -43,7 +43,7 @@ export interface AnimeData {
   id: string;
   title: string;
   kanji: string;
-  badge: string;
+  badge?: string;
   badgeType?: 'original' | 'trending' | 'new';
   genre: string;
   genres: string[];
@@ -58,17 +58,17 @@ export interface AnimeData {
   contentType?: 'series' | 'movie';
   duration?: string;
   seasonsCount: string;
-  trailerVideo: string;
-  fullVideo: string;
-  hook: string;
+  trailerVideo?: string;
+  fullVideo?: string;
+  hook?: string;
   synopsis: string;
-  cast: string;
-  mood: string;
-  studio: string;
-  director: string;
-  audio: string;
-  subtitles: string;
-  maturityDesc: string;
+  cast?: string;
+  mood?: string;
+  studio?: string;
+  director?: string;
+  audio?: string;
+  subtitles?: string;
+  maturityDesc?: string;
   episodes: Episode[];
   relatedIds: string[];
 }

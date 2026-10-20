@@ -7,119 +7,7 @@ import { useToast } from './ToastContext';
 
 const COMMENTS_STORAGE_KEY = 'kamui_anime_comments';
 
-// Pre-seeded anime discussion threads
-const DEFAULT_COMMENTS: Record<string, AnimeComment[]> = {
-  kamui: [
-    {
-      id: 'c-kamui-1',
-      animeId: 'kamui',
-      epNum: 1,
-      timestamp: '04:22',
-      author: {
-        name: 'Rin Tohsaka',
-        avatar: '/avatars/nami.svg',
-        badge: 'TOP FAN'
-      },
-      content: 'The sakuga in the opening snow battle scene was pure cinema! ufotable level animation here [SAKUGA]',
-      media: {
-        type: 'sticker',
-        url: '炎',
-        name: 'Flame Hype'
-      },
-      createdAt: '15m ago',
-      likes: 42,
-      isLiked: false,
-      replies: [
-        {
-          id: 'c-kamui-1-1',
-          animeId: 'kamui',
-          epNum: 1,
-          author: {
-            name: 'Gojo Satoru',
-            avatar: '/avatars/zoro.svg',
-            badge: 'PRO'
-          },
-          content: 'The sound design with Dolby Atmos when the shrine bell rings gave me literal chills.',
-          createdAt: '8m ago',
-          likes: 19,
-          isLiked: false
-        }
-      ]
-    },
-    {
-      id: 'c-kamui-2',
-      animeId: 'kamui',
-      epNum: 1,
-      timestamp: '18:50',
-      author: {
-        name: 'Tanjiro Kamado',
-        avatar: '/avatars/luffy.svg',
-        badge: 'OTAKU'
-      },
-      content: 'Here is my fan sketch of the exiled wolf-god spirit! Hope you guys like it!',
-      media: {
-        type: 'image',
-        url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="340" viewBox="0 0 600 340"><rect width="100%" height="100%" fill="%230c1420"/><circle cx="300" cy="170" r="110" fill="%23e8b94f" opacity="0.25"/><path d="M220 230 L300 110 L380 230 Z" fill="%23e8b94f"/><text x="50%" y="85%" dominant-baseline="middle" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="16" font-weight="bold">Wolf God Kamui - Fan Art by Tanjiro</text></svg>',
-        name: 'kamui-fan-art.png'
-      },
-      createdAt: '1h ago',
-      likes: 88,
-      isLiked: false
-    },
-    {
-      id: 'c-kamui-3',
-      animeId: 'kamui',
-      epNum: 2,
-      author: {
-        name: 'Mikasa Ackerman',
-        avatar: '/avatars/nami.svg'
-      },
-      content: 'Major plot twist revealed at the end of episode 2. The debt between the wolf god and the shrine girl was forged centuries ago during the great winter freeze!',
-      createdAt: '3h ago',
-      likes: 31,
-      isSpoiler: true,
-      isLiked: false
-    }
-  ],
-  'ashfall-district': [
-    {
-      id: 'c-ashfall-1',
-      animeId: 'ashfall-district',
-      epNum: 1,
-      timestamp: '12:04',
-      author: {
-        name: 'Senku Ishigami',
-        avatar: '/avatars/luffy.svg',
-        badge: 'VIP'
-      },
-      content: 'The cyberpunk world building with the neon ash rain is ten billion percent aesthetic [PEAK]',
-      media: {
-        type: 'sticker',
-        url: '雷',
-        name: 'Cyber Shock'
-      },
-      createdAt: '45m ago',
-      likes: 54,
-      isLiked: false
-    }
-  ],
-  'paper-moon-society': [
-    {
-      id: 'c-papermoon-1',
-      animeId: 'paper-moon-society',
-      epNum: 1,
-      author: {
-        name: 'Marin Kitagawa',
-        avatar: '/avatars/nami.svg',
-        badge: 'TOP FAN'
-      },
-      content: 'The cozy slice-of-life vibes and the origami magic academy are so soothing to watch before sleep [COZY]',
-      createdAt: '2h ago',
-      likes: 27,
-      isLiked: false
-    }
-  ]
-};
+const DEFAULT_COMMENTS: Record<string, AnimeComment[]> = {};
 
 interface CommentsContextType {
   comments: Record<string, AnimeComment[]>;
@@ -146,25 +34,30 @@ interface CommentsContextType {
 const CommentsContext = createContext<CommentsContextType | undefined>(undefined);
 
 export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [comments, setComments] = useState<Record<string, AnimeComment[]>>(DEFAULT_COMMENTS);
+  const [comments, setComments] = useState<Record<string, AnimeComment[]>>({});
   const [isLiveChatOpen, setIsLiveChatOpen] = useState(false);
 
   const { user } = useAuth();
   const { showToast } = useToast();
 
-  // Load from localStorage
+  // Load from localStorage and filter out legacy string IDs
   useEffect(() => {
     try {
       const saved = localStorage.getItem(COMMENTS_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        setComments((prev) => ({ ...DEFAULT_COMMENTS, ...parsed }));
-      } else {
-        localStorage.setItem(COMMENTS_STORAGE_KEY, JSON.stringify(DEFAULT_COMMENTS));
+        const valid: Record<string, AnimeComment[]> = {};
+        if (parsed && typeof parsed === 'object') {
+          for (const [k, v] of Object.entries(parsed)) {
+            if (/^\d+$/.test(k) && Array.isArray(v)) {
+              valid[k] = v;
+            }
+          }
+        }
+        setComments(valid);
+        localStorage.setItem(COMMENTS_STORAGE_KEY, JSON.stringify(valid));
       }
-    } catch (e) {
-      setComments(DEFAULT_COMMENTS);
-    }
+    } catch {}
   }, []);
 
   const saveToStorage = (updated: Record<string, AnimeComment[]>) => {

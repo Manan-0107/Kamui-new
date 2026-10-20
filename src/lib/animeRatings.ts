@@ -1,80 +1,7 @@
 import { AnimeRatings } from './types';
 
-// Default realistic ratings for catalog anime across all 4 major platforms
-export const DEFAULT_CATALOG_RATINGS: Record<string, AnimeRatings> = {
-  kamui: {
-    anilist: { score: 89, scoreFormatted: '89%', rank: '#18', votes: '142,500', url: 'https://anilist.co/search/anime?search=kamui' },
-    mal: { score: 8.84, scoreFormatted: '8.84', rank: '#24', votes: '320,400', url: 'https://myanimelist.net/anime' },
-    imdb: { score: 8.7, scoreFormatted: '8.7', votes: '48,200', url: 'https://www.imdb.com' },
-    tmdb: { score: 86, scoreFormatted: '86%', votes: '1,920', url: 'https://www.themoviedb.org' }
-  },
-  'ashfall-district': {
-    anilist: { score: 86, scoreFormatted: '86%', rank: '#42', votes: '98,000', url: 'https://anilist.co' },
-    mal: { score: 8.52, scoreFormatted: '8.52', rank: '#68', votes: '210,000', url: 'https://myanimelist.net' },
-    imdb: { score: 8.4, scoreFormatted: '8.4', votes: '31,500', url: 'https://www.imdb.com' },
-    tmdb: { score: 83, scoreFormatted: '83%', votes: '1,450', url: 'https://www.themoviedb.org' }
-  },
-  'paper-moon-society': {
-    anilist: { score: 88, scoreFormatted: '88%', rank: '#29', votes: '115,000', url: 'https://anilist.co' },
-    mal: { score: 8.71, scoreFormatted: '8.71', rank: '#38', votes: '245,000', url: 'https://myanimelist.net' },
-    imdb: { score: 8.5, scoreFormatted: '8.5', votes: '22,900', url: 'https://www.imdb.com' },
-    tmdb: { score: 85, scoreFormatted: '85%', votes: '980', url: 'https://www.themoviedb.org' }
-  },
-  'iron-tide': {
-    anilist: { score: 84, scoreFormatted: '84%', rank: '#55', votes: '82,000', url: 'https://anilist.co' },
-    mal: { score: 8.36, scoreFormatted: '8.36', rank: '#92', votes: '180,000', url: 'https://myanimelist.net' },
-    imdb: { score: 8.2, scoreFormatted: '8.2', votes: '19,400', url: 'https://www.imdb.com' },
-    tmdb: { score: 81, scoreFormatted: '81%', votes: '840', url: 'https://www.themoviedb.org' }
-  },
-  'nine-crows-inn': {
-    anilist: { score: 87, scoreFormatted: '87%', rank: '#34', votes: '104,000', url: 'https://anilist.co' },
-    mal: { score: 8.65, scoreFormatted: '8.65', rank: '#46', votes: '228,000', url: 'https://myanimelist.net' },
-    imdb: { score: 8.6, scoreFormatted: '8.6', votes: '38,000', url: 'https://www.imdb.com' },
-    tmdb: { score: 84, scoreFormatted: '84%', votes: '1,120', url: 'https://www.themoviedb.org' }
-  },
-  glasshouse: {
-    anilist: { score: 82, scoreFormatted: '82%', rank: '#88', votes: '64,000', url: 'https://anilist.co' },
-    mal: { score: 8.18, scoreFormatted: '8.18', rank: '#135', votes: '140,000', url: 'https://myanimelist.net' },
-    imdb: { score: 8.0, scoreFormatted: '8.0', votes: '14,200', url: 'https://www.imdb.com' },
-    tmdb: { score: 80, scoreFormatted: '80%', votes: '620', url: 'https://www.themoviedb.org' }
-  },
-  'hollow-meridian': {
-    anilist: { score: 85, scoreFormatted: '85%', rank: '#48', votes: '91,000', url: 'https://anilist.co' },
-    mal: { score: 8.44, scoreFormatted: '8.44', rank: '#76', votes: '195,000', url: 'https://myanimelist.net' },
-    imdb: { score: 8.3, scoreFormatted: '8.3', votes: '26,700', url: 'https://www.imdb.com' },
-    tmdb: { score: 82, scoreFormatted: '82%', votes: '910', url: 'https://www.themoviedb.org' }
-  },
-  'static-requiem': {
-    anilist: { score: 86, scoreFormatted: '86%', rank: '#39', votes: '88,000', url: 'https://anilist.co' },
-    mal: { score: 8.58, scoreFormatted: '8.58', rank: '#59', votes: '187,000', url: 'https://myanimelist.net' },
-    imdb: { score: 8.5, scoreFormatted: '8.5', votes: '33,100', url: 'https://www.imdb.com' },
-    tmdb: { score: 84, scoreFormatted: '84%', votes: '1,050', url: 'https://www.themoviedb.org' }
-  },
-  'long-thaw': {
-    anilist: { score: 87, scoreFormatted: '87%', rank: '#32', votes: '109,000', url: 'https://anilist.co' },
-    mal: { score: 8.62, scoreFormatted: '8.62', rank: '#51', votes: '215,000', url: 'https://myanimelist.net' },
-    imdb: { score: 8.5, scoreFormatted: '8.5', votes: '29,400', url: 'https://www.imdb.com' },
-    tmdb: { score: 83, scoreFormatted: '83%', votes: '1,200', url: 'https://www.themoviedb.org' }
-  },
-  'kamui-movie': {
-    anilist: { score: 91, scoreFormatted: '91%', rank: '#9', votes: '185,000', url: 'https://anilist.co' },
-    mal: { score: 8.95, scoreFormatted: '8.95', rank: '#12', votes: '390,000', url: 'https://myanimelist.net' },
-    imdb: { score: 8.9, scoreFormatted: '8.9', votes: '62,000', url: 'https://www.imdb.com' },
-    tmdb: { score: 88, scoreFormatted: '88%', votes: '2,600', url: 'https://www.themoviedb.org' }
-  },
-  'ashfall-movie': {
-    anilist: { score: 88, scoreFormatted: '88%', rank: '#27', votes: '120,000', url: 'https://anilist.co' },
-    mal: { score: 8.68, scoreFormatted: '8.68', rank: '#43', votes: '250,000', url: 'https://myanimelist.net' },
-    imdb: { score: 8.6, scoreFormatted: '8.6', votes: '41,000', url: 'https://www.imdb.com' },
-    tmdb: { score: 85, scoreFormatted: '85%', votes: '1,800', url: 'https://www.themoviedb.org' }
-  },
-  'papermoon-movie': {
-    anilist: { score: 89, scoreFormatted: '89%', rank: '#21', votes: '130,000', url: 'https://anilist.co' },
-    mal: { score: 8.78, scoreFormatted: '8.78', rank: '#30', votes: '270,000', url: 'https://myanimelist.net' },
-    imdb: { score: 8.7, scoreFormatted: '8.7', votes: '35,000', url: 'https://www.imdb.com' },
-    tmdb: { score: 86, scoreFormatted: '86%', votes: '1,350', url: 'https://www.themoviedb.org' }
-  }
-};
+// Default ratings dictionary for catalog anime
+export const DEFAULT_CATALOG_RATINGS: Record<string, AnimeRatings> = {};
 
 const GENERIC_DEFAULT_RATINGS: AnimeRatings = {
   anilist: { score: 85, scoreFormatted: '85%', rank: '#50', votes: '75,000', url: 'https://anilist.co' },
@@ -83,21 +10,7 @@ const GENERIC_DEFAULT_RATINGS: AnimeRatings = {
   tmdb: { score: 82, scoreFormatted: '82%', votes: '800', url: 'https://www.themoviedb.org' }
 };
 
-// Mapping connecting Kamui anime IDs to their exact search queries for AniList, MAL & Kitsu APIs
-export const ANIME_API_SEARCH_MAP: Record<string, string> = {
-  kamui: 'Golden Kamuy',
-  'ashfall-district': 'Cyberpunk: Edgerunners',
-  'paper-moon-society': 'Bungo Stray Dogs',
-  'iron-tide': 'Mobile Suit GUNDAM Iron Blooded Orphans',
-  'nine-crows-inn': 'Karas',
-  glasshouse: 'The Garden of Words',
-  'hollow-meridian': 'Made in Abyss',
-  'static-requiem': 'Serial Experiments Lain',
-  'long-thaw': 'Vinland Saga',
-  'kamui-movie': 'Demon Slayer -Kimetsu no Yaiba- The Movie: Mugen Train',
-  'ashfall-movie': 'Akira',
-  'papermoon-movie': 'A Silent Voice'
-};
+export const ANIME_API_SEARCH_MAP: Record<string, string> = {};
 
 export function resolveAnimeSearchQuery(animeId: string, searchTitle?: string): string {
   if (ANIME_API_SEARCH_MAP[animeId]) return ANIME_API_SEARCH_MAP[animeId];

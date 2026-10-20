@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { AnimeRatings, NextAiringInfo } from '@/lib/types';
-import { ANIME_CATALOG, ANIME_IMAGE_MAP } from '@/lib/catalog';
+import { fetchAnimeById } from '@/lib/anilist';
 
 export interface LiveTrackerInfo {
   animeId: string;
@@ -20,19 +20,11 @@ export interface LiveTrackerInfo {
 const trackerCache: Record<string, LiveTrackerInfo> = {};
 
 export function useAnimeTracker(animeId: string): LiveTrackerInfo {
-  const catalogEntry = ANIME_CATALOG[animeId];
-  const catalogImg = ANIME_IMAGE_MAP[animeId];
-
   const defaultInfo: LiveTrackerInfo = {
     animeId,
-    displayTitle: catalogEntry?.title || animeId,
-    ratings: catalogEntry?.ratings,
-    posterImage: catalogImg?.poster || catalogEntry?.posterImage,
-    bannerImage: catalogImg?.banner || catalogEntry?.bannerImage,
-    nextAiring: catalogImg?.nextAiring || catalogEntry?.nextAiring,
+    displayTitle: 'Anime',
     status: 'RELEASING',
-    totalEpisodes: catalogEntry?.episodes?.length || 24,
-    apisUsed: ['AniList GraphQL API', 'MyAnimeList API', 'Kitsu API'],
+    apisUsed: ['AniList GraphQL API'],
     isLoading: !trackerCache[animeId]
   };
 
@@ -41,31 +33,34 @@ export function useAnimeTracker(animeId: string): LiveTrackerInfo {
   });
 
   useEffect(() => {
-    let isMounted = true;
+    if (!animeId) return;
 
     if (trackerCache[animeId]) {
       setTrackerInfo(trackerCache[animeId]);
       return;
     }
 
-    fetch(`/api/anime-tracker?id=${encodeURIComponent(animeId)}`)
-      .then((res) => res.json())
+    let isMounted = true;
+    fetchAnimeById(animeId)
       .then((data) => {
-        if (isMounted && data?.success) {
+        if (!isMounted) return;
+        if (data) {
           const liveData: LiveTrackerInfo = {
             animeId,
-            displayTitle: data.displayTitle || catalogEntry?.title || animeId,
-            ratings: data.ratings || catalogEntry?.ratings,
-            posterImage: data.posterImage || catalogImg?.poster,
-            bannerImage: data.bannerImage || catalogImg?.banner,
-            nextAiring: data.nextAiring || catalogImg?.nextAiring,
-            status: data.status || 'RELEASING',
-            totalEpisodes: data.totalEpisodes || catalogEntry?.episodes?.length || 24,
-            apisUsed: data.apisUsed,
+            displayTitle: data.title,
+            ratings: data.ratings,
+            posterImage: data.posterImage,
+            bannerImage: data.bannerImage,
+            nextAiring: data.nextAiring,
+            status: data.maturityDesc?.replace('Status: ', '') || 'RELEASING',
+            totalEpisodes: data.episodes?.length || 24,
+            apisUsed: ['AniList GraphQL API'],
             isLoading: false
           };
           trackerCache[animeId] = liveData;
           setTrackerInfo(liveData);
+        } else {
+          setTrackerInfo((prev) => ({ ...prev, isLoading: false }));
         }
       })
       .catch(() => {
