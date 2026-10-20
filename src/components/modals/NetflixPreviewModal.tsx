@@ -6,6 +6,7 @@ import { useExtensions } from '@/context/ExtensionsContext';
 import { useAnime } from '@/hooks/useAnime';
 import { AnimeImagePreview } from '@/components/visual/AnimeImagePreview';
 import { AnimeRatingBadges } from '@/components/watch/AnimeRatingBadges';
+import { PlayButton } from '@/components/common/PlayButton';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { AnimeData, TrackerStatus } from '@/lib/types';
 import { Puzzle, Radio, Bookmark, Check, Bell, MessageSquare, Clock } from 'lucide-react';
@@ -207,24 +208,12 @@ export const NetflixPreviewModal: React.FC = () => {
                 </div>
 
                 <div className="preview-action-row">
-                  {/* Step 1 Locked Play Button: Placeholder only */}
-                  <button
-                    type="button"
-                    className="btn-netflix-play disabled"
-                    id="previewMainPlayBtn"
-                    disabled
-                    title="Install an extension to watch"
-                    style={{
-                      opacity: 0.85,
-                      cursor: 'not-allowed',
-                      background: 'rgba(255, 255, 255, 0.12)',
-                      color: 'var(--muted)',
-                      borderColor: 'rgba(255, 255, 255, 0.2)'
-                    }}
-                  >
-                    <Puzzle size={18} />
-                    <span id="previewPlayBtnText">Install an extension to watch</span>
-                  </button>
+                  {/* Centralized PlayButton (Locked in Step 1, unlockable in Step 2) */}
+                  <PlayButton
+                    animeId={anime.id}
+                    size="lg"
+                    className="btn-netflix-play"
+                  />
 
                   <button
                     type="button"

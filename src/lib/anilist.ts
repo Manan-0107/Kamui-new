@@ -98,9 +98,10 @@ export interface LiveScheduleItem {
 const ANILIST_GRAPHQL_ENDPOINT = 'https://graphql.anilist.co';
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 const STORAGE_CACHE_PREFIX = 'kamui_al_cache_';
+const MAX_STORAGE_CACHE_ENTRIES = 50; // Cap to keep well within ~5MB quota
 
 // In-memory cache
-const memoryCache = new Map<string, { data: any; expiresAt: number }>();
+const memoryCache = new Map<string, { data: any; expiresAt: number; lastAccessed: number }>();
 // In-flight request deduplication map
 const pendingRequests = new Map<string, Promise<any>>();
 
@@ -134,12 +135,13 @@ function getCacheKey(query: string, variables: Record<string, any> = {}): string
 }
 
 /**
- * Read from in-memory or localStorage cache
+ * Read from in-memory or localStorage cache with LRU tracking
  */
 function readCache<T>(key: string): T | null {
   const now = Date.now();
   const mem = memoryCache.get(key);
   if (mem && mem.expiresAt > now) {
+    mem.lastAccessed = now;
     return mem.data as T;
   }
 
@@ -149,12 +151,14 @@ function readCache<T>(key: string): T | null {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed && parsed.expiresAt > now) {
-          memoryCache.set(key, parsed);
+          memoryCache.set(key, { data: parsed.data, expiresAt: parsed.expiresAt, lastAccessed: now });
           return parsed.data as T;
+        } else {
+          localStorage.removeItem(STORAGE_CACHE_PREFIX + key);
         }
       }
     } catch {
-      // Ignore localStorage read errors
+      // Ignore localStorage read errors, continue with memory
     }
   }
 
@@ -162,40 +166,89 @@ function readCache<T>(key: string): T | null {
 }
 
 /**
- * Write to in-memory and localStorage cache
+ * Write to in-memory and localStorage cache with strict quota protection and LRU eviction
  */
 function writeCache<T>(key: string, data: T, ttlMs: number = CACHE_TTL_MS): void {
-  const expiresAt = Date.now() + ttlMs;
-  const entry = { data, expiresAt };
+  const now = Date.now();
+  const expiresAt = now + ttlMs;
+  const entry = { data, expiresAt, lastAccessed: now };
+  
+  // 1. Always record into in-memory cache
   memoryCache.set(key, entry);
 
+  // 2. Safely attempt writing to localStorage with eviction
   if (typeof window !== 'undefined') {
     try {
-      localStorage.setItem(STORAGE_CACHE_PREFIX + key, JSON.stringify(entry));
+      evictOldestCacheIfNeeded();
+      localStorage.setItem(STORAGE_CACHE_PREFIX + key, JSON.stringify({ data, expiresAt, lastAccessed: now }));
     } catch {
-      // LocalStorage might be full; prune old cache entries
-      pruneOldCache();
+      // LocalStorage quota exceeded or unavailable; aggressively prune and fall back to memory
+      try {
+        pruneOldestEntries(10);
+        localStorage.setItem(STORAGE_CACHE_PREFIX + key, JSON.stringify({ data, expiresAt, lastAccessed: now }));
+      } catch {
+        // Fall back completely to in-memory cache without failing
+      }
     }
   }
 }
 
 /**
- * Prune expired entries from localStorage
+ * Evict expired entries or oldest accessed entries if count exceeds MAX_STORAGE_CACHE_ENTRIES
  */
-function pruneOldCache(): void {
+function evictOldestCacheIfNeeded(): void {
   if (typeof window === 'undefined') return;
   try {
     const keys = Object.keys(localStorage).filter((k) => k.startsWith(STORAGE_CACHE_PREFIX));
     const now = Date.now();
+
+    // First remove definitely expired entries
+    const validEntries: Array<{ key: string; lastAccessed: number }> = [];
     for (const k of keys) {
       try {
         const item = JSON.parse(localStorage.getItem(k) || '');
         if (!item || item.expiresAt <= now) {
           localStorage.removeItem(k);
+        } else {
+          validEntries.push({ key: k, lastAccessed: item.lastAccessed || 0 });
         }
       } catch {
         localStorage.removeItem(k);
       }
+    }
+
+    // If still over cap, evict oldest accessed entries
+    if (validEntries.length >= MAX_STORAGE_CACHE_ENTRIES) {
+      validEntries.sort((a, b) => a.lastAccessed - b.lastAccessed);
+      const toRemove = validEntries.slice(0, validEntries.length - MAX_STORAGE_CACHE_ENTRIES + 1);
+      for (const entry of toRemove) {
+        localStorage.removeItem(entry.key);
+      }
+    }
+  } catch {
+    // Ignore eviction errors
+  }
+}
+
+/**
+ * Aggressively prune oldest N entries on quota errors
+ */
+function pruneOldestEntries(count = 10): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const keys = Object.keys(localStorage).filter((k) => k.startsWith(STORAGE_CACHE_PREFIX));
+    const entries: Array<{ key: string; lastAccessed: number }> = [];
+    for (const k of keys) {
+      try {
+        const item = JSON.parse(localStorage.getItem(k) || '');
+        entries.push({ key: k, lastAccessed: item?.lastAccessed || 0 });
+      } catch {
+        localStorage.removeItem(k);
+      }
+    }
+    entries.sort((a, b) => a.lastAccessed - b.lastAccessed);
+    for (let i = 0; i < Math.min(count, entries.length); i++) {
+      localStorage.removeItem(entries[i].key);
     }
   } catch {
     // Ignore prune errors
@@ -208,12 +261,14 @@ function pruneOldCache(): void {
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Core GraphQL fetcher with cache, deduplication, and 429 rate-limit handling
+ * Core GraphQL fetcher with cache, deduplication, and dynamic 429 rate-limit backoff.
+ * AniList allows ~90 req/min under standard conditions and ~30 req/min during degraded states.
+ * Back off conservatively using Retry-After or exponential backoff on 429.
  */
 export async function fetchAniListGraphQL<T = any>(
   query: string,
   variables: Record<string, any> = {},
-  retries = 2
+  retries = 3
 ): Promise<T> {
   const cacheKey = getCacheKey(query, variables);
 
@@ -228,7 +283,7 @@ export async function fetchAniListGraphQL<T = any>(
     return pendingRequests.get(cacheKey)!;
   }
 
-  // 3. Initiate request with retry
+  // 3. Initiate request with retry and rate-limit backoff
   const fetchPromise = (async () => {
     let attempts = 0;
     while (attempts <= retries) {
@@ -243,16 +298,16 @@ export async function fetchAniListGraphQL<T = any>(
         });
 
         if (res.status === 429) {
-          // Rate-limited by AniList (~90 req/min limit)
+          // Dynamic rate-limit handling (server throttles between 30 and 90 req/min)
           const retryHeader = res.headers.get('Retry-After');
-          const delaySec = retryHeader ? parseInt(retryHeader, 10) : Math.pow(2, attempts + 1);
-          const delayMs = Math.max(1000, isNaN(delaySec) ? 2000 : delaySec * 1000);
+          const delaySec = retryHeader ? parseInt(retryHeader, 10) : Math.pow(2, attempts + 2);
+          const delayMs = Math.max(1500, isNaN(delaySec) ? 3000 : delaySec * 1000);
           attempts++;
-          if (attempts <= retries) {
-            await sleep(delayMs);
-            continue;
+          if (attempts > retries) {
+            throw new Error(`AniList rate limit exceeded (HTTP 429). Please wait before making more requests.`);
           }
-          throw new Error('AniList API rate limit reached. Please wait a moment.');
+          await sleep(delayMs);
+          continue;
         }
 
         if (!res.ok) {

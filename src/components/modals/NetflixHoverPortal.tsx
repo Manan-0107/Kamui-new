@@ -5,7 +5,7 @@ import { usePlayback } from '@/context/PlaybackContext';
 import { useAnime } from '@/hooks/useAnime';
 import { AnimeImagePreview } from '@/components/visual/AnimeImagePreview';
 import { AnimeRatingBadges } from '@/components/watch/AnimeRatingBadges';
-import { Puzzle } from 'lucide-react';
+import { PlayButton } from '@/components/common/PlayButton';
 
 export const NetflixHoverPortal: React.FC = () => {
   const {
@@ -92,23 +92,12 @@ export const NetflixHoverPortal: React.FC = () => {
 
         {/* Action Button Row */}
         <div className="hover-popout-actions">
-          {/* Step 1 Locked Play Button */}
-          <button
-            type="button"
-            className="btn-hover-play-main disabled"
-            disabled
-            style={{
-              opacity: 0.85,
-              cursor: 'not-allowed',
-              background: 'rgba(255, 255, 255, 0.15)',
-              color: 'var(--muted)',
-              borderColor: 'rgba(255, 255, 255, 0.2)'
-            }}
-            title="Install an extension to watch"
-          >
-            <Puzzle size={16} />
-            <span>Install an extension to watch</span>
-          </button>
+          {/* Centralized PlayButton */}
+          <PlayButton
+            animeId={anime.id}
+            size="sm"
+            className="btn-hover-play-main"
+          />
 
           <button
             type="button"

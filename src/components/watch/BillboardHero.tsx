@@ -5,7 +5,8 @@ import { usePlayback } from '@/context/PlaybackContext';
 import { useCatalogRow } from '@/hooks/useAnime';
 import { AnimeImagePreview } from '@/components/visual/AnimeImagePreview';
 import { AnimeRatingBadges } from '@/components/watch/AnimeRatingBadges';
-import { Puzzle, Flame, Bell, Clock, Bookmark, Check, Info } from 'lucide-react';
+import { PlayButton } from '@/components/common/PlayButton';
+import { Flame, Bell, Clock, Bookmark, Check, Info } from 'lucide-react';
 import { TrackerStatus } from '@/lib/types';
 
 export const BillboardHero: React.FC = () => {
@@ -142,24 +143,12 @@ export const BillboardHero: React.FC = () => {
           </div>
 
           <div className="billboard-action-row">
-            {/* Locked Play Button (Step 1 requirement) */}
-            <button
-              type="button"
-              className="btn-billboard-play disabled"
-              id="billboardPlayBtn"
-              disabled
-              title="Install an extension to watch"
-              style={{
-                opacity: 0.85,
-                cursor: 'not-allowed',
-                background: 'rgba(255, 255, 255, 0.15)',
-                color: 'var(--muted)',
-                borderColor: 'rgba(255, 255, 255, 0.2)'
-              }}
-            >
-              <Puzzle size={18} />
-              <span id="billboardPlayText">Install an extension to watch</span>
-            </button>
+            {/* Centralized PlayButton (Locked in Step 1, unlockable in Step 2) */}
+            <PlayButton
+              animeId={anime.id}
+              size="lg"
+              className="btn-billboard-play"
+            />
 
             {/* Anime Tracker Status Button */}
             <div className="tracker-dropdown-wrap" style={{ position: 'relative', display: 'inline-block' }}>
