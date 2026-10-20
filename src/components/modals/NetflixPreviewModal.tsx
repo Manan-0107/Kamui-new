@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { usePlayback } from '@/context/PlaybackContext';
-import { useExtensions } from '@/context/ExtensionsContext';
 import { useAnime } from '@/hooks/useAnime';
+import { useStreams } from '@/hooks/useStreams';
 import { AnimeImagePreview } from '@/components/visual/AnimeImagePreview';
 import { AnimeRatingBadges } from '@/components/watch/AnimeRatingBadges';
 import { PlayButton } from '@/components/common/PlayButton';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { AnimeData, TrackerStatus } from '@/lib/types';
-import { Puzzle, Radio, Bookmark, Check, Bell, MessageSquare, Clock } from 'lucide-react';
+import { StreamItem } from '@/lib/extensions';
+import Link from 'next/link';
+import { Puzzle, Radio, Bookmark, Check, Bell, MessageSquare, Clock, Play, AlertCircle, RefreshCw } from 'lucide-react';
 
 const RelatedAnimeCard: React.FC<{ animeId: string }> = ({ animeId }) => {
   const { anime } = useAnime(animeId);
@@ -81,10 +83,9 @@ export const NetflixPreviewModal: React.FC = () => {
     getAnimeTrackerStatus,
     setAnimeTrackerStatus,
     isNotificationSubscribed,
-    toggleNotificationSubscription
+    toggleNotificationSubscription,
+    playEpisode
   } = usePlayback();
-
-  const { openModal: openExtensionsModal } = useExtensions();
 
   const [activeTab, setActiveTab] = useState<'episodes' | 'more-like-this' | 'about' | 'discussion'>('episodes');
   const [isTrackerOpen, setIsTrackerOpen] = useState(false);
@@ -96,6 +97,23 @@ export const NetflixPreviewModal: React.FC = () => {
     customPreviewData ? null : previewAnimeId
   );
   const anime: AnimeData | null = customPreviewData || fetchedAnime;
+
+  // Real-time parallel stream fetching from enabled extensions
+  const streamQueryParams = anime
+    ? {
+        title: anime.title,
+        year: anime.year ? parseInt(anime.year, 10) : undefined,
+        format: anime.contentType
+      }
+    : undefined;
+
+  const {
+    streams,
+    perExtension,
+    isLoading: isStreamsLoading,
+    error: streamsError,
+    retry: retryStreams
+  } = useStreams(anime?.id, selectedEpNum, streamQueryParams);
 
   const inList = anime ? isInWatchlist(anime.id) : false;
   const liked = anime ? isLiked(anime.id) : false;
@@ -469,36 +487,147 @@ export const NetflixPreviewModal: React.FC = () => {
                     ))}
                   </div>
 
-                  {/* Stremio Streams Panel */}
+                  {/* Streams Picker Panel (Grouped by Extension) */}
                   <div className="stremio-streams-panel" id="stremioStreamsPanel">
-                    <div className="stremio-streams-header">
-                      <span className="stremio-streams-title">
+                    <div className="stremio-streams-header flex items-center justify-between">
+                      <span className="stremio-streams-title flex items-center gap-2">
                         <Radio size={14} style={{ color: '#e8b94f' }} />
-                        Streams · Episode {selectedEpNum}
+                        <span>Streams · Episode {selectedEpNum}</span>
                       </span>
-                      <span className="stremio-streams-badge empty">
-                        No Extensions Installed
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {isStreamsLoading && (
+                          <span className="text-xs text-white/50 flex items-center gap-1.5">
+                            <RefreshCw size={12} className="animate-spin" />
+                            <span>Querying extensions...</span>
+                          </span>
+                        )}
+                        <Link
+                          href="/extensions"
+                          className="text-xs text-gold/80 hover:text-gold hover:underline"
+                        >
+                          Manage Extensions
+                        </Link>
+                      </div>
                     </div>
 
-                    <div className="stremio-streams-empty-box">
-                      <div className="stremio-empty-icon">
-                        <Puzzle size={22} />
+                    {perExtension.length === 0 ? (
+                      /* No extensions installed / enabled */
+                      <div className="stremio-streams-empty-box">
+                        <div className="stremio-empty-icon">
+                          <Puzzle size={22} />
+                        </div>
+                        <h4 className="stremio-empty-heading">No Content Sources Installed</h4>
+                        <p className="stremio-empty-desc">
+                          Kamui ships with no built-in media content sources.
+                          Install an extension in the Extension Manager to scrape and watch streams.
+                        </p>
+                        <Link
+                          href="/extensions"
+                          className="btn-stremio-install-addon"
+                        >
+                          <Puzzle size={15} />
+                          <span>Install Extensions</span>
+                        </Link>
                       </div>
-                      <h4 className="stremio-empty-heading">No Content Sources Installed</h4>
-                      <p className="stremio-empty-desc">
-                        Kamui ships with no built-in media content sources.
-                        Playback requires user-installed community streaming extensions (Step 2).
-                      </p>
-                      <button
-                        type="button"
-                        className="btn-stremio-install-addon"
-                        onClick={() => openExtensionsModal('store')}
-                      >
-                        <Puzzle size={15} />
-                        <span>Manage Extensions</span>
-                      </button>
-                    </div>
+                    ) : (
+                      <div className="space-y-4 mt-3">
+                        {perExtension.map((res) => (
+                          <div
+                            key={res.extension.id}
+                            className="rounded-xl p-3.5 bg-black/40 border border-white/10"
+                          >
+                            <div className="flex items-center justify-between mb-2.5">
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-xs text-white">
+                                  {res.extension.manifest.name}
+                                </span>
+                                <span className="text-[10px] px-1.5 py-0.2 rounded bg-white/10 text-white/60">
+                                  {res.extension.manifest.version}
+                                </span>
+                              </div>
+                              <span
+                                className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
+                                  res.status === 'ok'
+                                    ? 'bg-emerald-500/15 text-emerald-400'
+                                    : res.status === 'loading'
+                                    ? 'bg-white/10 text-white/50'
+                                    : res.status === 'empty'
+                                    ? 'bg-white/5 text-white/40'
+                                    : 'bg-red-500/15 text-red-400'
+                                }`}
+                              >
+                                {res.status === 'ok'
+                                  ? `${res.streams.length} stream(s)`
+                                  : res.status === 'loading'
+                                  ? 'Fetching...'
+                                  : res.status === 'empty'
+                                  ? 'No streams found'
+                                  : 'Error'}
+                              </span>
+                            </div>
+
+                            {res.status === 'error' && (
+                              <p className="text-xs text-red-400/80 mb-2">
+                                {res.error || 'Failed to fetch streams from this provider.'}
+                              </p>
+                            )}
+
+                            {res.status === 'ok' && (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {res.streams.map((stream, sIdx) => {
+                                  const isUnsupported = stream.type === 'p2p';
+                                  return (
+                                    <button
+                                      key={sIdx}
+                                      type="button"
+                                      disabled={isUnsupported}
+                                      onClick={() => {
+                                        if (isUnsupported) return;
+                                        playEpisode(anime.id, selectedEpNum, stream);
+                                      }}
+                                      className={`p-2.5 rounded-lg border text-left flex items-center justify-between transition-all ${
+                                        isUnsupported
+                                          ? 'bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed'
+                                          : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-gold/40 cursor-pointer'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2.5 min-w-0">
+                                        <div className="w-7 h-7 rounded-md bg-gold/15 flex items-center justify-center text-gold shrink-0">
+                                          <Play size={12} fill="currentColor" />
+                                        </div>
+                                        <div className="min-w-0">
+                                          <div className="text-xs font-semibold text-white truncate">
+                                            {stream.title}
+                                          </div>
+                                          <div className="text-[10px] text-white/50 flex items-center gap-1.5 mt-0.5">
+                                            <span className="uppercase">{stream.type}</span>
+                                            {stream.quality && <span>· {stream.quality}</span>}
+                                            {stream.language && <span>· {stream.language}</span>}
+                                            {stream.subtitles && stream.subtitles.length > 0 && (
+                                              <span>· {stream.subtitles.length} Sub(s)</span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {isUnsupported ? (
+                                        <span className="text-[10px] text-amber-400/80 font-medium shrink-0">
+                                          Not supported in this version
+                                        </span>
+                                      ) : (
+                                        <span className="text-xs text-gold font-bold shrink-0">
+                                          Play →
+                                        </span>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

@@ -19,11 +19,12 @@ interface PlaybackContextType {
   openPreview: (animeId: string, customData?: any) => void;
   closePreview: () => void;
 
-  // Full Video Player (Locked placeholder in Step 1)
+  // Full Video Player
   playingAnimeId: string | null;
   playingEpNum: number;
+  activeStream: any | null;
   isPlayerOpen: boolean;
-  playEpisode: (animeId: string, epNum?: number) => void;
+  playEpisode: (animeId: string, epNum?: number, stream?: any) => void;
   closePlayer: () => void;
 
   // Watchlist
@@ -217,17 +218,22 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setCustomPreviewData(null);
   }, []);
 
-  // Full Screen Video Player placeholder (Locked in Step 1)
+  const [activeStream, setActiveStream] = useState<any | null>(null);
+
+  // Full Screen Video Player
   const playEpisode = useCallback(
-    (_animeId: string, _epNum = 1) => {
-      showToast('Install an extension to watch episodes', 'info');
-      setIsPlayerOpen(false);
+    (animeId: string, epNum = 1, stream?: any) => {
+      setPlayingAnimeId(animeId);
+      setPlayingEpNum(epNum);
+      setActiveStream(stream || null);
+      setIsPlayerOpen(true);
     },
-    [showToast]
+    []
   );
 
   const closePlayer = useCallback(() => {
     setIsPlayerOpen(false);
+    setActiveStream(null);
   }, []);
 
   // Helper to resolve title
@@ -500,8 +506,7 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         closePreview,
         playingAnimeId,
         playingEpNum,
-        setPlayingAnimeId,
-        setPlayingEpNum,
+        activeStream,
         isPlayerOpen,
         playEpisode,
         closePlayer,

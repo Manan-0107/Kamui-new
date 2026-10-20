@@ -7,7 +7,6 @@ import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { usePlayback } from '@/context/PlaybackContext';
 import { useFriends } from '@/context/FriendsContext';
-import { useExtensions } from '@/context/ExtensionsContext';
 import { DEFAULT_AVATARS } from '@/lib/avatars';
 import { Bell, CheckCheck, Trash2, Clock } from 'lucide-react';
 
@@ -23,9 +22,8 @@ export const Navbar: React.FC = () => {
   const [notifyDropdownOpen, setNotifyDropdownOpen] = useState(false);
 
   const { cycleTheme } = useTheme();
-  const { user, logout, updateAvatar, openAuthModal, openProfileModal } = useAuth();
+  const { user, logout, updateAvatar, openProfileModal } = useAuth();
   const { friends, openFriendsModal } = useFriends();
-  const { activeExtension, openModal: openExtensionsModal } = useExtensions();
   const {
     searchQuery,
     setSearchQuery,
@@ -172,16 +170,13 @@ export const Navbar: React.FC = () => {
         >
           My List
         </a>
-        <button
-          type="button"
+        <Link
+          href="/extensions"
           className="nav-link-btn"
-          onClick={() => {
-            setMobileMenuOpen(false);
-            openExtensionsModal('installed');
-          }}
+          onClick={() => setMobileMenuOpen(false)}
         >
           Extensions
-        </button>
+        </Link>
       </nav>
 
       {/* Actions */}

@@ -35,7 +35,7 @@ import { useAuth } from '@/context/AuthContext';
 import { usePlayback } from '@/context/PlaybackContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useFriends } from '@/context/FriendsContext';
-import { useExtensions } from '@/context/ExtensionsContext';
+import { useExtensions } from '@/hooks/useExtensions';
 import { REALM_THEMES } from '@/lib/themes';
 
 interface SidebarProps {
@@ -51,7 +51,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const router = useRouter();
   const { user, logout, openAuthModal, openProfileModal } = useAuth();
   const { openFriendsModal, friends } = useFriends();
-  const { openModal: openExtensionsModal, installedCount } = useExtensions();
+  const { extensions } = useExtensions();
+  const installedCount = extensions.length;
   const {
     watchlist,
     continueWatching,
@@ -260,7 +261,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="sidebar-nav-item clickable-badge-item"
               onClick={() => {
                 onClose();
-                openExtensionsModal('installed');
+                router.push('/extensions');
               }}
             >
               <Puzzle size={18} className="sidebar-icon" />
