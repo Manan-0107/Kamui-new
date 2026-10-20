@@ -52,28 +52,28 @@ export default function HomePage() {
                   aria-label="KAMUI"
                 >
                   <defs>
-                    <clipPath id="kamuiTitleClip">
-                      <text x="50%" y="58%" textAnchor="middle" dominantBaseline="central" className="svg-kamui-text">
-                        KAMUI
-                      </text>
-                    </clipPath>
+                    <linearGradient id="kamuiFillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#ffffff" />
+                      <stop offset="35%" stopColor="#f8f1e4" />
+                      <stop offset="70%" stopColor="#e8b94f" />
+                      <stop offset="100%" stopColor="#c1501f" />
+                    </linearGradient>
                     <linearGradient id="kamuiStrokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
-                      <stop offset="40%" stopColor="#f6edd9" stopOpacity="0.5" />
-                      <stop offset="100%" stopColor="#e8b94f" stopOpacity="0.85" />
+                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
+                      <stop offset="40%" stopColor="#f6edd9" stopOpacity="0.7" />
+                      <stop offset="100%" stopColor="#e8b94f" stopOpacity="0.95" />
                     </linearGradient>
                   </defs>
-                  <foreignObject x="0" y="0" width="760" height="160" clipPath="url(#kamuiTitleClip)">
-                    <video
-                      className="title-bg-video"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="auto"
-                      src="/kamui-hero.mp4"
-                    />
-                  </foreignObject>
+                  <text
+                    x="50%"
+                    y="58%"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    className="svg-kamui-text"
+                    fill="url(#kamuiFillGrad)"
+                  >
+                    KAMUI
+                  </text>
                   <text
                     x="50%"
                     y="58%"

@@ -10,9 +10,18 @@ export const Footer: React.FC = () => {
           <span className="brand-word">KAMUI</span>
         </Link>
         <div className="footer-meta">
-          <p className="copyright">&copy; 2026 KAMUI Streaming. All rights reserved.</p>
+          <p className="copyright">&copy; 2026 KAMUI. Distributed as a decentralized catalog client.</p>
           <p className="footer-note">
-            Concept design for an anime streaming platform. Titles, art, and synopses are original to this demo.
+            Data provided by{' '}
+            <a
+              href="https://anilist.co"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#02a9ff', textDecoration: 'underline' }}
+            >
+              AniList
+            </a>
+            . Content streaming requires user-configured extensions.
           </p>
         </div>
       </div>

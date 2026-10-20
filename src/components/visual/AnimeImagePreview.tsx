@@ -12,7 +12,7 @@ interface AnimeImagePreviewProps {
 }
 
 export const AnimeImagePreview: React.FC<AnimeImagePreviewProps> = ({
-  animeId,
+  animeId: _animeId,
   src,
   alt = 'Anime Art Preview',
   type = 'poster',

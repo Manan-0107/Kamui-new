@@ -2,16 +2,18 @@
 
 import React, { useRef } from 'react';
 import { usePlayback } from '@/context/PlaybackContext';
-import { ANIME_CATALOG } from '@/lib/catalog';
-import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
-import { AnimeHoverCard } from './AnimeHoverCard';
+import { useCatalogRow, CatalogRowKind } from '@/hooks/useAnime';
+import { AnimeImagePreview } from '@/components/visual/AnimeImagePreview';
+import { AnimeData } from '@/lib/types';
 
 interface ContentRowProps {
   id: string;
   kanji: string;
   title: string;
   countBadge?: number;
-  animeIds: string[];
+  animeIds?: string[];
+  animes?: AnimeData[];
+  kind?: CatalogRowKind;
   onClear?: () => void;
   clearLabel?: string;
   emptyMessage?: string;
@@ -24,6 +26,8 @@ export const ContentRow: React.FC<ContentRowProps> = ({
   title,
   countBadge,
   animeIds,
+  animes: directAnimes,
+  kind,
   onClear,
   clearLabel = 'Clear',
   emptyMessage,
@@ -32,7 +36,20 @@ export const ContentRow: React.FC<ContentRowProps> = ({
   const trackRef = useRef<HTMLDivElement | null>(null);
   const { openPreview, setHoveredCard } = usePlayback();
 
-  if (animeIds.length === 0) {
+  // Determine query kind if not direct animes
+  const effectiveKind: CatalogRowKind | null = kind
+    ? kind
+    : animeIds && animeIds.length > 0
+    ? { ids: animeIds }
+    : null;
+
+  const { animes: fetchedAnimes, isLoading } = useCatalogRow(
+    effectiveKind || { ids: [] }
+  );
+
+  const displayAnimes = directAnimes || (effectiveKind ? fetchedAnimes : []);
+
+  if (!isLoading && displayAnimes.length === 0) {
     if (!alwaysShow) return null;
     return (
       <section className="content-row-section content-row-empty-section" id={id} aria-label={title}>
@@ -58,7 +75,6 @@ export const ContentRow: React.FC<ContentRowProps> = ({
             <p className="row-empty-desc">
               {emptyMessage || 'Click the like icon or add button on any anime card or modal to curate your list.'}
             </p>
-
           </div>
           <button
             type="button"
@@ -94,9 +110,11 @@ export const ContentRow: React.FC<ContentRowProps> = ({
           <span className="row-kanji-glyph">{kanji}</span>
           <h2 className="row-title">
             {title}
-            {typeof countBadge === 'number' && (
+            {typeof countBadge === 'number' ? (
               <span className="shelf-count-badge">{countBadge}</span>
-            )}
+            ) : displayAnimes.length > 0 ? (
+              <span className="shelf-count-badge">{displayAnimes.length}</span>
+            ) : null}
           </h2>
         </div>
         <div className="row-header-right">
@@ -128,44 +146,58 @@ export const ContentRow: React.FC<ContentRowProps> = ({
         </button>
 
         <div ref={trackRef} className="row-track" id={`${id}-track`}>
-          {animeIds.map((animeId) => {
-            const anime = ANIME_CATALOG[animeId];
-            if (!anime) return null;
-
-            return (
-              <div
-                key={anime.id}
-                className="netflix-row-card"
-                onClick={() => openPreview(anime.id)}
-                onMouseEnter={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  setHoveredCard(anime.id, {
-                    top: rect.top,
-                    left: rect.left,
-                    width: rect.width,
-                    height: rect.height
-                  });
-                }}
-                onMouseLeave={() => setHoveredCard(null)}
-                role="button"
-                tabIndex={0}
-              >
-                {/* Main Static Thumbnail */}
-                <div className="card-thumb-wrap">
-                  <AnimeArtSvg animeId={anime.id} className="row-card-art" />
-                  <div className="row-card-gradient" />
-                  {anime.badge && (
-                    <span className={`row-card-badge ${anime.badgeType ? `badge-${anime.badgeType}` : ''}`}>
-                      {anime.badge}
-                    </span>
-                  )}
-                  <div className="card-static-title-wrap">
-                    <span className="card-static-title">{anime.title}</span>
+          {isLoading && displayAnimes.length === 0
+            ? Array.from({ length: 7 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className="netflix-row-card skeleton-card"
+                  style={{
+                    minWidth: 240,
+                    height: 135,
+                    borderRadius: 8,
+                    background: 'rgba(255, 255, 255, 0.05)'
+                  }}
+                />
+              ))
+            : displayAnimes.map((anime) => (
+                <div
+                  key={anime.id}
+                  className="netflix-row-card"
+                  onClick={() => openPreview(anime.id)}
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setHoveredCard(anime.id, {
+                      top: rect.top,
+                      left: rect.left,
+                      width: rect.width,
+                      height: rect.height
+                    });
+                  }}
+                  onMouseLeave={() => setHoveredCard(null)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  {/* Main Static Thumbnail */}
+                  <div className="card-thumb-wrap">
+                    <AnimeImagePreview
+                      animeId={anime.id}
+                      src={anime.bannerImage || anime.posterImage}
+                      alt={anime.title}
+                      type="banner"
+                      className="row-card-art"
+                    />
+                    <div className="row-card-gradient" />
+                    {anime.badge && (
+                      <span className={`row-card-badge ${anime.badgeType ? `badge-${anime.badgeType}` : ''}`}>
+                        {anime.badge}
+                      </span>
+                    )}
+                    <div className="card-static-title-wrap">
+                      <span className="card-static-title">{anime.title}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              ))}
         </div>
 
         <button

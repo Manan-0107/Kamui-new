@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { BillboardHero } from '@/components/watch/BillboardHero';
@@ -11,7 +11,7 @@ import { ContinueWatchingShelf } from '@/components/watch/ContinueWatchingShelf'
 import { WatchCard } from '@/components/watch/WatchCard';
 import { LiveAiringTrackerShelf } from '@/components/watch/LiveAiringTrackerShelf';
 import { usePlayback } from '@/context/PlaybackContext';
-import { ANIME_CATALOG, CATALOG_IDS } from '@/lib/catalog';
+import { useAnimeSearch, useCatalogRow, CatalogRowKind } from '@/hooks/useAnime';
 
 export default function WatchPage() {
   const { filterGenre, searchQuery, watchlist, likedTitles, clearLikedTitles, trackerStatus } = usePlayback();
@@ -30,77 +30,23 @@ export default function WatchPage() {
     }
   }, []);
 
-  // Search Results filtering
-  const searchResults = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return [];
-    return CATALOG_IDS.filter((id) => {
-      const anime = ANIME_CATALOG[id];
-      if (!anime) return false;
-      return (
-        anime.title.toLowerCase().includes(q) ||
-        anime.genres.some((g) => g.toLowerCase().includes(q)) ||
-        anime.genre.toLowerCase().includes(q) ||
-        anime.cast.toLowerCase().includes(q) ||
-        anime.synopsis.toLowerCase().includes(q)
-      );
-    });
-  }, [searchQuery]);
+  // Live AniList search
+  const { results: searchResults, isLoading: isSearchLoading } = useAnimeSearch(searchQuery);
 
-  // Personalized suggestions based on what the user liked
-  const recommendedData = useMemo(() => {
-    if (likedTitles.length > 0) {
-      const lastLikedId = likedTitles[likedTitles.length - 1];
-      const sourceAnime = ANIME_CATALOG[lastLikedId];
-      if (sourceAnime) {
-        const recs = CATALOG_IDS.filter(
-          (id) =>
-            id !== sourceAnime.id &&
-            (sourceAnime.relatedIds.includes(id) ||
-              ANIME_CATALOG[id].genres.some((g) => sourceAnime.genres.includes(g)))
-        );
-        return {
-          title: `Because You Liked "${sourceAnime.title}"`,
-          kanji: '推',
-          animeIds: recs.length > 0 ? recs : ['kamui', 'iron-tide', 'ashfall-district']
-        };
-      }
+  // Determine Catalog Grid Kind based on active filter
+  const gridKind: CatalogRowKind = useMemo(() => {
+    if (filterGenre === 'all') return 'popular';
+    if (filterGenre === 'watchlist') return { ids: watchlist };
+    if (filterGenre === 'liked') return { ids: likedTitles };
+    if (filterGenre.startsWith('tracking-')) {
+      const statusKey = filterGenre.replace('tracking-', '');
+      const matchedIds = Object.keys(trackerStatus).filter((id) => trackerStatus[id] === statusKey);
+      return { ids: matchedIds };
     }
-    return {
-      title: 'Recommended For You',
-      kanji: '推',
-      animeIds: ['kamui', 'ashfall-district', 'paper-moon-society', 'nine-crows-inn']
-    };
-  }, [likedTitles]);
-
-  // Simulcast Airing Schedule & What's New
-  const simulcastScheduleIds = useMemo(() => {
-    return CATALOG_IDS.filter((id) => Boolean(ANIME_CATALOG[id]?.nextAiring));
-  }, []);
-
-  // Catalog Grid filtering
-  const filteredCatalogIds = useMemo(() => {
-    if (filterGenre === 'all') return CATALOG_IDS;
-    if (filterGenre === 'watchlist') return watchlist;
-    if (filterGenre === 'liked') return likedTitles;
-    if (filterGenre === 'tracking-watching') {
-      return CATALOG_IDS.filter((id) => trackerStatus[id] === 'watching');
-    }
-    if (filterGenre === 'tracking-planning') {
-      return CATALOG_IDS.filter((id) => trackerStatus[id] === 'planning');
-    }
-    if (filterGenre === 'tracking-completed') {
-      return CATALOG_IDS.filter((id) => trackerStatus[id] === 'completed');
-    }
-    return CATALOG_IDS.filter((id) => {
-      const anime = ANIME_CATALOG[id];
-      if (!anime) return false;
-      return (
-        anime.genre.toLowerCase() === filterGenre.toLowerCase() ||
-        anime.genres.some((g) => g.toLowerCase() === filterGenre.toLowerCase())
-      );
-    });
+    return { genre: filterGenre };
   }, [filterGenre, watchlist, likedTitles, trackerStatus]);
+
+  const { animes: gridAnimes, isLoading: isGridLoading } = useCatalogRow(gridKind, 24);
 
   return (
     <>
@@ -116,7 +62,9 @@ export default function WatchPage() {
           kanji="探"
           title={`Search Results for "${searchQuery}"`}
           countBadge={searchResults.length}
-          animeIds={searchResults}
+          animes={searchResults}
+          alwaysShow
+          emptyMessage={isSearchLoading ? 'Searching AniList...' : 'No anime found matching your query.'}
         />
       )}
 
@@ -131,21 +79,20 @@ export default function WatchPage() {
         {/* Real-Time Live Simulcast Airing Tracker Shelf (AniList API) */}
         <LiveAiringTrackerShelf />
 
-        {/* Row 2: Recommended / Because You Liked */}
+        {/* Row 2: Trending Now */}
         <ContentRow
-          id="recommendedSection"
-          kanji={recommendedData.kanji}
-          title={recommendedData.title}
-          animeIds={recommendedData.animeIds}
+          id="trendingSection"
+          kanji="熱"
+          title="Trending Now on AniList"
+          kind="trending"
         />
 
-        {/* Row 3: Simulcast Drops & Airing Schedule */}
+        {/* Row 3: Popular This Season */}
         <ContentRow
-          id="simulcastScheduleSection"
-          kanji="放"
-          title="Simulcast Drops & Airing Schedule"
-          countBadge={simulcastScheduleIds.length}
-          animeIds={simulcastScheduleIds}
+          id="popularSection"
+          kanji="旬"
+          title="Popular This Season"
+          kind="popular"
         />
 
         {/* Row 4: My Watchlist */}
@@ -175,92 +122,76 @@ export default function WatchPage() {
         {/* Row 6: Top 10 in Anime Today */}
         <Top10Track />
 
-        {/* Row 7: Trending Now & Simulcasts */}
+        {/* Row 7: Action & Shonen */}
         <ContentRow
-          id="trendingSection"
-          kanji="熱"
-          title="Trending Now & Simulcasts"
-          animeIds={['ashfall-district', 'kamui', 'iron-tide', 'nine-crows-inn', 'long-thaw', 'paper-moon-society']}
+          id="actionSection"
+          kanji="闘"
+          title="Action & Shonen"
+          kind={{ genre: 'Action' }}
         />
 
-        {/* Row 6: New on Kamui */}
-        <ContentRow
-          id="newSection"
-          kanji="新"
-          title="New on Kamui"
-          animeIds={['nine-crows-inn', 'long-thaw', 'hollow-meridian', 'glasshouse', 'ashfall-district', 'kamui']}
-        />
-
-        {/* Row 7: Dark Fantasy & Supernatural */}
+        {/* Row 8: Fantasy & Supernatural */}
         <ContentRow
           id="darkFantasySection"
           kanji="闇"
-          title="Dark Fantasy & Supernatural"
-          animeIds={['kamui', 'long-thaw', 'nine-crows-inn', 'static-requiem']}
+          title="Fantasy & Supernatural"
+          kind={{ genre: 'Fantasy' }}
         />
 
-        {/* Row 8: Sci-Fi & Cyberpunk */}
+        {/* Row 9: Sci-Fi & Cyberpunk */}
         <ContentRow
           id="scifiSection"
           kanji="機"
           title="Sci-Fi & Cyberpunk"
-          animeIds={['ashfall-district', 'iron-tide', 'static-requiem', 'hollow-meridian']}
+          kind={{ genre: 'Sci-Fi' }}
         />
 
-        {/* Row 9: Mecha & Titan Pilot Combat */}
+        {/* Row 10: Mecha & Machines */}
         <ContentRow
           id="mechaSection"
           kanji="甲"
           title="Mecha & Heavy Machinery"
-          animeIds={['iron-tide', 'ashfall-district', 'static-requiem', 'kamui']}
+          kind={{ genre: 'Mecha' }}
         />
 
-        {/* Row 10: Mystery & Clever Whodunits */}
+        {/* Row 11: Mystery & Suspense */}
         <ContentRow
           id="mysterySection"
           kanji="謎"
           title="Mystery & Suspense"
-          animeIds={['nine-crows-inn', 'static-requiem', 'ashfall-district', 'kamui']}
+          kind={{ genre: 'Mystery' }}
         />
 
-        {/* Row 11: Romance & Emotional Drama */}
+        {/* Row 12: Romance & Drama */}
         <ContentRow
           id="romanceSection"
           kanji="愛"
           title="Romance & Drama"
-          animeIds={['glasshouse', 'paper-moon-society', 'papermoon-movie', 'hollow-meridian']}
+          kind={{ genre: 'Romance' }}
         />
 
-        {/* Row 12: Cozy Slice of Life & Comedy */}
+        {/* Row 13: Slice of Life & Comedy */}
         <ContentRow
           id="sliceOfLifeSection"
           kanji="日"
-          title="Cozy Slice of Life & Comedy"
-          animeIds={['paper-moon-society', 'glasshouse', 'hollow-meridian']}
+          title="Slice of Life & Comedy"
+          kind={{ genre: 'Slice of Life' }}
         />
 
-        {/* Row 13: Adventure & Grand Expeditions */}
+        {/* Row 14: Adventure & Expeditions */}
         <ContentRow
           id="adventureSection"
           kanji="旅"
           title="Adventure & Expeditions"
-          animeIds={['hollow-meridian', 'kamui', 'long-thaw', 'iron-tide']}
+          kind={{ genre: 'Adventure' }}
         />
 
-        {/* Row 14: Psychological Suspense & Thrillers */}
+        {/* Row 15: Psychological */}
         <ContentRow
           id="psychologicalSection"
           kanji="心"
-          title="Psychological Suspense"
-          animeIds={['static-requiem', 'nine-crows-inn', 'kamui', 'ashfall-district']}
-        />
-
-        {/* Row 15: Feature Anime Movies */}
-        <ContentRow
-          id="moviesSection"
-          kanji="映"
-          title="Feature Anime Movies (4K HDR)"
-          animeIds={['kamui-movie', 'ashfall-movie', 'papermoon-movie']}
+          title="Psychological Thrillers"
+          kind={{ genre: 'Psychological' }}
         />
       </div>
 
@@ -274,7 +205,7 @@ export default function WatchPage() {
               </span>
               <h2 className="shelf-title" id="catalogHeadingTitle">
                 {filterGenre === 'all'
-                  ? 'All Series'
+                  ? 'Popular Series'
                   : filterGenre === 'watchlist'
                   ? 'My Watchlist'
                   : filterGenre === 'liked'
@@ -282,15 +213,34 @@ export default function WatchPage() {
                   : `${filterGenre} Series`}
               </h2>
             </div>
+            <div className="text-xs text-text-muted">
+              Data provided by <a href="https://anilist.co" target="_blank" rel="noreferrer" className="underline hover:text-accent">AniList</a>
+            </div>
           </div>
 
           <div className="catalog-grid" id="catalogGrid">
-            {filteredCatalogIds.map((id) => {
-              const anime = ANIME_CATALOG[id];
-              if (!anime) return null;
-              return <WatchCard key={anime.id} anime={anime} />;
-            })}
+            {isGridLoading && gridAnimes.length === 0
+              ? Array.from({ length: 12 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="watch-card skeleton-card"
+                    style={{
+                      height: 260,
+                      borderRadius: 12,
+                      background: 'rgba(255, 255, 255, 0.05)'
+                    }}
+                  />
+                ))
+              : gridAnimes.map((anime) => (
+                  <WatchCard key={anime.id} anime={anime} />
+                ))}
           </div>
+
+          {!isGridLoading && gridAnimes.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '48px 0', color: 'rgba(255,255,255,0.5)' }}>
+              No anime found in this category.
+            </div>
+          )}
         </div>
       </section>
 

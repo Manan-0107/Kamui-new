@@ -1,27 +1,30 @@
 'use client';
 
 import React from 'react';
-import { ANIME_CATALOG, ANIME_IMAGE_MAP } from '@/lib/catalog';
+import { useAnime } from '@/hooks/useAnime';
 import { AnimeImagePreview } from './AnimeImagePreview';
 
 interface AnimePosterSvgProps {
   animeId: string;
   className?: string;
+  src?: string;
+  alt?: string;
 }
 
 export const AnimePosterSvg: React.FC<AnimePosterSvgProps> = ({
   animeId,
-  className = 'art'
+  className = 'art',
+  src: propSrc,
+  alt: propAlt
 }) => {
-  const anime = ANIME_CATALOG[animeId];
-  const imgData = ANIME_IMAGE_MAP[animeId];
-  const src = imgData?.poster || anime?.posterImage || imgData?.banner || anime?.bannerImage;
+  const { anime } = useAnime(propSrc ? null : animeId);
+  const src = propSrc || anime?.posterImage || anime?.bannerImage;
 
   return (
     <AnimeImagePreview
       animeId={animeId}
       src={src}
-      alt={anime?.title || animeId}
+      alt={propAlt || anime?.title || animeId}
       type="poster"
       className={className}
     />

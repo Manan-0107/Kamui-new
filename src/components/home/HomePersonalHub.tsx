@@ -2,44 +2,114 @@
 
 import React, { useState, useRef, useMemo } from 'react';
 import Link from 'next/link';
-import { Play, Info, Trash2, ChevronLeft, ChevronRight, Bookmark, ThumbsUp, Sparkles, Clock } from 'lucide-react';
 import { usePlayback } from '@/context/PlaybackContext';
-import { ANIME_CATALOG } from '@/lib/catalog';
+import { useAnime } from '@/hooks/useAnime';
 import { AnimeArtSvg } from '@/components/visual/AnimeArtSvg';
+import { AnimePosterSvg } from '@/components/visual/AnimePosterSvg';
+import {
+  Clock,
+  Play,
+  Bookmark,
+  ThumbsUp,
+  Info,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Puzzle
+} from 'lucide-react';
 
-type ActiveTab = 'continue' | 'watchlist' | 'liked';
+const HubAnimeCard: React.FC<{ animeId: string; mode: 'watchlist' | 'liked' }> = ({ animeId, mode }) => {
+  const { openPreview, toggleWatchlist, toggleLike } = usePlayback();
+  const { anime } = useAnime(animeId);
+
+  if (!anime) {
+    return (
+      <div className="personal-hub-poster-card skeleton-card" style={{ height: 260, background: 'rgba(255,255,255,0.03)' }} />
+    );
+  }
+
+  return (
+    <div
+      className="personal-hub-poster-card"
+      onClick={() => openPreview(anime.id)}
+    >
+      <div className="poster-card-thumb">
+        <AnimePosterSvg animeId={anime.id} src={anime.posterImage} alt={anime.title} className="poster-card-art" />
+        <div className="poster-card-gradient" />
+        {/* Locked Play Button (Step 1 requirement) */}
+        <button
+          type="button"
+          className="poster-card-play-btn disabled"
+          title="Install an extension to watch"
+          style={{ opacity: 0.85, cursor: 'not-allowed' }}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <Puzzle size={16} />
+        </button>
+        {mode === 'watchlist' ? (
+          <button
+            type="button"
+            className="poster-card-remove-btn"
+            title="Remove from Watchlist"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleWatchlist(anime.id, anime.title);
+            }}
+          >
+            &times;
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="poster-card-remove-btn"
+            title="Unlike"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleLike(anime.id, anime.title);
+            }}
+          >
+            <ThumbsUp size={11} fill="currentColor" />
+          </button>
+        )}
+        {anime.badge && (
+          <span className={`poster-card-badge badge-${anime.badgeType || 'original'}`}>
+            {anime.badge}
+          </span>
+        )}
+      </div>
+      <div className="poster-card-info">
+        <h4 className="poster-card-title">{anime.title}</h4>
+        <div className="poster-card-meta">
+          <span className="poster-card-match">{anime.match}</span>
+          <span className="poster-card-genre">{anime.genre}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const HomePersonalHub: React.FC = () => {
   const {
-    continueWatching,
     watchlist,
     likedTitles,
-    playEpisode,
+    continueWatching,
     openPreview,
+    toggleWatchlist: _toggleWatchlist,
     clearContinueWatching,
     removeContinueItem,
-    toggleWatchlist,
-    clearLikedTitles,
-    setHoveredCard
+    clearLikedTitles
   } = usePlayback();
 
+  const [activeTab, setActiveTab] = useState<'continue' | 'watchlist' | 'liked'>('continue');
   const trackRef = useRef<HTMLDivElement | null>(null);
 
-  // Determine available tabs
   const hasContinue = continueWatching.length > 0;
   const hasWatchlist = watchlist.length > 0;
   const hasLiked = likedTitles.length > 0;
 
-  // Don't render anything if user has no personal content
-  if (!hasContinue && !hasWatchlist && !hasLiked) {
-    return null;
-  }
-
-  // Set default tab based on priority
-  const defaultTab: ActiveTab = hasContinue ? 'continue' : hasWatchlist ? 'watchlist' : 'liked';
-  const [activeTab, setActiveTab] = useState<ActiveTab>(defaultTab);
-
-  // If active tab has 0 items, fallback to an available tab
+  // Auto-switch tabs if current tab data becomes empty
   const currentTab = useMemo(() => {
     if (activeTab === 'continue' && !hasContinue) {
       return hasWatchlist ? 'watchlist' : 'liked';
@@ -52,6 +122,11 @@ export const HomePersonalHub: React.FC = () => {
     }
     return activeTab;
   }, [activeTab, hasContinue, hasWatchlist, hasLiked]);
+
+  // If user has no personal activity, hide the entire section cleanly
+  if (!hasContinue && !hasWatchlist && !hasLiked) {
+    return null;
+  }
 
   const handleScrollLeft = () => {
     if (trackRef.current) {
@@ -67,7 +142,6 @@ export const HomePersonalHub: React.FC = () => {
 
   // For spotlight when only 1 item is in Continue Watching
   const singleContinueItem = hasContinue && continueWatching.length === 1 ? continueWatching[0] : null;
-  const singleAnime = singleContinueItem ? ANIME_CATALOG[singleContinueItem.animeId] : null;
 
   return (
     <section className="home-personal-hub-section" id="jumpBackInSection" aria-label="Your Anime Realm">
@@ -168,20 +242,23 @@ export const HomePersonalHub: React.FC = () => {
                   <div className="personal-spotlight-wrap">
                     <div
                       className="personal-spotlight-thumb-wrap"
-                      onClick={() => playEpisode(singleContinueItem.animeId, singleContinueItem.episodeNum)}
+                      onClick={() => openPreview(singleContinueItem.animeId)}
                     >
                       <AnimeArtSvg animeId={singleContinueItem.animeId} className="personal-spotlight-art" />
                       <div className="spotlight-overlay-gradient" />
+                      {/* Locked play state */}
                       <button
                         type="button"
-                        className="spotlight-play-btn"
-                        aria-label="Resume video"
+                        className="spotlight-play-btn disabled"
+                        aria-label="Install extension to watch"
+                        title="Install an extension to watch"
+                        style={{ opacity: 0.85, cursor: 'not-allowed' }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          playEpisode(singleContinueItem.animeId, singleContinueItem.episodeNum);
+                          openPreview(singleContinueItem.animeId);
                         }}
                       >
-                        <Play size={26} fill="currentColor" />
+                        <Puzzle size={24} />
                       </button>
                       {/* Progress Bar */}
                       <div className="spotlight-progress-track">
@@ -207,20 +284,16 @@ export const HomePersonalHub: React.FC = () => {
                         {singleContinueItem.episodeTitle || `Episode ${singleContinueItem.episodeNum}`}
                       </p>
 
-                      {singleAnime && (
-                        <p className="spotlight-synopsis">
-                          {singleAnime.hook || singleAnime.synopsis}
-                        </p>
-                      )}
-
                       <div className="spotlight-btn-group">
                         <button
                           type="button"
                           className="btn filled spotlight-action-resume"
-                          onClick={() => playEpisode(singleContinueItem.animeId, singleContinueItem.episodeNum)}
+                          style={{ opacity: 0.85, cursor: 'not-allowed' }}
+                          title="Install an extension to watch"
+                          disabled
                         >
-                          <Play size={16} fill="currentColor" />
-                          <span>Resume Episode {singleContinueItem.episodeNum}</span>
+                          <Puzzle size={16} />
+                          <span>Install extension to watch</span>
                         </button>
                         <button
                           type="button"
@@ -259,25 +332,27 @@ export const HomePersonalHub: React.FC = () => {
                       {continueWatching.map((item) => (
                         <div
                           key={item.animeId}
-                          className="continue-card personal-hub-continue-card"
+                          className="personal-continue-card"
                           onClick={() => openPreview(item.animeId)}
                         >
-                          <div className="continue-thumb-wrap">
-                            <AnimeArtSvg animeId={item.animeId} className="continue-art" />
+                          <div className="continue-card-thumb">
+                            <AnimeArtSvg animeId={item.animeId} className="continue-card-art" />
+                            <div className="continue-card-gradient" />
                             <button
                               type="button"
-                              className="continue-play-overlay"
-                              title="Resume Watching"
+                              className="continue-card-play-btn disabled"
+                              title="Install an extension to watch"
+                              style={{ opacity: 0.85, cursor: 'not-allowed' }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                playEpisode(item.animeId, item.episodeNum);
+                                openPreview(item.animeId);
                               }}
                             >
-                              <Play size={20} fill="currentColor" />
+                              <Puzzle size={16} />
                             </button>
                             <button
                               type="button"
-                              className="continue-remove-btn"
+                              className="continue-card-dismiss-btn"
                               title="Remove from history"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -286,20 +361,21 @@ export const HomePersonalHub: React.FC = () => {
                             >
                               &times;
                             </button>
+                            {/* Progress Bar */}
+                            <div className="continue-card-progress-track">
+                              <div
+                                className="continue-card-progress-fill"
+                                style={{ width: `${item.percentage || 15}%` }}
+                              />
+                            </div>
                           </div>
-
-                          <div className="continue-progress-track">
-                            <div
-                              className="continue-progress-fill"
-                              style={{ width: `${item.percentage || 20}%` }}
-                            />
-                          </div>
-
-                          <div className="continue-meta">
-                            <h4 className="continue-title">{item.title}</h4>
-                            <p className="continue-ep">
-                              {item.episodeTitle || `Episode ${item.episodeNum}`}
-                            </p>
+                          <div className="continue-card-info">
+                            <h4 className="continue-card-title">{item.title}</h4>
+                            <div className="continue-card-meta">
+                              <span className="continue-card-ep">{item.episodeTitle || `Ep. ${item.episodeNum}`}</span>
+                              <span className="continue-card-dot">•</span>
+                              <span className="continue-card-pct">{Math.round(item.percentage || 15)}%</span>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -323,104 +399,18 @@ export const HomePersonalHub: React.FC = () => {
             {/* 2. My Watchlist Tab */}
             {currentTab === 'watchlist' && (
               <div className="personal-hub-grid">
-                {watchlist.map((animeId) => {
-                  const anime = ANIME_CATALOG[animeId];
-                  if (!anime) return null;
-                  return (
-                    <div
-                      key={anime.id}
-                      className="personal-hub-poster-card"
-                      onClick={() => openPreview(anime.id)}
-                    >
-                      <div className="poster-card-thumb">
-                        <AnimeArtSvg animeId={anime.id} className="poster-card-art" />
-                        <div className="poster-card-gradient" />
-                        <button
-                          type="button"
-                          className="poster-card-play-btn"
-                          title="Watch Now"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            playEpisode(anime.id, 1);
-                          }}
-                        >
-                          <Play size={18} fill="currentColor" />
-                        </button>
-                        <button
-                          type="button"
-                          className="poster-card-remove-btn"
-                          title="Remove from Watchlist"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleWatchlist(anime.id);
-                          }}
-                        >
-                          &times;
-                        </button>
-                        {anime.badge && (
-                          <span className={`poster-card-badge badge-${anime.badgeType || 'original'}`}>
-                            {anime.badge}
-                          </span>
-                        )}
-                      </div>
-                      <div className="poster-card-info">
-                        <h4 className="poster-card-title">{anime.title}</h4>
-                        <div className="poster-card-meta">
-                          <span className="poster-card-match">{anime.match}</span>
-                          <span className="poster-card-genre">{anime.genre}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {watchlist.map((animeId) => (
+                  <HubAnimeCard key={animeId} animeId={animeId} mode="watchlist" />
+                ))}
               </div>
             )}
 
             {/* 3. Liked Anime Tab */}
             {currentTab === 'liked' && (
               <div className="personal-hub-grid">
-                {likedTitles.map((animeId) => {
-                  const anime = ANIME_CATALOG[animeId];
-                  if (!anime) return null;
-                  return (
-                    <div
-                      key={anime.id}
-                      className="personal-hub-poster-card"
-                      onClick={() => openPreview(anime.id)}
-                    >
-                      <div className="poster-card-thumb">
-                        <AnimeArtSvg animeId={anime.id} className="poster-card-art" />
-                        <div className="poster-card-gradient" />
-                        <button
-                          type="button"
-                          className="poster-card-play-btn"
-                          title="Watch Now"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            playEpisode(anime.id, 1);
-                          }}
-                        >
-                          <Play size={18} fill="currentColor" />
-                        </button>
-                        <span className="poster-card-liked-badge" title="Liked">
-                          <ThumbsUp size={11} fill="currentColor" />
-                        </span>
-                        {anime.badge && (
-                          <span className={`poster-card-badge badge-${anime.badgeType || 'original'}`}>
-                            {anime.badge}
-                          </span>
-                        )}
-                      </div>
-                      <div className="poster-card-info">
-                        <h4 className="poster-card-title">{anime.title}</h4>
-                        <div className="poster-card-meta">
-                          <span className="poster-card-match">{anime.match}</span>
-                          <span className="poster-card-genre">{anime.genre}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {likedTitles.map((animeId) => (
+                  <HubAnimeCard key={animeId} animeId={animeId} mode="liked" />
+                ))}
               </div>
             )}
           </div>
