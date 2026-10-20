@@ -301,7 +301,10 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Continue Watching methods
   const saveProgress = useCallback(
     (animeId: string, epNum: number, currentTime: number, duration: number, title?: string) => {
-      if (duration <= 0) return;
+      // Validate AniList ID (numeric string), timestamps, and epNum
+      if (!animeId || !/^\d+$/.test(String(animeId))) return;
+      if (!Number.isFinite(currentTime) || !Number.isFinite(duration) || duration <= 0 || currentTime < 0) return;
+      if (!Number.isInteger(epNum) || epNum <= 0) return;
 
       const percentage = Math.min(100, Math.max(0, Math.round((currentTime / duration) * 100)));
       const animeTitle = getDisplayTitle(animeId, title);

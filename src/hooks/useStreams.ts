@@ -5,7 +5,6 @@ import {
   StreamItem,
   ExtensionStreamResult,
   QueryStreamParams,
-  InstalledExtension,
   fetchStreams
 } from '@/lib/extensions';
 import { useExtensions } from './useExtensions';
@@ -19,12 +18,20 @@ interface CacheEntry {
 
 const memoryStreamCache = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_CACHE_ENTRIES = 50; // Cap to prevent unbounded memory growth
 
 /**
  * Clear in-memory stream cache
  */
 export function clearStreamCache(): void {
   memoryStreamCache.clear();
+}
+
+/**
+ * Get current in-memory stream cache size (useful for tests)
+ */
+export function getStreamCacheSize(): number {
+  return memoryStreamCache.size;
 }
 
 /**
@@ -62,7 +69,7 @@ export function useStreams(
       return;
     }
 
-    const cacheKey = `${animeId}:${episodeNumber}:${enabledExtensions.map((e) => e.id).join(',')}`;
+    const cacheKey = `${animeId}:${episodeNumber}:${enabledExtensions.map((e) => e.id).sort().join(',')}:${params?.format || ''}:${params?.year || ''}`;
     const now = Date.now();
     const cached = memoryStreamCache.get(cacheKey);
 
@@ -120,6 +127,19 @@ export function useStreams(
     const mergedStreams: StreamItem[] = [];
     for (const r of results) {
       mergedStreams.push(...r.streams);
+    }
+
+    // Clean expired entries first
+    for (const [key, entry] of memoryStreamCache.entries()) {
+      if (entry.expiresAt <= now) {
+        memoryStreamCache.delete(key);
+      }
+    }
+    // Enforce max capacity by evicting oldest entry
+    while (memoryStreamCache.size >= MAX_CACHE_ENTRIES) {
+      const oldestKey = memoryStreamCache.keys().next().value;
+      if (oldestKey) memoryStreamCache.delete(oldestKey);
+      else break;
     }
 
     // Save in memory cache

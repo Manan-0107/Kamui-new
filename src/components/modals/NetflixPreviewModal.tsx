@@ -9,9 +9,8 @@ import { AnimeRatingBadges } from '@/components/watch/AnimeRatingBadges';
 import { PlayButton } from '@/components/common/PlayButton';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { AnimeData, TrackerStatus } from '@/lib/types';
-import { StreamItem } from '@/lib/extensions';
 import Link from 'next/link';
-import { Puzzle, Radio, Bookmark, Check, Bell, MessageSquare, Clock, Play, AlertCircle, RefreshCw } from 'lucide-react';
+import { Puzzle, Radio, Bookmark, Check, Bell, MessageSquare, Clock, Play, RefreshCw } from 'lucide-react';
 
 const RelatedAnimeCard: React.FC<{ animeId: string }> = ({ animeId }) => {
   const { anime } = useAnime(animeId);
@@ -108,11 +107,8 @@ export const NetflixPreviewModal: React.FC = () => {
     : undefined;
 
   const {
-    streams,
     perExtension,
-    isLoading: isStreamsLoading,
-    error: streamsError,
-    retry: retryStreams
+    isLoading: isStreamsLoading
   } = useStreams(anime?.id, selectedEpNum, streamQueryParams);
 
   const inList = anime ? isInWatchlist(anime.id) : false;

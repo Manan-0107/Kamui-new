@@ -17,8 +17,7 @@ import {
   Minimize,
   SkipForward,
   AlertTriangle,
-  Captions,
-  Settings
+  Captions
 } from 'lucide-react';
 
 export const FullVideoPlayer: React.FC = () => {
@@ -155,13 +154,19 @@ export const FullVideoPlayer: React.FC = () => {
     }
   };
 
+  const isAdvancingRef = useRef(false);
+
   // Auto-advance to next episode on video end
   const handleVideoEnded = () => {
-    if (!anime) return;
+    if (!anime || isAdvancingRef.current) return;
     const nextEp = playingEpNum + 1;
     const maxEps = anime.episodes?.length || 24;
     if (nextEp <= maxEps) {
+      isAdvancingRef.current = true;
       playEpisode(anime.id, nextEp);
+      setTimeout(() => {
+        isAdvancingRef.current = false;
+      }, 1200);
     }
   };
 
@@ -214,7 +219,7 @@ export const FullVideoPlayer: React.FC = () => {
     if (!isPlayerOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (['input', 'textarea'].includes((e.target as HTMLElement).tagName.toLowerCase())) return;
+      if (['input', 'textarea', 'select'].includes((e.target as HTMLElement).tagName.toLowerCase())) return;
 
       if (e.code === 'Space') {
         e.preventDefault();

@@ -28,7 +28,11 @@ async function safeFetchJson<T>(url: string): Promise<T> {
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  let isTimedOut = false;
+  const timer = setTimeout(() => {
+    isTimedOut = true;
+    controller.abort();
+  }, TIMEOUT_MS);
 
   const fetchImpl = customFetcher || fetch;
 
@@ -102,7 +106,10 @@ async function safeFetchJson<T>(url: string): Promise<T> {
   } catch (err: any) {
     clearTimeout(timer);
     if (err.name === 'AbortError') {
-      throw new Error(`Request timed out after 8 seconds.`);
+      if (isTimedOut) {
+        throw new Error(`Request timed out after 8 seconds.`);
+      }
+      throw new Error(`Request was cancelled.`);
     }
     throw err;
   }

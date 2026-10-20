@@ -9,7 +9,6 @@ import {
   Puzzle,
   Plus,
   Trash2,
-  CheckCircle2,
   AlertTriangle,
   RefreshCw,
   ExternalLink,

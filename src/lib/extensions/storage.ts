@@ -3,8 +3,10 @@ import { InstalledExtension, ExtensionManifest } from './types';
 const EXTENSIONS_STORAGE_KEY = 'kamui_installed_extensions_v1';
 const FIRST_INSTALL_NOTICE_KEY = 'kamui_ext_notice_acknowledged';
 
+import { validateManifest, isValidSecureUrl } from './validate';
+
 /**
- * Load all installed extensions from localStorage
+ * Load all installed extensions from localStorage and validate every entry
  */
 export function getStoredExtensions(): InstalledExtension[] {
   if (typeof window === 'undefined') return [];
@@ -14,8 +16,41 @@ export function getStoredExtensions(): InstalledExtension[] {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
 
+    const validList: InstalledExtension[] = [];
+    const seenIds = new Set<string>();
+    const seenUrls = new Set<string>();
+
+    for (const item of parsed) {
+      if (!item || typeof item !== 'object') continue;
+      if (typeof item.id !== 'string' || !item.id.trim()) continue;
+      if (typeof item.baseUrl !== 'string' || !isValidSecureUrl(item.baseUrl)) continue;
+
+      // Deduplicate by ID and base URL
+      const cleanId = item.id.trim();
+      const cleanBase = item.baseUrl.trim().replace(/\/+$/, '');
+      if (seenIds.has(cleanId) || seenUrls.has(cleanBase)) continue;
+
+      // Validate manifest structure
+      const manifestRes = validateManifest(item.manifest);
+      if (!manifestRes.valid) continue;
+
+      seenIds.add(cleanId);
+      seenUrls.add(cleanBase);
+
+      validList.push({
+        id: cleanId,
+        baseUrl: cleanBase,
+        manifest: manifestRes.manifest,
+        enabled: Boolean(item.enabled),
+        order: typeof item.order === 'number' ? item.order : validList.length,
+        installedAt: typeof item.installedAt === 'number' ? item.installedAt : Date.now(),
+        lastCheckedAt: typeof item.lastCheckedAt === 'number' ? item.lastCheckedAt : undefined,
+        healthStatus: item.healthStatus === 'ok' || item.healthStatus === 'error' ? item.healthStatus : undefined
+      });
+    }
+
     // Sort by order ascending
-    return parsed.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    return validList.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   } catch (err) {
     console.error('Failed to read extensions from storage:', err);
     return [];

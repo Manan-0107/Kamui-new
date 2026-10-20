@@ -28,30 +28,42 @@ export function isValidSecureUrl(rawUrl: unknown): boolean {
   try {
     const parsed = new URL(trimmed);
 
+    // Reject URLs with embedded credentials (e.g. https://user:pass@example.com)
+    if (parsed.username || parsed.password) {
+      return false;
+    }
+
     // Standard secure HTTPS
     if (parsed.protocol === 'https:') {
       return true;
     }
 
-    // Allow HTTP only for local dev & LAN addresses
-    if (parsed.protocol === 'http:') {
+    // Allow HTTP ONLY in development or test environments for local testing
+    const isDevOrTest = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+    if (parsed.protocol === 'http:' && isDevOrTest) {
       const hostname = parsed.hostname.toLowerCase();
+
+      // Standard loopback addresses
       if (
         hostname === 'localhost' ||
         hostname === '127.0.0.1' ||
         hostname === '::1' ||
+        hostname === '[::1]' ||
         hostname.endsWith('.local')
       ) {
         return true;
       }
 
-      // Check IPv4 private ranges (10.x.x.x, 192.168.x.x, 172.16-31.x.x)
-      const ipParts = hostname.split('.').map((p) => parseInt(p, 10));
-      if (ipParts.length === 4 && ipParts.every((n) => !isNaN(n) && n >= 0 && n <= 255)) {
-        const [a, b] = ipParts;
-        if (a === 10) return true;
-        if (a === 192 && b === 168) return true;
-        if (a === 172 && b >= 16 && b <= 31) return true;
+      // Check IPv4 private ranges strictly with 4 octets in decimal format (reject hex/octal bypasses)
+      const ipParts = hostname.split('.');
+      if (ipParts.length === 4 && ipParts.every((p) => /^\d+$/.test(p))) {
+        const [a, b, c, d] = ipParts.map((p) => parseInt(p, 10));
+        if ([a, b, c, d].every((n) => n >= 0 && n <= 255)) {
+          if (a === 127) return true; // Loopback IP range (127.0.0.0/8)
+          if (a === 10) return true; // Private LAN 10.0.0.0/8
+          if (a === 192 && b === 168) return true; // Private LAN 192.168.0.0/16
+          if (a === 172 && b >= 16 && b <= 31) return true; // Private LAN 172.16.0.0/12
+        }
       }
     }
 
@@ -70,7 +82,7 @@ export function sanitizePlainText(text: unknown, maxLength = 500): string {
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // strip script tags and their content
     .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '') // strip style tags and their content
     .replace(/<[^>]*>/g, '') // strip any remaining HTML tags
-    .replace(/[\r\n]+/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim()
     .slice(0, maxLength);
 }
@@ -218,7 +230,7 @@ export function validateStreamResponse(data: unknown): { valid: true; response: 
       quality: item.quality ? sanitizePlainText(item.quality, 20) : undefined,
       language: item.language ? sanitizePlainText(item.language, 10) : undefined,
       subtitles: subtitles.length > 0 ? subtitles : undefined,
-      isUnsupported: item.type === 'p2p' // Reserve p2p type as unsupported in this version
+      isUnsupported: item.type === 'p2p' ? true : undefined // Reserve p2p type as unsupported in this version
     };
 
     validatedStreams.push(streamItem);
