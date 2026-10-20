@@ -46,10 +46,16 @@ async function safeFetchJson<T>(url: string): Promise<T> {
       // Strictly omit cookies and credentials to protect user privacy
       credentials: 'omit',
       mode: 'cors',
-      cache: 'no-store'
+      cache: 'no-store',
+      // Block automatic redirects to prevent silent URL validation bypass in the browser
+      redirect: 'error'
     });
 
     clearTimeout(timer);
+
+    if (res.status >= 300 && res.status < 400) {
+      throw new Error(`HTTP redirects are blocked for security: Extension endpoints must return direct JSON responses.`);
+    }
 
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}: ${res.statusText}`);
@@ -110,6 +116,9 @@ async function safeFetchJson<T>(url: string): Promise<T> {
         throw new Error(`Request timed out after 8 seconds.`);
       }
       throw new Error(`Request was cancelled.`);
+    }
+    if (err.name === 'TypeError' && typeof err.message === 'string' && /redirect/i.test(err.message)) {
+      throw new Error(`HTTP redirects are blocked for security: Extension endpoints must return direct JSON responses.`);
     }
     throw err;
   }

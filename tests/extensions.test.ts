@@ -104,10 +104,42 @@ describe('3. Production-Mode Enforcement (Zero HTTP Exceptions)', () => {
 });
 
 describe('4. Redirect Safeguards & Transport Limitations', () => {
+  afterEach(() => {
+    setCustomExtensionFetcher(null);
+  });
+
   it('documents and ensures URL validation rejects invalid redirect destinations', () => {
     // If a redirect URL is captured or passed to validator, it must fail closed
     expect(isValidSecureUrl('http://malicious-redirect-target.internal/stream')).toBe(false);
     expect(isValidSecureUrl('javascript:/*redirect*/')).toBe(false);
+  });
+
+  it('fails closed when an extension server attempts an HTTP redirect (301/302)', async () => {
+    const mockRedirectFetcher = async () => {
+      return new Response(null, {
+        status: 302,
+        headers: {
+          location: 'https://cdn.other.com/manifest.json'
+        }
+      });
+    };
+
+    setCustomExtensionFetcher(mockRedirectFetcher);
+    await expect(fetchManifest('https://example.com')).rejects.toThrow(
+      /HTTP redirects are blocked for security/i
+    );
+  });
+
+  it('catches browser redirect rejection TypeError with clear message', async () => {
+    const mockTypeErrorFetcher = async () => {
+      const err = new TypeError('Failed to fetch: redirect mode is set to error');
+      throw err;
+    };
+
+    setCustomExtensionFetcher(mockTypeErrorFetcher);
+    await expect(fetchManifest('https://example.com')).rejects.toThrow(
+      /HTTP redirects are blocked for security/i
+    );
   });
 });
 

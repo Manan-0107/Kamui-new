@@ -124,6 +124,7 @@ Handle `OPTIONS` preflight requests with `204 No Content`.
 2. **Plain Text Only**: All strings provided by extensions are sanitized and rendered as plain text. HTML markup and inline scripts are stripped.
 3. **Zero User Tracking**: Kamui never sends user identity, cookies, authentication headers, or local storage data to extensions. Requests carry only media metadata (`anilistId`, `episodeNumber`, `title`).
 4. **Limits**: Responses have an 8-second network timeout and a 1MB payload size cap.
+5. **Redirect Policy**: In browser environments, Kamui enforces `redirect: 'error'` to prevent transparent redirects from circumventing URL validation or probing private network resources. Extension endpoints must return direct JSON responses (`200 OK`). If a provider relies on CDN redirects, this requires the upcoming Capacitor native transport adapter (Step 4), where redirect targets can be intercepted, validated, and controlled before navigation occurs.
 
 ---
 
