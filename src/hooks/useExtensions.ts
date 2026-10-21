@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   InstalledExtension,
   ExtensionManifest,
@@ -102,7 +102,10 @@ export function useExtensions() {
     [refresh]
   );
 
-  const enabledExtensions = extensions.filter((e) => e.enabled);
+  const enabledExtensions = useMemo(
+    () => extensions.filter((e) => e.enabled),
+    [extensions]
+  );
   const hasEnabledExtensions = enabledExtensions.length > 0;
 
   return {

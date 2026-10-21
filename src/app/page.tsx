@@ -9,8 +9,11 @@ import { HeroMoon } from '@/components/HeroMoon';
 import { FeatureCards } from '@/components/home/FeatureCards';
 import { PosterGrid } from '@/components/home/PosterGrid';
 import { HomePersonalHub } from '@/components/home/HomePersonalHub';
+import { useExtensions } from '@/hooks/useExtensions';
 
 export default function HomePage() {
+  const { hasEnabledExtensions } = useExtensions();
+  const watchingEntrypoint = hasEnabledExtensions ? '/watch' : '/extensions';
   return (
     <>
       <Navbar />
@@ -98,10 +101,18 @@ export default function HomePage() {
               <span className="tag">Watch on everything</span>
             </div>
             <div className="hero-cta">
-              <Link href="/watch" className="btn filled">
+              <Link href={watchingEntrypoint} className="btn filled" id="heroStartWatchingBtn">
                 Start watching free
               </Link>
-              <a href="#library" className="btn">
+              <a
+                href="#library"
+                className="btn"
+                id="heroSeeStreamingBtn"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('library')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
                 See what's streaming
               </a>
             </div>
@@ -145,7 +156,7 @@ export default function HomePage() {
             Your next binge starts tonight.
           </h2>
           <p>No credit card required. Cancel anytime, from any device.</p>
-          <Link href="/signup" className="btn filled">
+          <Link href={watchingEntrypoint} className="btn filled" id="bottomStartWatchingBtn">
             Start watching free
           </Link>
         </div>

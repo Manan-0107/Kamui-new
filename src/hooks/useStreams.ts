@@ -52,24 +52,30 @@ export function useStreams(
 
   const fetchIdRef = useRef(0);
 
+  const title = params?.title;
+  const titleEnglish = params?.titleEnglish;
+  const year = params?.year;
+  const format = params?.format;
+
   const queryStreams = useCallback(async () => {
     if (!animeId || !episodeNumber || episodeNumber <= 0) {
-      setStreams([]);
-      setPerExtension([]);
-      setIsLoading(false);
-      setError(null);
+      setStreams((prev) => (prev.length > 0 ? [] : prev));
+      setPerExtension((prev) => (prev.length > 0 ? [] : prev));
+      setIsLoading((prev) => (prev ? false : prev));
+      setError((prev) => (prev !== null ? null : prev));
       return;
     }
 
     if (enabledExtensions.length === 0) {
-      setStreams([]);
-      setPerExtension([]);
-      setIsLoading(false);
-      setError('No extensions enabled. Install or enable an extension to fetch streams.');
+      const noExtMsg = 'No extensions enabled. Install or enable an extension to fetch streams.';
+      setStreams((prev) => (prev.length > 0 ? [] : prev));
+      setPerExtension((prev) => (prev.length > 0 ? [] : prev));
+      setIsLoading((prev) => (prev ? false : prev));
+      setError((prev) => (prev !== noExtMsg ? noExtMsg : prev));
       return;
     }
 
-    const cacheKey = `${animeId}:${episodeNumber}:${enabledExtensions.map((e) => e.id).sort().join(',')}:${params?.format || ''}:${params?.year || ''}`;
+    const cacheKey = `${animeId}:${episodeNumber}:${enabledExtensions.map((e) => e.id).sort().join(',')}:${format || ''}:${year || ''}`;
     const now = Date.now();
     const cached = memoryStreamCache.get(cacheKey);
 
@@ -93,10 +99,17 @@ export function useStreams(
     }));
     setPerExtension(initialStatuses);
 
+    const queryParams: QueryStreamParams = {
+      ...(title !== undefined && { title }),
+      ...(titleEnglish !== undefined && { titleEnglish }),
+      ...(year !== undefined && { year }),
+      ...(format !== undefined && { format })
+    };
+
     // Query all enabled extensions in parallel
     const promises = enabledExtensions.map(async (ext): Promise<ExtensionStreamResult> => {
       try {
-        const res = await fetchStreams(ext.baseUrl, animeId, episodeNumber, params);
+        const res = await fetchStreams(ext.baseUrl, animeId, episodeNumber, queryParams);
         const annotatedStreams: StreamItem[] = res.streams.map((s) => ({
           ...s,
           extensionId: ext.id,
@@ -157,7 +170,7 @@ export function useStreams(
       const errorCount = results.filter((r) => r.status === 'error').length;
       setError(`${errorCount} extension(s) returned an error while finding streams.`);
     }
-  }, [animeId, episodeNumber, enabledExtensions, params]);
+  }, [animeId, episodeNumber, enabledExtensions, title, titleEnglish, year, format]);
 
   useEffect(() => {
     if (!isExtensionsLoading) {

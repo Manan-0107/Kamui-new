@@ -96,15 +96,15 @@ export default function WatchPage() {
         />
 
         {/* Row 4: My Watchlist */}
-        {watchlist.length > 0 && (
-          <ContentRow
-            id="myWatchlistSection"
-            kanji="録"
-            title="My Watchlist"
-            countBadge={watchlist.length}
-            animeIds={watchlist}
-          />
-        )}
+        <ContentRow
+          id="myWatchlistSection"
+          kanji="録"
+          title="My Watchlist"
+          countBadge={watchlist.length}
+          animeIds={watchlist}
+          alwaysShow
+          emptyMessage="Your watchlist is empty. Bookmark any anime to build your personal library!"
+        />
 
         {/* Row 5: Liked Anime */}
         {likedTitles.length > 0 && (

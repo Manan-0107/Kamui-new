@@ -444,6 +444,7 @@ nav.links .nav-link-btn:hover::after {
   inset: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
 }
 
 .hero-moon {
@@ -461,7 +462,8 @@ nav.links .nav-link-btn:hover::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 4;
+  z-index: 15;
+  pointer-events: auto;
 }
 
 .hero-moon:hover {
@@ -558,6 +560,7 @@ nav.links .nav-link-btn:hover::after {
   bottom: 0;
   height: 38vh;
   background: linear-gradient(180deg, transparent, #060a10 85%);
+  pointer-events: none;
 }
 
 .hero-mountains svg {
@@ -565,6 +568,7 @@ nav.links .nav-link-btn:hover::after {
   bottom: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
 }
 
 .hero-content {
@@ -719,6 +723,9 @@ h1.title:hover .title-video-svg {
   gap: 16px;
   margin-top: 40px;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 12;
+  pointer-events: auto;
 }
 
 .scroll-cue {
@@ -733,6 +740,7 @@ h1.title:hover .title-video-svg {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ink-faint);
+  pointer-events: none;
 }
 
 .scroll-cue .line {

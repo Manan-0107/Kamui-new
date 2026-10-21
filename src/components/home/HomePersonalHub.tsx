@@ -44,6 +44,7 @@ const HubAnimeCard: React.FC<{ animeId: string; mode: 'watchlist' | 'liked' }> =
           style={{ opacity: 0.85, cursor: 'not-allowed' }}
           onClick={(e) => {
             e.stopPropagation();
+            openPreview(anime.id);
           }}
         >
           <Puzzle size={16} />
