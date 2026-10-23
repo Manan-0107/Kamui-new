@@ -12,11 +12,8 @@ import {
   Tv,
   Check,
   Trash2,
-  Share2,
   Copy,
-  Sparkles,
-  Flame,
-  MessageSquare
+  Sparkles
 } from 'lucide-react';
 
 export const FriendsModal: React.FC = () => {

@@ -107,9 +107,24 @@ export const NetflixPreviewModal: React.FC = () => {
     : undefined;
 
   const {
+    streams,
     perExtension,
     isLoading: isStreamsLoading
   } = useStreams(anime?.id, selectedEpNum, streamQueryParams);
+
+  const handleMainPlayClick = () => {
+    if (!anime) return;
+    const valid = (streams || []).find((s) => s.type !== 'p2p');
+    if (valid) {
+      playEpisode(anime.id, selectedEpNum, valid);
+    } else {
+      setActiveTab('episodes');
+      setTimeout(() => {
+        const el = document.getElementById('stremioStreamsPanel');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+    }
+  };
 
   const inList = anime ? isInWatchlist(anime.id) : false;
   const liked = anime ? isLiked(anime.id) : false;
@@ -227,6 +242,7 @@ export const NetflixPreviewModal: React.FC = () => {
                     animeId={anime.id}
                     size="lg"
                     className="btn-netflix-play"
+                    onClick={handleMainPlayClick}
                   />
 
                   <button
@@ -433,7 +449,7 @@ export const NetflixPreviewModal: React.FC = () => {
                 >
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                     <MessageSquare size={14} />
-                    Discussion &amp; Chat
+                    Notes &amp; Comments (Local)
                   </span>
                 </button>
                 <button

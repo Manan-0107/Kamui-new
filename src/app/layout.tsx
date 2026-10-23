@@ -12,6 +12,7 @@ import { FullVideoPlayer } from '@/components/modals/FullVideoPlayer';
 import { GoogleAuthModal } from '@/components/modals/GoogleAuthModal';
 import { AuthPromptModal } from '@/components/modals/AuthPromptModal';
 import { ProfileStrengthModal } from '@/components/modals/ProfileStrengthModal';
+import { BackupModal } from '@/components/modals/BackupModal';
 import { FriendsModal } from '@/components/modals/FriendsModal';
 import { Sidebar } from '@/components/Sidebar';
 import { AndroidBridge } from '@/components/AndroidBridge';
@@ -57,6 +58,7 @@ export default function RootLayout({
                     <GoogleAuthModal />
                     <AuthPromptModal />
                     <ProfileStrengthModal />
+                    <BackupModal />
                     <Sidebar />
                     <AndroidBridge />
                   </PlaybackProvider>

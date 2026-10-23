@@ -16,11 +16,9 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [themeId, setThemeId] = useState<RealmThemeId>('kamui-gold');
-  const [mounted, setMounted] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
-    setMounted(true);
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY) as RealmThemeId | null;
       if (saved && REALM_THEMES.some((t) => t.id === saved)) {

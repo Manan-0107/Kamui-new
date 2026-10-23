@@ -134,6 +134,11 @@ function getCacheKey(query: string, variables: Record<string, any> = {}): string
   return `${normQuery}_${sortedVars}`;
 }
 
+export function clearAniListCache(): void {
+  memoryCache.clear();
+  pendingRequests.clear();
+}
+
 /**
  * Read from in-memory or localStorage cache with LRU tracking
  */
@@ -311,18 +316,27 @@ export async function fetchAniListGraphQL<T = any>(
         }
 
         if (!res.ok) {
-          throw new Error(`AniList API error: ${res.status} ${res.statusText}`);
+          const err = new Error(`AniList API error: ${res.status} ${res.statusText}`);
+          if (res.status >= 400 && res.status < 500 && res.status !== 429) {
+            (err as any).noRetry = true;
+          }
+          throw err;
         }
 
         const json = await res.json();
         if (json.errors && json.errors.length > 0) {
-          throw new Error(json.errors[0]?.message || 'AniList GraphQL error');
+          const err = new Error(json.errors[0]?.message || 'AniList GraphQL error');
+          (err as any).noRetry = true;
+          throw err;
         }
 
         const data = json.data as T;
         writeCache(cacheKey, data);
         return data;
       } catch (err: any) {
+        if (err.noRetry) {
+          throw err;
+        }
         attempts++;
         if (attempts > retries) {
           // If network failed but stale cache exists in localStorage, fall back to it
@@ -587,8 +601,13 @@ export async function fetchTrending(page = 1, perPage = 18): Promise<AnimeData[]
       }
     }
   `;
-  const data = await fetchAniListGraphQL<{ Page: { media: AniListMedia[] } }>(query, { page, perPage });
-  return (data?.Page?.media || []).map(mapAniListToAnimeData);
+  try {
+    const data = await fetchAniListGraphQL<{ Page: { media: AniListMedia[] } }>(query, { page, perPage });
+    return (data?.Page?.media || []).map(mapAniListToAnimeData);
+  } catch (err) {
+    console.warn('Failed to fetch trending anime from AniList', err);
+    return [];
+  }
 }
 
 /**

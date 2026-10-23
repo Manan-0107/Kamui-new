@@ -5,6 +5,7 @@ import { usePlayback } from '@/context/PlaybackContext';
 import { useAnime } from '@/hooks/useAnime';
 import { useStreams } from '@/hooks/useStreams';
 import { StreamItem } from '@/lib/extensions';
+import { isMediaDownloaded, getDownloadRecord } from '@/lib/downloads/downloadsStorage';
 import {
   X,
   Play,
@@ -74,6 +75,24 @@ export const FullVideoPlayer: React.FC = () => {
     }
   }, []);
 
+  // Handle stream error & offer fallback stream
+  const handleStreamError = useCallback((msg?: string) => {
+    setPlaybackError(msg || 'Playback error occurred on this stream source.');
+    setIsPlaying(false);
+
+    // Auto-fallback: try the next available stream
+    const currentIndex = streams.findIndex((s) => s.url === currentStream?.url);
+    if (currentIndex >= 0 && currentIndex + 1 < streams.length) {
+      const nextStream = streams.slice(currentIndex + 1).find((s) => s.type !== 'p2p');
+      if (nextStream) {
+        setTimeout(() => {
+          setCurrentStream(nextStream);
+          setPlaybackError(null);
+        }, 1200);
+      }
+    }
+  }, [streams, currentStream]);
+
   // Initialize playback (HLS vs HTTP)
   useEffect(() => {
     if (!isPlayerOpen || !currentStream || !videoRef.current) return;
@@ -81,8 +100,21 @@ export const FullVideoPlayer: React.FC = () => {
     setPlaybackError(null);
     destroyHls();
 
+    // Check if playback requires verified local download
+    const requiresLocalDownload = (currentStream as any).requiresDownload || (currentStream as any).isDownloaded;
+    if (requiresLocalDownload && playingAnimeId) {
+      const downloaded = isMediaDownloaded(playingAnimeId, playingEpNum);
+      if (!downloaded) {
+        handleStreamError('Playback blocked: Required local media file is absent. Download must be completed first.');
+        return;
+      }
+    }
+
     const video = videoRef.current;
-    const streamUrl = currentStream.url;
+    const downloadRec = playingAnimeId ? getDownloadRecord(playingAnimeId, playingEpNum) : null;
+    const streamUrl = (downloadRec?.status === 'completed' && downloadRec.localPath)
+      ? downloadRec.localPath
+      : currentStream.url;
 
     if (currentStream.type === 'hls') {
       // Dynamic import of hls.js for optimal bundle size
@@ -134,25 +166,7 @@ export const FullVideoPlayer: React.FC = () => {
     return () => {
       destroyHls();
     };
-  }, [isPlayerOpen, currentStream, destroyHls]);
-
-  // Handle stream error & offer fallback stream
-  const handleStreamError = (msg?: string) => {
-    setPlaybackError(msg || 'Playback error occurred on this stream source.');
-    setIsPlaying(false);
-
-    // Auto-fallback: try the next available stream
-    const currentIndex = streams.findIndex((s) => s.url === currentStream?.url);
-    if (currentIndex >= 0 && currentIndex + 1 < streams.length) {
-      const nextStream = streams.slice(currentIndex + 1).find((s) => s.type !== 'p2p');
-      if (nextStream) {
-        setTimeout(() => {
-          setCurrentStream(nextStream);
-          setPlaybackError(null);
-        }, 1200);
-      }
-    }
-  };
+  }, [isPlayerOpen, currentStream, destroyHls, handleStreamError, playingAnimeId, playingEpNum]);
 
   const isAdvancingRef = useRef(false);
 

@@ -9,11 +9,8 @@ import { HeroMoon } from '@/components/HeroMoon';
 import { FeatureCards } from '@/components/home/FeatureCards';
 import { PosterGrid } from '@/components/home/PosterGrid';
 import { HomePersonalHub } from '@/components/home/HomePersonalHub';
-import { useExtensions } from '@/hooks/useExtensions';
-
 export default function HomePage() {
-  const { hasEnabledExtensions } = useExtensions();
-  const watchingEntrypoint = hasEnabledExtensions ? '/watch' : '/extensions';
+  const watchingEntrypoint = '/watch';
   return (
     <>
       <Navbar />

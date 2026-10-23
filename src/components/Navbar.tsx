@@ -6,15 +6,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { usePlayback } from '@/context/PlaybackContext';
-import { useFriends } from '@/context/FriendsContext';
 import { DEFAULT_AVATARS } from '@/lib/avatars';
-import { Bell, CheckCheck, Trash2, Clock } from 'lucide-react';
+import { Bell, CheckCheck, Trash2, Clock, Database, Share2 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const isWatchPage = pathname === '/watch';
-  const isAuthPage = pathname === '/signin' || pathname === '/signup';
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -22,8 +19,7 @@ export const Navbar: React.FC = () => {
   const [notifyDropdownOpen, setNotifyDropdownOpen] = useState(false);
 
   const { cycleTheme } = useTheme();
-  const { user, logout, updateAvatar, openProfileModal } = useAuth();
-  const { friends, openFriendsModal } = useFriends();
+  const { user, logout, updateAvatar, openProfileModal, openBackupModal } = useAuth();
   const {
     searchQuery,
     setSearchQuery,
@@ -161,6 +157,13 @@ export const Navbar: React.FC = () => {
         >
           Home
         </Link>
+        <Link
+          href="/watch"
+          className={pathname === '/watch' ? 'active' : ''}
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          Catalog
+        </Link>
         <a
           href="/watch#myWatchlistSection"
           onClick={(e) => {
@@ -238,23 +241,7 @@ export const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* Friends & Watch Party */}
-        <button
-          type="button"
-          className="nav-friends-btn"
-          id="navFriendsBtn"
-          title="Friends & Watch Party"
-          aria-label="Friends & Watch Party"
-          onClick={() => openFriendsModal('friends')}
-        >
-          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
-          <span className="friends-badge-count">{friends.length}</span>
-        </button>
+
 
         {/* Realm Theme Switcher */}
         <button
@@ -467,58 +454,64 @@ export const Navbar: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="profile-dropdown-footer">
-                  <button
-                    type="button"
-                    className="profile-link-btn"
-                    onClick={() => {
-                      setProfileDropdownOpen(false);
-                      openProfileModal();
-                    }}
-                  >
-                    Socials &amp; Badges
-                  </button>
-                  <button
-                    type="button"
-                    className="profile-logout-btn"
-                    id="profileLogoutBtn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setProfileDropdownOpen(false);
-                      logout();
-                    }}
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
-                    </svg>
-                    Sign out
-                  </button>
+                <div className="profile-dropdown-footer" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ display: 'flex', gap: 6, width: '100%' }}>
+                    <button
+                      type="button"
+                      className="profile-link-btn flex items-center justify-center gap-1.5"
+                      style={{ flex: 1 }}
+                      onClick={() => {
+                        setProfileDropdownOpen(false);
+                        openBackupModal();
+                      }}
+                    >
+                      <Database size={13} />
+                      <span>Backup</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="profile-link-btn flex items-center justify-center gap-1.5"
+                      style={{ flex: 1 }}
+                      onClick={() => {
+                        setProfileDropdownOpen(false);
+                        openBackupModal();
+                      }}
+                    >
+                      <Share2 size={13} />
+                      <span>Share Lists</span>
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, width: '100%' }}>
+                    <button
+                      type="button"
+                      className="profile-link-btn"
+                      style={{ flex: 1 }}
+                      onClick={() => {
+                        setProfileDropdownOpen(false);
+                        openProfileModal();
+                      }}
+                    >
+                      Profile &amp; Badges
+                    </button>
+                    <button
+                      type="button"
+                      className="profile-logout-btn"
+                      id="profileLogoutBtn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setProfileDropdownOpen(false);
+                        logout();
+                      }}
+                      title="Reset local profile name and avatar to defaults"
+                    >
+                      Reset
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
           </div>
-        ) : (
-          <>
-            {pathname === '/signin' ? (
-              <Link href="/signup" className="btn filled">
-                Sign up
-              </Link>
-            ) : pathname === '/signup' ? (
-              <Link href="/signin" className="link-cta">
-                Sign in
-              </Link>
-            ) : (
-              <>
-                <Link href="/signin" className="link-cta">
-                  Sign in
-                </Link>
-                <Link href="/signup" className="btn filled">
-                  Start watching
-                </Link>
-              </>
-            )}
-          </>
-        )}
+        ) : null}
       </div>
 
       {/* Mobile Menu Toggle */}

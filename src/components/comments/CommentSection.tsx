@@ -4,10 +4,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useComments } from '@/context/CommentsContext';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import { AnimeComment, CommentMedia } from '@/lib/types';
+import { CommentMedia } from '@/lib/types';
 import {
   Smile,
-  Image as ImageIcon,
   Sparkles,
   Send,
   Heart,
@@ -15,11 +14,7 @@ import {
   Clock,
   AlertTriangle,
   X,
-  Upload,
-  Eye,
-  EyeOff,
-  Filter,
-  CheckCircle2
+  Upload
 } from 'lucide-react';
 
 interface CommentSectionProps {
@@ -218,9 +213,12 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         <div className="comments-title-wrap">
           <MessageCircle size={18} className="comments-icon" />
           <h3 className="comments-title">
-            Episode {episodeNum} Discussion &amp; Live Chat
+            Episode {episodeNum} Notes &amp; Comments
           </h3>
-          <span className="comments-count-pill">{comments.length} Comments</span>
+          <span className="comments-count-pill">{comments.length} Local</span>
+        </div>
+        <div className="text-[11px] text-white/50" style={{ margin: '4px 0 8px' }}>
+          🔒 Saved privately on this device · Not shared or published
         </div>
 
         {/* Filter Pills */}
@@ -286,7 +284,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             <textarea
               ref={textareaRef}
               className="comment-textarea"
-              placeholder="Join the discussion... Share reactions, theories, or fan art!"
+              placeholder="Add personal episode notes, timestamps, reactions or stickers (saved on this device)..."
               rows={isSidebarLayout ? 2 : 3}
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
@@ -475,7 +473,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         {filteredComments.length === 0 ? (
           <div className="comments-empty-notice">
             <MessageCircle size={32} />
-            <p>No comments found for this filter. Be the first to spark the discussion!</p>
+            <p>No local notes or comments yet for this episode. Add personal notes, timestamps, or reactions above — saved privately to your device.</p>
           </div>
         ) : (
           filteredComments.map((comment) => {

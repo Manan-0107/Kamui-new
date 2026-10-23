@@ -106,7 +106,7 @@ export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         author: {
           name: authorName,
           avatar: authorAvatar,
-          badge: user?.loggedIn ? 'MEMBER' : 'GUEST',
+          badge: 'LOCAL',
           isCurrentUser: true
         },
         content: content.trim(),
@@ -139,7 +139,7 @@ export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return updated;
       });
 
-      showToast('Comment posted to community thread.', 'success');
+      showToast('Note saved locally to this device.', 'success');
     },
     [user, showToast]
   );
